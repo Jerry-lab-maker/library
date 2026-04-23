@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>机器人云端管理平台 - 舞蹈库管理</title>
+<style>
+/* ============================================================
+   全局样式 - 匹配现有平台风格
+   ============================================================ */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif; background: #f0f2f5; color: #262626; font-size: 14px; overflow-x: hidden; }
+
+/* 侧边栏 */
+.sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 220px; background: #001529; z-index: 100; overflow-y: auto; }
+.sidebar-logo { display: flex; align-items: center; padding: 16px 24px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+.sidebar-logo .logo-icon { font-size: 22px; margin-right: 10px; }
+.sidebar-logo .logo-text { color: #fff; font-size: 15px; font-weight: 600; white-space: nowrap; }
+
+/* 一级分类 */
+.sidebar-parent { user-select: none; }
+.sidebar-parent-title { display: flex; align-items: center; padding: 0 24px; height: 44px; color: rgba(255,255,255,0.85); cursor: pointer; transition: all 0.2s; font-size: 14px; font-weight: 500; }
+.sidebar-parent-title:hover { color: #fff; background: rgba(255,255,255,0.06); }
+.sidebar-parent-title .arrow { margin-left: auto; font-size: 12px; transition: transform 0.25s ease; color: rgba(255,255,255,0.45); }
+.sidebar-parent-title .arrow.collapsed { transform: rotate(-90deg); }
+.sidebar-parent-title .menu-icon { margin-right: 10px; font-size: 16px; width: 16px; text-align: center; }
+
+/* 二级分类 */
+.sidebar-children { overflow: hidden; max-height: 500px; transition: max-height 0.3s ease; }
+.sidebar-children.collapsed { max-height: 0 !important; }
+.sidebar-item { display: flex; align-items: center; padding: 0 24px; height: 40px; color: rgba(255,255,255,0.65); cursor: pointer; transition: all 0.2s; font-size: 14px; text-decoration: none; padding-left: 50px; }
+.sidebar-item:hover { color: #fff; background: rgba(255,255,255,0.06); }
+.sidebar-item.active { color: #fff; background: #1890ff; }
+
+/* 顶部栏 */
+.header { position: fixed; top: 0; left: 220px; right: 0; height: 56px; background: #fff; border-bottom: 1px solid #e8e8e8; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; z-index: 99; }
+.breadcrumb { font-size: 13px; color: #8c8c8c; }
+.breadcrumb a { color: #8c8c8c; text-decoration: none; }
+.breadcrumb a:hover { color: #1890ff; }
+.breadcrumb .sep { margin: 0 8px; }
+.breadcrumb .current { color: #262626; }
+.header-right { display: flex; align-items: center; gap: 16px; }
+.search-box { display: flex; align-items: center; background: #fafafa; border: 1px solid #e8e8e8; border-radius: 4px; padding: 6px 12px; gap: 6px; cursor: text; }
+.search-box span { color: #bfbfbf; font-size: 13px; }
+.search-box kbd { background: #f0f0f0; border: 1px solid #d9d9d9; border-radius: 3px; padding: 0 4px; font-size: 11px; color: #8c8c8c; }
+.header-icon { font-size: 18px; cursor: pointer; color: #8c8c8c; }
+.header-avatar { width: 28px; height: 28px; border-radius: 50%; background: #1890ff; }
+
+/* 主内容区 */
+.main { margin-left: 220px; margin-top: 56px; padding: 20px 24px; min-height: calc(100vh - 56px); }
+
+/* 页面标题 */
+.page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.page-title { font-size: 20px; font-weight: 600; color: #262626; }
+.back-link { color: #1890ff; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; margin-bottom: 8px; text-decoration: none; }
+.back-link:hover { text-decoration: underline; }
+
+/* 工具栏 */
+.toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+.search-input { display: flex; align-items: center; background: #fff; border: 1px solid #e8e8e8; border-radius: 4px; padding: 0 12px; height: 36px; width: 260px; }
+.search-input input { border: none; outline: none; font-size: 13px; flex: 1; background: transparent; }
+.search-input input::placeholder { color: #bfbfbf; }
+.search-input .icon { color: #bfbfbf; margin-right: 8px; }
+.select-input { display: flex; align-items: center; background: #fff; border: 1px solid #e8e8e8; border-radius: 4px; padding: 0 12px; height: 36px; min-width: 120px; cursor: pointer; font-size: 13px; color: #595959; position: relative; }
+.select-input .arrow { margin-left: auto; color: #bfbfbf; font-size: 12px; }
+.select-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid #e8e8e8; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.12); z-index: 50; display: none; }
+.select-dropdown.show { display: block; }
+.select-dropdown-item { padding: 8px 12px; cursor: pointer; font-size: 13px; color: #595959; }
+.select-dropdown-item:hover { background: #e6f7ff; color: #1890ff; }
+.select-dropdown-item.active { color: #1890ff; font-weight: 500; }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; height: 36px; padding: 0 16px; border-radius: 4px; font-size: 13px; cursor: pointer; border: 1px solid transparent; transition: all 0.2s; gap: 6px; white-space: nowrap; }
+.btn-primary { background: #1890ff; color: #fff; border-color: #1890ff; }
+.btn-primary:hover { background: #40a9ff; border-color: #40a9ff; }
+.btn-default { background: #fff; color: #595959; border-color: #d9d9d9; }
+.btn-default:hover { color: #1890ff; border-color: #1890ff; }
+.btn-danger { background: #fff; color: #ff4d4f; border-color: #ff4d4f; }
+.btn-danger:hover { background: #ff4d4f; color: #fff; }
+.btn-danger-solid { background: #ff4d4f; color: #fff; border-color: #ff4d4f; }
+.btn-danger-solid:hover { background: #ff7875; border-color: #ff7875; }
+.btn-sm { height: 28px; padding: 0 10px; font-size: 12px; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* 统计栏 */
+.stats-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.stats-text { font-size: 13px; color: #8c8c8c; }
+.batch-actions { display: flex; align-items: center; gap: 8px; }
+.batch-actions .selected-count { font-size: 13px; color: #1890ff; margin-right: 4px; }
+
+/* 分组标签 */
+.group-tabs { display: flex; align-items: center; gap: 4px; margin-bottom: 16px; flex-wrap: wrap; }
+.group-tab { display: inline-flex; align-items: center; gap: 4px; padding: 6px 16px; border-radius: 4px; font-size: 13px; cursor: pointer; color: #595959; background: #fff; border: 1px solid #e8e8e8; transition: all 0.2s; }
+.group-tab:hover { color: #1890ff; border-color: #1890ff; }
+.group-tab.active { background: #e6f7ff; color: #1890ff; border-color: #91d5ff; }
+.group-tab .count { background: #f0f0f0; border-radius: 10px; padding: 0 6px; font-size: 11px; color: #8c8c8c; }
+.group-tab.active .count { background: #bae7ff; color: #1890ff; }
+.group-add-btn { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; border-radius: 4px; font-size: 13px; cursor: pointer; color: #8c8c8c; border: 1px dashed #d9d9d9; transition: all 0.2s; }
+.group-add-btn:hover { color: #1890ff; border-color: #1890ff; }
+
+/* 卡片网格 */
+.card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+@media (max-width: 1200px) { .card-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 800px) { .card-grid { grid-template-columns: 1fr; } }
+
+/* 舞蹈卡片 */
+.dance-card { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.08); transition: all 0.2s; position: relative; }
+.dance-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.12); transform: translateY(-2px); }
+.dance-card .checkbox-wrap { position: absolute; top: 10px; left: 10px; z-index: 5; }
+.dance-card .cover { height: 140px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+.dance-card .cover .cover-icon { font-size: 48px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); }
+.dance-card .cover .status-tag { position: absolute; top: 8px; right: 8px; padding: 2px 8px; border-radius: 3px; font-size: 11px; color: #fff; }
+.tag-enabled { background: #52c41a; }
+.tag-disabled { background: #bfbfbf; }
+.dance-card .info { padding: 12px; }
+.dance-card .dance-name { font-size: 14px; font-weight: 600; color: #262626; margin-bottom: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dance-card .dance-desc { font-size: 12px; color: #8c8c8c; margin-bottom: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dance-card .dance-meta { display: flex; gap: 16px; font-size: 11px; color: #bfbfbf; margin-bottom: 12px; }
+.dance-card .dance-meta span { display: flex; align-items: center; gap: 4px; }
+.dance-card .dance-actions { display: flex; align-items: center; justify-content: space-between; padding-top: 10px; border-top: 1px solid #f0f0f0; }
+.dance-card .action-btns { display: flex; gap: 8px; }
+
+/* 开关 */
+.switch { position: relative; width: 36px; height: 20px; border-radius: 10px; cursor: pointer; transition: all 0.3s; }
+.switch.off { background: #d9d9d9; }
+.switch.on { background: #1890ff; }
+.switch .knob { position: absolute; top: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: all 0.3s; box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+.switch.off .knob { left: 2px; }
+.switch.on .knob { left: 18px; }
+
+/* 复选框 */
+.checkbox { width: 18px; height: 18px; border: 2px solid #d9d9d9; border-radius: 3px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; background: #fff; }
+.checkbox:hover { border-color: #1890ff; }
+.checkbox.checked { background: #1890ff; border-color: #1890ff; }
+.checkbox.checked::after { content: ''; width: 5px; height: 9px; border: 2px solid #fff; border-top: none; border-left: none; transform: rotate(45deg) translateY(-1px); }
+.checkbox.indeterminate { background: #1890ff; border-color: #1890ff; }
+.checkbox.indeterminate::after { content: ''; width: 10px; height: 2px; background: #fff; }
+
+/* 表单 */
+.form-card { background: #fff; border-radius: 8px; padding: 28px 32px; max-width: 720px; }
+.form-group { margin-bottom: 24px; }
+.form-label { display: block; font-size: 14px; color: #262626; margin-bottom: 8px; }
+.form-label .required { color: #ff4d4f; margin-left: 2px; }
+.form-input { width: 100%; height: 40px; border: 1px solid #e8e8e8; border-radius: 4px; padding: 0 12px; font-size: 13px; outline: none; transition: border-color 0.2s; }
+.form-input:focus { border-color: #1890ff; box-shadow: 0 0 0 2px rgba(24,144,255,0.1); }
+.form-input:disabled { background: #fafafa; color: #bfbfbf; cursor: not-allowed; }
+.form-textarea { width: 100%; min-height: 88px; border: 1px solid #e8e8e8; border-radius: 4px; padding: 8px 12px; font-size: 13px; outline: none; resize: vertical; transition: border-color 0.2s; font-family: inherit; }
+.form-textarea:focus { border-color: #1890ff; box-shadow: 0 0 0 2px rgba(24,144,255,0.1); }
+.form-textarea:disabled { background: #fafafa; color: #bfbfbf; cursor: not-allowed; }
+.char-count { text-align: right; font-size: 11px; color: #bfbfbf; margin-top: 4px; }
+.form-hint { font-size: 11px; color: #bfbfbf; margin-top: 4px; }
+.form-error { font-size: 12px; color: #ff4d4f; margin-top: 4px; display: none; }
+.form-error.show { display: block; }
+
+/* 上传区域 */
+.upload-area { border: 1px dashed #d9d9d9; border-radius: 8px; padding: 28px; text-align: center; cursor: pointer; transition: all 0.2s; background: #fafafa; }
+.upload-area:hover { border-color: #1890ff; }
+.upload-area .upload-icon { font-size: 36px; color: #bfbfbf; margin-bottom: 8px; }
+.upload-area .upload-text { font-size: 13px; color: #8c8c8c; }
+.upload-area .upload-link { color: #1890ff; cursor: pointer; }
+.upload-area .upload-hint { font-size: 11px; color: #bfbfbf; margin-top: 6px; }
+.upload-area .upload-success { display: flex; align-items: center; gap: 8px; padding: 8px 0; }
+.upload-area .upload-success .file-icon { font-size: 24px; }
+.upload-area .upload-success .file-info { text-align: left; }
+.upload-area .upload-success .file-name { font-size: 13px; color: #52c41a; }
+.upload-area .upload-success .file-meta { font-size: 11px; color: #bfbfbf; }
+
+/* 文件信息卡（编辑页） */
+.file-info-card { background: #fafafa; border: 1px solid #e8e8e8; border-radius: 4px; padding: 12px; display: flex; align-items: flex-start; gap: 10px; }
+.file-info-card .file-icon { font-size: 28px; }
+.file-info-card .file-detail { flex: 1; }
+.file-info-card .file-name { font-size: 13px; color: #52c41a; margin-bottom: 4px; }
+.file-info-card .file-hint { font-size: 11px; color: #bfbfbf; }
+
+/* 封面预览 */
+.cover-preview { background: #fafafa; border: 1px solid #e8e8e8; border-radius: 4px; padding: 12px; display: flex; align-items: center; gap: 16px; }
+.cover-preview .cover-thumb { width: 80px; height: 80px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 36px; flex-shrink: 0; }
+.cover-preview .cover-detail { flex: 1; }
+.cover-preview .cover-name { font-size: 13px; color: #262626; margin-bottom: 4px; }
+.cover-preview .cover-meta { font-size: 11px; color: #bfbfbf; margin-bottom: 8px; }
+
+/* 分页 */
+.pagination { display: flex; align-items: center; gap: 8px; margin-top: 20px; font-size: 13px; color: #8c8c8c; }
+.page-btn { width: 32px; height: 32px; border: 1px solid #d9d9d9; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; background: #fff; font-size: 13px; color: #595959; }
+.page-btn:hover { color: #1890ff; border-color: #1890ff; }
+.page-btn.active { background: #1890ff; color: #fff; border-color: #1890ff; }
+.page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* 弹窗 */
+.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.45); z-index: 200; display: none; align-items: center; justify-content: center; }
+.modal-overlay.show { display: flex; }
+.modal { background: #fff; border-radius: 8px; width: 420px; box-shadow: 0 6px 16px rgba(0,0,0,0.15); animation: modalIn 0.2s ease; }
+@keyframes modalIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+.modal-header { padding: 20px 24px 0; text-align: center; }
+.modal-header .modal-icon { font-size: 36px; margin-bottom: 8px; }
+.modal-header .modal-title { font-size: 16px; font-weight: 600; color: #262626; }
+.modal-body { padding: 12px 24px 20px; text-align: center; font-size: 13px; color: #8c8c8c; line-height: 1.6; }
+.modal-footer { padding: 0 24px 20px; display: flex; justify-content: center; gap: 12px; }
+
+/* Toast提示 */
+.toast { position: fixed; top: 72px; left: 50%; transform: translateX(-50%); background: #fff; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); padding: 10px 20px; display: flex; align-items: center; gap: 8px; z-index: 300; font-size: 13px; animation: toastIn 0.3s ease; }
+.toast.success { border-left: 3px solid #52c41a; }
+.toast.error { border-left: 3px solid #ff4d4f; }
+.toast.info { border-left: 3px solid #1890ff; }
+@keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(-10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+
+/* 页面切换 */
+.page { display: none; }
+.page.active { display: block; }
+
+/* 分组编辑弹窗 */
+.group-modal .modal { width: 380px; }
+.group-modal .modal-body { text-align: left; padding: 16px 24px; }
+.group-modal .modal-body .group-input { width: 100%; height: 36px; border: 1px solid #e8e8e8; border-radius: 4px; padding: 0 12px; font-size: 13px; outline: none; }
+.group-modal .modal-body .group-input:focus { border-color: #1890ff; }
+
+/* 隐藏 */
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     侧边栏
+     ============================================================ -->
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <span class="logo-icon">🤖</span>
+    <span class="logo-text">机器人云端管理平台</span>
+  </div>
+  <!-- 设备管理 -->
+  <div class="sidebar-parent">
+    <div class="sidebar-parent-title" role="button" tabindex="0" onclick="toggleMenu(this)">
+      <span class="menu-icon">🖥️</span>设备管理<span class="arrow">▼</span>
+    </div>
+    <div class="sidebar-children">
+      <div class="sidebar-item">机器人列表</div>
+    </div>
+  </div>
+  <!-- 地图管理 -->
+  <div class="sidebar-parent">
+    <div class="sidebar-parent-title" role="button" tabindex="0" onclick="toggleMenu(this)">
+      <span class="menu-icon">🗺️</span>地图管理<span class="arrow">▼</span>
+    </div>
+    <div class="sidebar-children">
+      <div class="sidebar-item">地图列表</div>
+    </div>
+  </div>
+  <!-- 资源管理 -->
+  <div class="sidebar-parent">
+    <div class="sidebar-parent-title" role="button" tabindex="0" onclick="toggleMenu(this)">
+      <span class="menu-icon">📦</span>资源管理<span class="arrow">▼</span>
+    </div>
+    <div class="sidebar-children">
+      <div class="sidebar-item">人脸库</div>
+      <div class="sidebar-item">音频库</div>
+      <div class="sidebar-item">表情库</div>
+      <div class="sidebar-item">动作库</div>
+      <div class="sidebar-item active">舞蹈库</div>
+    </div>
+  </div>
+  <!-- 业务配置 -->
+  <div class="sidebar-parent">
+    <div class="sidebar-parent-title" role="button" tabindex="0" onclick="toggleMenu(this)">
+      <span class="menu-icon">⚙️</span>业务配置<span class="arrow">▼</span>
+    </div>
+    <div class="sidebar-children">
+      <div class="sidebar-item">导览讲解</div>
+      <div class="sidebar-item">引领带路</div>
+      <div class="sidebar-item">迎宾接待</div>
+      <div class="sidebar-item">触摸交互</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     顶部栏
+     ============================================================ -->
+<div class="header">
+  <div class="breadcrumb" id="breadcrumb">
+    <a>资源管理</a><span class="sep">></span><span class="current">舞蹈库</span>
+  </div>
+  <div class="header-right">
+    <div class="search-box"><span>🔍</span><span>搜索</span><kbd>Ctrl+K</kbd></div>
+    <span class="header-icon">🔔</span>
+    <span class="header-icon">⚙️</span>
+    <div class="header-avatar"></div>
+  </div>
+</div>
+
+<!-- ============================================================
+     主内容区
+     ============================================================ -->
+<div class="main">
+
+  <!-- ==================== 列表页 ==================== -->
+  <div class="page active" id="page-list">
+    <div class="page-header">
+      <div class="page-title">舞蹈库</div>
+    </div>
+
+    <!-- 工具栏 -->
+    <div class="toolbar">
+      <div class="search-input">
+        <span class="icon">🔍</span>
+        <input type="text" placeholder="搜索舞蹈名称..." id="searchInput" oninput="filterDances()">
+      </div>
+      <div class="select-input" onclick="toggleDropdown('statusDropdown')">
+        <span id="statusLabel">全部状态</span>
+        <span class="arrow">▾</span>
+        <div class="select-dropdown" id="statusDropdown">
+          <div class="select-dropdown-item active" onclick="setStatusFilter('all')">全部状态</div>
+          <div class="select-dropdown-item" onclick="setStatusFilter('enabled')">已启用</div>
+          <div class="select-dropdown-item" onclick="setStatusFilter('disabled')">已禁用</div>
+        </div>
+      </div>
+      <button class="btn btn-default" onclick="filterDances()">查询</button>
+      <div style="flex:1;"></div>
+      <button class="btn btn-primary" onclick="showPage('page-add')">+ 添加舞蹈</button>
+    </div>
+
+    <!-- 分组标签 -->
+    <div class="group-tabs" id="groupTabs">
+      <div class="group-tab active" onclick="selectGroup('all', this)">全部 <span class="count" id="count-all">6</span></div>
+      <div class="group-tab" onclick="selectGroup('pop', this)">流行舞 <span class="count" id="count-pop">3</span></div>
+      <div class="group-tab" onclick="selectGroup('folk', this)">民族舞 <span class="count" id="count-folk">2</span></div>
+      <div class="group-tab" onclick="selectGroup('kids', this)">儿歌伴舞 <span class="count" id="count-kids">1</span></div>
+      <div class="group-add-btn" onclick="showGroupModal('add')">+ 新建分组</div>
+    </div>
+
+    <!-- 统计 + 批量操作 -->
+    <div class="stats-bar">
+      <div class="stats-text">共 <span id="totalCount">6</span> 个舞蹈</div>
+      <div class="batch-actions hidden" id="batchActions">
+        <span class="selected-count">已选 <span id="selectedCount">0</span> 项</span>
+        <button class="btn btn-sm btn-default" onclick="batchToggle(true)">批量启用</button>
+        <button class="btn btn-sm btn-default" onclick="batchToggle(false)">批量禁用</button>
+        <button class="btn btn-sm btn-danger" onclick="batchDelete()">批量删除</button>
+      </div>
+    </div>
+
+    <!-- 全选 -->
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+      <div class="checkbox" id="selectAll" onclick="toggleSelectAll()"></div>
+      <span style="font-size:13px;color:#8c8c8c;">全选</span>
+    </div>
+
+    <!-- 卡片网格 -->
+    <div class="card-grid" id="cardGrid"></div>
+
+    <!-- 分页 -->
+    <div class="pagination">
+      <span>共 <span id="pageTotal">6</span> 条</span>
+      <div style="flex:1;"></div>
+      <button class="page-btn" disabled>&lt;</button>
+      <button class="page-btn active">1</button>
+      <button class="page-btn" disabled>&gt;</button>
+    </div>
+  </div>
+
+  <!-- ==================== 添加舞蹈页 ==================== -->
+  <div class="page" id="page-add">
+    <a class="back-link" onclick="showPage('page-list')">← 返回舞蹈库</a>
+    <div class="page-header">
+      <div class="page-title">添加舞蹈</div>
+      <button class="btn btn-primary" onclick="submitAdd()">确定</button>
+    </div>
+    <div class="form-card">
+      <div class="form-group">
+        <label class="form-label">舞蹈名称<span class="required">*</span></label>
+        <input class="form-input" id="addName" placeholder="请输入舞蹈名称（最多30个字符）" maxlength="30" oninput="updateCharCount(this, 'addNameCount', 30)">
+        <div class="char-count"><span id="addNameCount">0</span>/30</div>
+        <div class="form-error" id="addNameError">请输入舞蹈名称</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">所属分组</label>
+        <div class="select-input" onclick="toggleDropdown('addGroupDropdown')" style="width:100%;">
+          <span id="addGroupLabel">请选择分组（可选）</span>
+          <span class="arrow">▾</span>
+          <div class="select-dropdown" id="addGroupDropdown">
+            <div class="select-dropdown-item active" onclick="setGroupSelect('','请选择分组（可选）')">请选择分组（可选）</div>
+            <div class="select-dropdown-item" onclick="setGroupSelect('pop','流行舞')">流行舞</div>
+            <div class="select-dropdown-item" onclick="setGroupSelect('folk','民族舞')">民族舞</div>
+            <div class="select-dropdown-item" onclick="setGroupSelect('kids','儿歌伴舞')">儿歌伴舞</div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">舞蹈时长</label>
+        <input class="form-input" id="addDuration" disabled placeholder="上传策略包后自动识别">
+        <div class="form-hint">系统根据策略包自动识别，不可手动修改</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">详细说明</label>
+        <textarea class="form-textarea" id="addDesc" placeholder="请输入详细说明" maxlength="200" oninput="updateCharCount(this, 'addDescCount', 200)"></textarea>
+        <div class="char-count"><span id="addDescCount">0</span>/200</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">上传舞蹈封面</label>
+        <div class="upload-area" id="addCoverUpload" onclick="simulateUpload('addCover')">
+          <div class="upload-icon">🖼️</div>
+          <div class="upload-text">将文件拖到此处，或 <span class="upload-link">点击上传</span></div>
+          <div class="upload-hint">支持 .png、.jpg、.jpeg、.gif 格式，建议尺寸 320×240</div>
+        </div>
+        <div class="form-error" id="addCoverError">请上传舞蹈封面</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">上传舞蹈策略包<span class="required">*</span></label>
+        <div class="upload-area" id="addPackageUpload" onclick="simulateUpload('addPackage')">
+          <div class="upload-icon">📁</div>
+          <div class="upload-text">将文件拖到此处，或 <span class="upload-link">点击上传</span></div>
+          <div class="upload-hint">支持 .zip、.json 格式，单个文件不超过 50MB</div>
+        </div>
+        <div class="form-error" id="addPackageError">请上传舞蹈策略包</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 编辑舞蹈页 ==================== -->
+  <div class="page" id="page-edit">
+    <a class="back-link" onclick="showPage('page-list')">← 返回舞蹈库</a>
+    <div class="page-header">
+      <div class="page-title">编辑舞蹈</div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-default" onclick="showPage('page-list')">取消</button>
+        <button class="btn btn-primary" onclick="submitEdit()">确定</button>
+      </div>
+    </div>
+    <div class="form-card">
+      <div class="form-group">
+        <label class="form-label">舞蹈ID</label>
+        <input class="form-input" id="editId" disabled>
+        <div class="form-hint">系统自动生成，不可修改</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">舞蹈名称<span class="required">*</span></label>
+        <input class="form-input" id="editName" maxlength="30" oninput="updateCharCount(this, 'editNameCount', 30)">
+        <div class="char-count"><span id="editNameCount">0</span>/30</div>
+        <div class="form-error" id="editNameError">请输入舞蹈名称</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">所属分组</label>
+        <div class="select-input" onclick="toggleDropdown('editGroupDropdown')" style="width:100%;">
+          <span id="editGroupLabel">流行舞</span>
+          <span class="arrow">▾</span>
+          <div class="select-dropdown" id="editGroupDropdown">
+            <div class="select-dropdown-item" onclick="setEditGroupSelect('','请选择分组')">请选择分组</div>
+            <div class="select-dropdown-item active" onclick="setEditGroupSelect('pop','流行舞')">流行舞</div>
+            <div class="select-dropdown-item" onclick="setEditGroupSelect('folk','民族舞')">民族舞</div>
+            <div class="select-dropdown-item" onclick="setEditGroupSelect('kids','儿歌伴舞')">儿歌伴舞</div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">舞蹈时长</label>
+        <input class="form-input" id="editDuration" disabled>
+        <div class="form-hint">系统自动识别，不可修改</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">详细说明</label>
+        <textarea class="form-textarea" id="editDesc" maxlength="200" oninput="updateCharCount(this, 'editDescCount', 200)"></textarea>
+        <div class="char-count"><span id="editDescCount">0</span>/200</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">舞蹈封面</label>
+        <div class="cover-preview" id="editCoverPreview">
+          <div class="cover-thumb" id="editCoverThumb" style="background:#1890ff;">💃</div>
+          <div class="cover-detail">
+            <div class="cover-name" id="editCoverName">xiaopingguo_cover.png</div>
+            <div class="cover-meta">320×240 · 156KB</div>
+            <button class="btn btn-sm btn-default" onclick="simulateUpload('editCover')">更换封面</button>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">舞蹈策略包</label>
+        <div class="file-info-card">
+          <span class="file-icon">📦</span>
+          <div class="file-detail">
+            <div class="file-name" id="editPackageName">✅ xiaopingguo_v2.zip（2.4MB，上传于 2024-01-15）</div>
+            <div class="file-hint">策略包文件上传后不可修改，如需更换请删除后重新添加</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============================================================
+     删除确认弹窗
+     ============================================================ -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-icon">⚠️</div>
+      <div class="modal-title">确认删除</div>
+    </div>
+    <div class="modal-body" id="deleteModalBody">确定要删除舞蹈「小苹果」吗？删除后不可恢复。</div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="closeModal('deleteModal')">取消</button>
+      <button class="btn btn-danger-solid" onclick="confirmDelete()">确定删除</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     新建/编辑分组弹窗
+     ============================================================ -->
+<div class="modal-overlay group-modal" id="groupModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-icon" id="groupModalIcon">📁</div>
+      <div class="modal-title" id="groupModalTitle">新建分组</div>
+    </div>
+    <div class="modal-body">
+      <label style="font-size:13px;color:#595959;display:block;margin-bottom:8px;">分组名称</label>
+      <input class="group-input" id="groupInput" placeholder="请输入分组名称" maxlength="20">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="closeModal('groupModal')">取消</button>
+      <button class="btn btn-primary" id="groupModalConfirm" onclick="confirmGroup()">确定</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     Toast容器
+     ============================================================ -->
+<div id="toastContainer"></div>
+
+<script>
+// ============================================================
+// 侧边栏菜单展开/收起
+// ============================================================
+function toggleMenu(titleEl) {
+  const parent = titleEl.parentElement;
+  const children = parent.querySelector('.sidebar-children');
+  const arrow = titleEl.querySelector('.arrow');
+  if (children.classList.contains('collapsed')) {
+    children.classList.remove('collapsed');
+    arrow.classList.remove('collapsed');
+  } else {
+    children.classList.add('collapsed');
+    arrow.classList.add('collapsed');
+  }
+}
+
+// ============================================================
+// 数据模型
+// ============================================================
+let dances = [
+  { id: 'dance_001', name: '小苹果', desc: '经典广场舞，欢快节奏', duration: '3:25', fileSize: '2.4MB', status: 'enabled', group: 'pop', color: '#1890FF', coverName: 'xiaopingguo_cover.png', packageName: 'xiaopingguo_v2.zip', packageDate: '2024-01-15', selected: false },
+  { id: 'dance_002', name: '江南Style', desc: '骑马舞，趣味互动', duration: '3:33', fileSize: '3.1MB', status: 'enabled', group: 'pop', color: '#722ED1', coverName: 'jiangnan_cover.png', packageName: 'jiangnan_v1.zip', packageDate: '2024-02-10', selected: false },
+  { id: 'dance_003', name: '青春修炼手册', desc: 'TFBOYS热门舞蹈', duration: '3:45', fileSize: '2.8MB', status: 'enabled', group: 'pop', color: '#13C2C2', coverName: 'qingchun_cover.png', packageName: 'qingchun_v1.zip', packageDate: '2024-03-05', selected: false },
+  { id: 'dance_004', name: '兔子舞', desc: '经典派对舞蹈', duration: '2:30', fileSize: '1.9MB', status: 'enabled', group: 'kids', color: '#EB2F96', coverName: 'tuzi_cover.png', packageName: 'tuzi_v1.zip', packageDate: '2024-03-20', selected: false },
+  { id: 'dance_005', name: '海草舞', desc: '流行短视频舞蹈', duration: '2:55', fileSize: '2.2MB', status: 'disabled', group: 'folk', color: '#FA8C16', coverName: 'haicao_cover.png', packageName: 'haicao_v1.zip', packageDate: '2024-04-01', selected: false },
+  { id: 'dance_006', name: '恭喜发财', desc: '新年祝福舞蹈', duration: '3:10', fileSize: '2.6MB', status: 'disabled', group: 'folk', color: '#F5222D', coverName: 'gongxi_cover.png', packageName: 'gongxi_v1.zip', packageDate: '2024-04-15', selected: false },
+];
+
+let groups = [
+  { id: 'pop', name: '流行舞' },
+  { id: 'folk', name: '民族舞' },
+  { id: 'kids', name: '儿歌伴舞' },
+];
+
+let currentFilter = { status: 'all', group: 'all', search: '' };
+let deleteTarget = null;
+let deleteMode = 'single'; // 'single' or 'batch'
+let groupModalMode = 'add'; // 'add' or 'edit'
+let editingGroupId = null;
+let currentEditDance = null;
+let uploadedFiles = { addPackage: false, addCover: false, editCover: false };
+
+// ============================================================
+// 页面切换
+// ============================================================
+function showPage(pageId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(pageId).classList.add('active');
+
+  const bc = document.getElementById('breadcrumb');
+  if (pageId === 'page-list') {
+    bc.innerHTML = '<a>资源管理</a><span class="sep">></span><span class="current">舞蹈库</span>';
+    renderCards();
+  } else if (pageId === 'page-add') {
+    bc.innerHTML = '<a>资源管理</a><span class="sep">></span><a onclick="showPage(\'page-list\')" style="cursor:pointer">舞蹈库</a><span class="sep">></span><span class="current">添加舞蹈</span>';
+    resetAddForm();
+  } else if (pageId === 'page-edit') {
+    bc.innerHTML = '<a>资源管理</a><span class="sep">></span><a onclick="showPage(\'page-list\')" style="cursor:pointer">舞蹈库</a><span class="sep">></span><span class="current">编辑舞蹈</span>';
+  }
+  window.scrollTo(0, 0);
+}
+
+// ============================================================
+// 渲染卡片
+// ============================================================
+function getFilteredDances() {
+  return dances.filter(d => {
+    if (currentFilter.status !== 'all' && d.status !== currentFilter.status) return false;
+    if (currentFilter.group !== 'all' && d.group !== currentFilter.group) return false;
+    if (currentFilter.search && !d.name.includes(currentFilter.search)) return false;
+    return true;
+  });
+}
+
+function renderCards() {
+  const grid = document.getElementById('cardGrid');
+  const filtered = getFilteredDances();
+
+  document.getElementById('totalCount').textContent = filtered.length;
+  document.getElementById('pageTotal').textContent = filtered.length;
+  updateGroupCounts();
+  updateBatchUI();
+
+  if (filtered.length === 0) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px 0;color:#bfbfbf;font-size:14px;">暂无数据</div>';
+    return;
+  }
+
+  grid.innerHTML = filtered.map(d => {
+    const statusMap = { enabled: '已启用', disabled: '已禁用' };
+    const tagClass = { enabled: 'tag-enabled', disabled: 'tag-disabled' };
+    return `
+      <div class="dance-card">
+        <div class="checkbox-wrap">
+          <div class="checkbox ${d.selected ? 'checked' : ''}" onclick="toggleSelect('${d.id}')"></div>
+        </div>
+        <div class="cover" style="background:${d.color};">
+          <span class="cover-icon">💃</span>
+          <span class="status-tag ${tagClass[d.status]}">${statusMap[d.status]}</span>
+        </div>
+        <div class="info">
+          <div class="dance-name" title="${d.name}">${d.name}</div>
+          <div class="dance-desc" title="${d.desc}">${d.desc}</div>
+          <div class="dance-meta">
+            <span>⏱ ${d.duration}</span>
+            <span>📦 ${d.fileSize}</span>
+          </div>
+          <div class="dance-actions">
+            <div class="action-btns">
+              <button class="btn btn-sm btn-default" onclick="editDance('${d.id}')">编辑</button>
+              <button class="btn btn-sm btn-danger" onclick="showDeleteModal('${d.id}')">删除</button>
+            </div>
+            <div class="switch ${d.status === 'enabled' ? 'on' : 'off'}" onclick="toggleStatus('${d.id}')">
+              <div class="knob"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  updateSelectAllState();
+}
+
+// ============================================================
+// 分组
+// ============================================================
+function selectGroup(groupId, el) {
+  currentFilter.group = groupId;
+  document.querySelectorAll('.group-tab').forEach(t => t.classList.remove('active'));
+  if (el) el.classList.add('active');
+  renderCards();
+}
+
+function updateGroupCounts() {
+  document.getElementById('count-all').textContent = dances.length;
+  groups.forEach(g => {
+    const el = document.getElementById('count-' + g.id);
+    if (el) el.textContent = dances.filter(d => d.group === g.id).length;
+  });
+}
+
+function showGroupModal(mode, groupId) {
+  groupModalMode = mode;
+  editingGroupId = groupId;
+  const input = document.getElementById('groupInput');
+  const title = document.getElementById('groupModalTitle');
+  const icon = document.getElementById('groupModalIcon');
+
+  if (mode === 'add') {
+    title.textContent = '新建分组';
+    icon.textContent = '📁';
+    input.value = '';
+    input.placeholder = '请输入分组名称';
+  } else {
+    title.textContent = '编辑分组';
+    icon.textContent = '✏️';
+    const g = groups.find(g => g.id === groupId);
+    input.value = g ? g.name : '';
+    input.placeholder = '请输入分组名称';
+  }
+  document.getElementById('groupModal').classList.add('show');
+}
+
+function confirmGroup() {
+  const name = document.getElementById('groupInput').value.trim();
+  if (!name) { showToast('请输入分组名称', 'error'); return; }
+
+  if (groupModalMode === 'add') {
+    const id = 'group_' + Date.now();
+    groups.push({ id, name });
+    // 添加分组标签
+    const tabs = document.getElementById('groupTabs');
+    const addBtn = tabs.querySelector('.group-add-btn');
+    const tab = document.createElement('div');
+    tab.className = 'group-tab';
+    tab.setAttribute('onclick', `selectGroup('${id}', this)`);
+    tab.innerHTML = `${name} <span class="count" id="count-${id}">0</span>`;
+    tab.oncontextmenu = (e) => { e.preventDefault(); showGroupModal('edit', id); };
+    tabs.insertBefore(tab, addBtn);
+    showToast(`分组「${name}」创建成功`, 'success');
+  } else {
+    const g = groups.find(g => g.id === editingGroupId);
+    if (g) {
+      g.name = name;
+      const tab = document.querySelector(`[onclick*="selectGroup('${editingGroupId}'"]`);
+      if (tab) tab.innerHTML = `${name} <span class="count" id="count-${editingGroupId}">${dances.filter(d => d.group === editingGroupId).length}</span>`;
+      showToast(`分组已更新为「${name}」`, 'success');
+    }
+  }
+  closeModal('groupModal');
+  updateGroupCounts();
+}
+
+// ============================================================
+// 搜索与筛选
+// ============================================================
+function filterDances() {
+  currentFilter.search = document.getElementById('searchInput').value.trim();
+  renderCards();
+}
+
+function setStatusFilter(status) {
+  currentFilter.status = status;
+  const labels = { all: '全部状态', enabled: '已启用', disabled: '已禁用' };
+  document.getElementById('statusLabel').textContent = labels[status];
+  document.querySelectorAll('#statusDropdown .select-dropdown-item').forEach((item, i) => {
+    item.classList.toggle('active', ['all','enabled','disabled'][i] === status);
+  });
+  toggleDropdown('statusDropdown');
+  renderCards();
+}
+
+function toggleDropdown(id) {
+  const dd = document.getElementById(id);
+  dd.classList.toggle('show');
+  // 点击外部关闭
+  setTimeout(() => {
+    const handler = (e) => {
+      if (!dd.contains(e.target)) { dd.classList.remove('show'); document.removeEventListener('click', handler); }
+    };
+    document.addEventListener('click', handler);
+  }, 0);
+}
+
+// ============================================================
+// 选择（批量操作）
+// ============================================================
+function toggleSelect(id) {
+  const d = dances.find(d => d.id === id);
+  if (d) { d.selected = !d.selected; renderCards(); }
+}
+
+function toggleSelectAll() {
+  const filtered = getFilteredDances();
+  const allSelected = filtered.every(d => d.selected);
+  filtered.forEach(d => d.selected = !allSelected);
+  renderCards();
+}
+
+function updateSelectAllState() {
+  const filtered = getFilteredDances();
+  const selectAll = document.getElementById('selectAll');
+  if (filtered.length === 0) {
+    selectAll.className = 'checkbox';
+  } else if (filtered.every(d => d.selected)) {
+    selectAll.className = 'checkbox checked';
+  } else if (filtered.some(d => d.selected)) {
+    selectAll.className = 'checkbox indeterminate';
+  } else {
+    selectAll.className = 'checkbox';
+  }
+}
+
+function updateBatchUI() {
+  const selected = dances.filter(d => d.selected);
+  const batchEl = document.getElementById('batchActions');
+  document.getElementById('selectedCount').textContent = selected.length;
+  batchEl.classList.toggle('hidden', selected.length === 0);
+}
+
+function batchToggle(enable) {
+  const selected = dances.filter(d => d.selected);
+  selected.forEach(d => d.status = enable ? 'enabled' : 'disabled');
+  showToast(`已${enable ? '启用' : '禁用'} ${selected.length} 个舞蹈`, 'success');
+  renderCards();
+}
+
+function batchDelete() {
+  const selected = dances.filter(d => d.selected);
+  deleteMode = 'batch';
+  document.getElementById('deleteModalBody').innerHTML = `确定要删除选中的 <b>${selected.length}</b> 个舞蹈吗？删除后不可恢复。`;
+  document.getElementById('deleteModal').classList.add('show');
+}
+
+// ============================================================
+// 状态切换
+// ============================================================
+function toggleStatus(id) {
+  const d = dances.find(d => d.id === id);
+  if (d) {
+    d.status = d.status === 'enabled' ? 'disabled' : 'enabled';
+    showToast(`「${d.name}」已${d.status === 'enabled' ? '启用' : '禁用'}`, 'success');
+    renderCards();
+  }
+}
+
+// ============================================================
+// 删除
+// ============================================================
+function showDeleteModal(id) {
+  deleteMode = 'single';
+  deleteTarget = id;
+  const d = dances.find(d => d.id === id);
+  document.getElementById('deleteModalBody').innerHTML = `确定要删除舞蹈「<b>${d.name}</b>」吗？删除后不可恢复。`;
+  document.getElementById('deleteModal').classList.add('show');
+}
+
+function confirmDelete() {
+  if (deleteMode === 'single' && deleteTarget) {
+    const d = dances.find(d => d.id === deleteTarget);
+    dances = dances.filter(d => d.id !== deleteTarget);
+    showToast(`「${d.name}」已删除`, 'success');
+  } else if (deleteMode === 'batch') {
+    const count = dances.filter(d => d.selected).length;
+    dances = dances.filter(d => !d.selected);
+    showToast(`已删除 ${count} 个舞蹈`, 'success');
+  }
+  closeModal('deleteModal');
+  renderCards();
+}
+
+// ============================================================
+// 添加舞蹈
+// ============================================================
+function resetAddForm() {
+  document.getElementById('addName').value = '';
+  document.getElementById('addDesc').value = '';
+  document.getElementById('addDuration').value = '';
+  document.getElementById('addNameCount').textContent = '0';
+  document.getElementById('addDescCount').textContent = '0';
+  document.getElementById('addGroupLabel').textContent = '请选择分组（可选）';
+  uploadedFiles = { addPackage: false, addCover: false, editCover: false };
+  // 重置上传区域
+  document.getElementById('addPackageUpload').innerHTML = `
+    <div class="upload-icon">📁</div>
+    <div class="upload-text">将文件拖到此处，或 <span class="upload-link">点击上传</span></div>
+    <div class="upload-hint">支持 .zip、.json 格式，单个文件不超过 50MB</div>`;
+  document.getElementById('addCoverUpload').innerHTML = `
+    <div class="upload-icon">🖼️</div>
+    <div class="upload-text">将文件拖到此处，或 <span class="upload-link">点击上传</span></div>
+    <div class="upload-hint">支持 .png、.jpg、.jpeg、.gif 格式，建议尺寸 320×240</div>`;
+  // 清除错误
+  document.querySelectorAll('.form-error').forEach(e => e.classList.remove('show'));
+}
+
+function submitAdd() {
+  let valid = true;
+  const name = document.getElementById('addName').value.trim();
+  if (!name) {
+    document.getElementById('addNameError').classList.add('show');
+    valid = false;
+  } else {
+    document.getElementById('addNameError').classList.remove('show');
+  }
+  if (!uploadedFiles.addPackage) {
+    document.getElementById('addPackageError').classList.add('show');
+    valid = false;
+  } else {
+    document.getElementById('addPackageError').classList.remove('show');
+  }
+  if (!valid) { showToast('请填写必填项', 'error'); return; }
+
+  const colors = ['#1890FF','#722ED1','#13C2C2','#EB2F96','#FA8C16','#F5222D','#2F54EB','#52C41A'];
+  const newDance = {
+    id: 'dance_' + String(dances.length + 1).padStart(3, '0'),
+    name,
+    desc: document.getElementById('addDesc').value.trim() || '暂无描述',
+    duration: document.getElementById('addDuration').value.trim() || '--:--',
+    fileSize: (Math.random() * 3 + 1).toFixed(1) + 'MB',
+    status: 'enabled',
+    group: document.getElementById('addGroupLabel').dataset.groupId || '',
+    color: colors[dances.length % colors.length],
+    coverName: name + '_cover.png',
+    packageName: name + '_v1.zip',
+    packageDate: new Date().toISOString().slice(0, 10),
+    selected: false,
+  };
+  dances.unshift(newDance);
+  showToast(`舞蹈「${name}」添加成功`, 'success');
+  showPage('page-list');
+}
+
+// ============================================================
+// 编辑舞蹈
+// ============================================================
+function editDance(id) {
+  currentEditDance = dances.find(d => d.id === id);
+  if (!currentEditDance) return;
+
+  document.getElementById('editId').value = currentEditDance.id;
+  document.getElementById('editName').value = currentEditDance.name;
+    document.getElementById('editDesc').value = currentEditDance.desc;
+    document.getElementById('editDuration').value = currentEditDance.duration;
+  document.getElementById('editNameCount').textContent = currentEditDance.name.length;
+  document.getElementById('editDescCount').textContent = currentEditDance.desc.length;
+  document.getElementById('editPackageName').textContent = '✅ ' + currentEditDance.packageName + '（' + currentEditDance.fileSize + '，上传于 ' + currentEditDance.packageDate + '）';
+  document.getElementById('editCoverName').textContent = currentEditDance.coverName;
+  document.getElementById('editCoverThumb').style.background = currentEditDance.color;
+
+  // 设置分组
+  const g = groups.find(g => g.id === currentEditDance.group);
+  document.getElementById('editGroupLabel').textContent = g ? g.name : '请选择分组';
+  document.getElementById('editGroupLabel').dataset.groupId = currentEditDance.group;
+
+  showPage('page-edit');
+}
+
+function submitEdit() {
+  const name = document.getElementById('editName').value.trim();
+  if (!name) {
+    document.getElementById('editNameError').classList.add('show');
+    showToast('请输入舞蹈名称', 'error');
+    return;
+  }
+  document.getElementById('editNameError').classList.remove('show');
+
+  if (currentEditDance) {
+    currentEditDance.name = name;
+    currentEditDance.desc = document.getElementById('editDesc').value.trim();
+    currentEditDance.duration = document.getElementById('editDuration').value.trim();
+    currentEditDance.group = document.getElementById('editGroupLabel').dataset.groupId || '';
+    showToast(`舞蹈「${name}」已更新`, 'success');
+    showPage('page-list');
+  }
+}
+
+// ============================================================
+// 分组选择
+// ============================================================
+function setGroupSelect(groupId, label) {
+  document.getElementById('addGroupLabel').textContent = label;
+  document.getElementById('addGroupLabel').dataset.groupId = groupId;
+  toggleDropdown('addGroupDropdown');
+}
+
+function setEditGroupSelect(groupId, label) {
+  document.getElementById('editGroupLabel').textContent = label;
+  document.getElementById('editGroupLabel').dataset.groupId = groupId;
+  toggleDropdown('editGroupDropdown');
+}
+
+// ============================================================
+// 模拟上传
+// ============================================================
+function simulateUpload(type) {
+  if (type === 'addPackage') {
+    document.getElementById('addPackageUpload').innerHTML = `
+      <div class="upload-success">
+        <span class="file-icon">📦</span>
+        <div class="file-info">
+          <div class="file-name">✅ dance_package.zip（已上传）</div>
+          <div class="file-meta">2.4MB · 点击重新上传</div>
+        </div>
+      </div>`;
+    uploadedFiles.addPackage = true;
+    document.getElementById('addPackageError').classList.remove('show');
+  } else if (type === 'addCover') {
+    document.getElementById('addCoverUpload').innerHTML = `
+      <div class="upload-success">
+        <span class="file-icon">🖼️</span>
+        <div class="file-info">
+          <div class="file-name">✅ dance_cover.png（已上传）</div>
+          <div class="file-meta">320×240 · 156KB · 点击重新上传</div>
+        </div>
+      </div>`;
+    uploadedFiles.addCover = true;
+  } else if (type === 'editCover') {
+    showToast('封面已更换', 'success');
+  }
+}
+
+// ============================================================
+// 工具函数
+// ============================================================
+function updateCharCount(input, countId, max) {
+  document.getElementById(countId).textContent = input.value.length;
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('show');
+}
+
+function showToast(msg, type = 'info') {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = 'toast ' + type;
+  const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+  toast.innerHTML = `<span>${icons[type]}</span><span>${msg}</span>`;
+  container.appendChild(toast);
+  setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.3s'; setTimeout(() => toast.remove(), 300); }, 2500);
+}
+
+// ============================================================
+// 初始化
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  renderCards();
+});
+
+// 点击弹窗遮罩关闭
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) overlay.classList.remove('show');
+  });
+});
+</script>
+</body>
+</html>
