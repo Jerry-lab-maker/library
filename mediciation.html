@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>住户用药策略 - 养老院机器人云端管理平台</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+  font-size: 14px;
+  color: #333;
+  background: #F0F2F5;
+  overflow: hidden;
+  height: 100vh;
+}
+
+/* Layout */
+.layout { display: flex; height: 100vh; }
+.sidebar { width: 220px; background: #fff; border-right: 1px solid #E8E8E8; display: flex; flex-direction: column; flex-shrink: 0; }
+.main-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.topbar { height: 56px; background: #fff; border-bottom: 1px solid #E8E8E8; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; flex-shrink: 0; }
+.content { flex: 1; overflow-y: auto; padding: 20px 24px; }
+
+/* Sidebar */
+.sidebar-logo { height: 56px; display: flex; align-items: center; padding: 0 16px; border-bottom: 1px solid #E8E8E8; flex-shrink: 0; }
+.sidebar-logo .logo-icon { width: 32px; height: 32px; background: #1890FF; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; font-size: 16px; margin-right: 10px; }
+.sidebar-logo .logo-text { font-size: 15px; font-weight: 600; color: #333; }
+.sidebar-nav { flex: 1; overflow-y: auto; padding: 8px 0; }
+.nav-group { margin-bottom: 2px; }
+.nav-group-title {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px; cursor: pointer; color: #333; font-size: 14px;
+  transition: all 0.2s; user-select: none;
+}
+.nav-group-title:hover { background: #F5F5F5; }
+.nav-group-title .arrow { font-size: 10px; transition: transform 0.2s; color: #999; }
+.nav-group-title .arrow.expanded { transform: rotate(90deg); }
+.nav-children { display: none; }
+.nav-children.show { display: block; }
+.nav-item {
+  display: flex; align-items: center; padding: 9px 16px 9px 44px;
+  cursor: pointer; color: #666; font-size: 14px; transition: all 0.2s;
+  border-left: 3px solid transparent; text-decoration: none;
+}
+.nav-item:hover { color: #1890FF; background: #F5F5F5; }
+.nav-item.active {
+  color: #1890FF; background: #EFF6FF; border-left-color: #1890FF; font-weight: 500;
+}
+
+/* Topbar */
+.breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 14px; color: #999; }
+.breadcrumb a { color: #666; text-decoration: none; }
+.breadcrumb a:hover { color: #1890FF; }
+.breadcrumb .current { color: #333; font-weight: 500; }
+.breadcrumb .sep { color: #CCC; }
+.topbar-right { display: flex; align-items: center; gap: 16px; }
+.topbar-search {
+  display: flex; align-items: center; background: #F5F5F5; border-radius: 4px; padding: 0 10px; height: 32px;
+}
+.topbar-search input {
+  border: none; background: transparent; outline: none; font-size: 13px; width: 180px; margin-left: 6px;
+  font-family: inherit;
+}
+.topbar-search .search-icon { color: #999; font-size: 14px; }
+.user-avatar {
+  width: 32px; height: 32px; border-radius: 50%; background: #1890FF; color: #fff;
+  display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer;
+}
+
+/* Page Header */
+.page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.page-title { font-size: 20px; font-weight: 600; color: #333; }
+
+/* Tabs */
+.tabs { display: flex; border-bottom: 2px solid #E8E8E8; margin-bottom: 16px; background: #fff; border-radius: 4px 4px 0 0; padding: 0 16px; }
+.tab-item {
+  padding: 12px 20px; cursor: pointer; color: #666; font-size: 14px; border-bottom: 2px solid transparent;
+  margin-bottom: -2px; transition: all 0.2s; user-select: none;
+}
+.tab-item:hover { color: #1890FF; }
+.tab-item.active { color: #1890FF; border-bottom-color: #1890FF; font-weight: 500; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* Card */
+.card { background: #fff; border-radius: 4px; padding: 20px; }
+
+/* Toolbar */
+.toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
+.toolbar-left { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.toolbar-right { display: flex; align-items: center; gap: 12px; }
+
+/* Input & Select */
+.form-input, .form-select {
+  height: 32px; border: 1px solid #D9D9D9; border-radius: 4px; padding: 0 10px;
+  font-size: 13px; outline: none; font-family: inherit; transition: border-color 0.2s;
+  background: #fff; color: #333;
+}
+.form-input:focus, .form-select:focus { border-color: #1890FF; }
+.form-input { width: 200px; }
+.form-select { width: 130px; cursor: pointer; }
+.form-input-sm { width: 150px; }
+.form-input-date { width: 140px; }
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+  height: 32px; padding: 0 16px; border-radius: 4px; font-size: 13px;
+  cursor: pointer; transition: all 0.2s; border: 1px solid #D9D9D9; background: #fff;
+  color: #333; font-family: inherit; white-space: nowrap;
+}
+.btn:hover { border-color: #1890FF; color: #1890FF; }
+.btn-primary { background: #1890FF; color: #fff; border-color: #1890FF; }
+.btn-primary:hover { background: #40A9FF; border-color: #40A9FF; color: #fff; }
+.btn-danger { color: #FF4D4F; border-color: #FF4D4F; }
+.btn-danger:hover { color: #FF7875; border-color: #FF7875; }
+.btn-link { border: none; background: none; color: #1890FF; padding: 0 4px; height: auto; }
+.btn-link:hover { color: #40A9FF; }
+.btn-link.danger { color: #FF4D4F; }
+.btn-link.danger:hover { color: #FF7875; }
+.btn-sm { height: 28px; padding: 0 10px; font-size: 12px; }
+
+/* Table */
+.table-wrapper { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th {
+  background: #FAFAFA; padding: 12px 12px; text-align: left; font-weight: 500;
+  color: #333; border-bottom: 1px solid #E8E8E8; white-space: nowrap;
+}
+tbody td {
+  padding: 12px 12px; border-bottom: 1px solid #F0F0F0; color: #333;
+}
+tbody tr:nth-child(even) { background: #FAFAFA; }
+tbody tr:hover { background: #E6F7FF; }
+.table-actions { display: flex; align-items: center; gap: 8px; }
+
+/* Tags */
+.tag {
+  display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px;
+  line-height: 20px; white-space: nowrap;
+}
+.tag-blue { background: #E6F7FF; color: #1890FF; border: 1px solid #91D5FF; }
+.tag-gray { background: #F5F5F5; color: #999; border: 1px solid #D9D9D9; }
+.tag-orange { background: #FFF7E6; color: #FA8C16; border: 1px solid #FFD591; }
+.tag-green { background: #F6FFED; color: #52C41A; border: 1px solid #B7EB8F; }
+.tag-red { background: #FFF2F0; color: #FF4D4F; border: 1px solid #FFA39E; }
+.tag-blue-pulse { background: #E6F7FF; color: #1890FF; border: 1px solid #91D5FF; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+
+/* Status text */
+.status-success { color: #52C41A; }
+.status-warning { color: #FA8C16; }
+.status-danger { color: #FF4D4F; }
+.status-default { color: #999; }
+
+/* Modal */
+.modal-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.45); z-index: 1000; display: none;
+  align-items: center; justify-content: center;
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: #fff; border-radius: 8px; width: 680px; max-height: 85vh;
+  display: flex; flex-direction: column; box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  animation: modalIn 0.2s ease;
+}
+.modal-sm { width: 420px; }
+.modal-lg { width: 780px; }
+@keyframes modalIn { from{opacity:0;transform:translateY(-20px)} to{opacity:1;transform:translateY(0)} }
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 24px; border-bottom: 1px solid #E8E8E8; flex-shrink: 0;
+}
+.modal-title { font-size: 16px; font-weight: 600; color: #333; }
+.modal-close {
+  width: 28px; height: 28px; border-radius: 4px; border: none; background: none;
+  cursor: pointer; font-size: 18px; color: #999; display: flex; align-items: center;
+  justify-content: center; transition: all 0.2s;
+}
+.modal-close:hover { background: #F5F5F5; color: #333; }
+.modal-body { padding: 24px; overflow-y: auto; flex: 1; }
+.modal-footer {
+  display: flex; align-items: center; justify-content: flex-end; gap: 8px;
+  padding: 12px 24px; border-top: 1px solid #E8E8E8; flex-shrink: 0;
+}
+
+/* Form */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group.full { grid-column: 1 / -1; }
+.form-label { font-size: 13px; color: #333; font-weight: 500; }
+.form-label .required { color: #FF4D4F; margin-right: 2px; }
+.form-control {
+  height: 36px; border: 1px solid #D9D9D9; border-radius: 4px; padding: 0 10px;
+  font-size: 13px; outline: none; font-family: inherit; transition: border-color 0.2s;
+  background: #fff; color: #333; width: 100%;
+}
+.form-control:focus { border-color: #1890FF; box-shadow: 0 0 0 2px rgba(24,144,255,0.1); }
+textarea.form-control { height: 80px; padding: 8px 10px; resize: vertical; }
+select.form-control { cursor: pointer; }
+
+/* Checkbox group */
+.checkbox-group { display: flex; flex-wrap: wrap; gap: 12px; }
+.checkbox-item {
+  display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 13px; color: #333;
+}
+.checkbox-item input[type="checkbox"] {
+  width: 16px; height: 16px; accent-color: #1890FF; cursor: pointer;
+}
+
+/* Timeline */
+.timeline { padding-left: 20px; border-left: 2px solid #E8E8E8; }
+.timeline-item { position: relative; padding: 0 0 24px 20px; }
+.timeline-item:last-child { padding-bottom: 0; }
+.timeline-dot {
+  position: absolute; left: -27px; top: 2px; width: 12px; height: 12px;
+  border-radius: 50%; background: #1890FF; border: 2px solid #fff;
+  box-shadow: 0 0 0 2px #1890FF;
+}
+.timeline-dot.success { background: #52C41A; box-shadow: 0 0 0 2px #52C41A; }
+.timeline-dot.danger { background: #FF4D4F; box-shadow: 0 0 0 2px #FF4D4F; }
+.timeline-dot.warning { background: #FA8C16; box-shadow: 0 0 0 2px #FA8C16; }
+.timeline-dot.gray { background: #D9D9D9; box-shadow: 0 0 0 2px #D9D9D9; }
+.timeline-time { font-size: 12px; color: #999; margin-bottom: 4px; }
+.timeline-content { font-size: 13px; color: #333; }
+.timeline-content.success { color: #52C41A; font-weight: 500; }
+.timeline-content.danger { color: #FF4D4F; font-weight: 500; }
+.timeline-content.warning { color: #FA8C16; font-weight: 500; }
+
+/* Detail info */
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 24px; margin-bottom: 24px; }
+.detail-item { display: flex; flex-direction: column; gap: 4px; }
+.detail-label { font-size: 12px; color: #999; }
+.detail-value { font-size: 14px; color: #333; font-weight: 500; }
+.detail-section-title { font-size: 15px; font-weight: 600; color: #333; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid #F0F0F0; }
+
+/* Toast */
+.toast-container { position: fixed; top: 24px; left: 50%; transform: translateX(-50%); z-index: 2000; display: flex; flex-direction: column; gap: 8px; }
+.toast {
+  background: #fff; border-radius: 6px; padding: 10px 20px; box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  display: flex; align-items: center; gap: 8px; font-size: 14px; animation: toastIn 0.3s ease;
+  min-width: 200px;
+}
+.toast.success .toast-icon { color: #52C41A; }
+.toast.error .toast-icon { color: #FF4D4F; }
+.toast.warning .toast-icon { color: #FA8C16; }
+.toast-icon { font-size: 18px; }
+@keyframes toastIn { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
+
+/* Statistics bar */
+.stats-bar {
+  display: flex; align-items: center; gap: 24px; padding: 16px 20px;
+  background: #FAFAFA; border-radius: 4px; margin-top: 16px; border: 1px solid #F0F0F0;
+}
+.stat-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #666; }
+.stat-value { font-weight: 600; font-size: 16px; }
+.stat-value.blue { color: #1890FF; }
+.stat-value.green { color: #52C41A; }
+.stat-value.orange { color: #FA8C16; }
+.stat-value.red { color: #FF4D4F; }
+.stat-divider { width: 1px; height: 24px; background: #E8E8E8; }
+
+/* Pagination */
+.pagination { display: flex; align-items: center; justify-content: flex-end; gap: 4px; margin-top: 16px; }
+.page-btn {
+  width: 32px; height: 32px; border: 1px solid #D9D9D9; border-radius: 4px;
+  background: #fff; cursor: pointer; font-size: 13px; color: #333;
+  display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+  font-family: inherit;
+}
+.page-btn:hover { border-color: #1890FF; color: #1890FF; }
+.page-btn.active { background: #1890FF; color: #fff; border-color: #1890FF; }
+.page-info { font-size: 13px; color: #999; margin-right: 8px; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #D9D9D9; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #BFBFBF; }
+
+/* Confirm modal icon */
+.confirm-icon { font-size: 40px; text-align: center; margin-bottom: 12px; }
+.confirm-icon.warning { color: #FA8C16; }
+.confirm-icon.danger { color: #FF4D4F; }
+.confirm-text { text-align: center; font-size: 14px; color: #666; line-height: 1.6; }
+
+/* Empty state */
+.empty-state { text-align: center; padding: 48px 0; color: #999; }
+.empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon"></div>
+      <div class="logo-text">机器人云端管理平台</div>
+    </div>
+    <div class="sidebar-nav">
+      <!-- 设备管理 -->
+      <div class="nav-group">
+        <div class="nav-group-title" onclick="toggleNavGroup(this)">
+          <span>设备管理</span>
+          <span class="arrow">&#9654;</span>
+        </div>
+      </div>
+      <!-- 地图管理 -->
+      <div class="nav-group">
+        <div class="nav-group-title" onclick="toggleNavGroup(this)">
+          <span>地图管理</span>
+          <span class="arrow">&#9654;</span>
+        </div>
+      </div>
+      <!-- 资源管理 -->
+      <div class="nav-group">
+        <div class="nav-group-title" onclick="toggleNavGroup(this)">
+          <span>资源管理</span>
+          <span class="arrow">&#9654;</span>
+        </div>
+      </div>
+      <!-- 业务配置 (expanded) -->
+      <div class="nav-group">
+        <div class="nav-group-title" onclick="toggleNavGroup(this)">
+          <span>业务配置</span>
+          <span class="arrow expanded">&#9654;</span>
+        </div>
+        <div class="nav-children show">
+          <a class="nav-item" href="javascript:void(0)">导览讲解</a>
+          <a class="nav-item" href="javascript:void(0)">引领带路</a>
+          <a class="nav-item" href="javascript:void(0)">迎宾接待</a>
+          <a class="nav-item" href="javascript:void(0)">触摸交互</a>
+          <a class="nav-item active" href="javascript:void(0)">住户用药策略</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Area -->
+  <div class="main-area">
+    <!-- Topbar -->
+    <div class="topbar">
+      <div class="breadcrumb">
+        <a href="javascript:void(0)">首页</a>
+        <span class="sep">/</span>
+        <a href="javascript:void(0)">业务配置</a>
+        <span class="sep">/</span>
+        <span class="current">住户用药策略</span>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-search">
+          <input type="text" placeholder="全局搜索...">
+        </div>
+        <div class="user-avatar" title="管理员"></div>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+      <!-- Page Header -->
+      <div class="page-header">
+        <div class="page-title">住户用药策略</div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <div class="tab-item active" onclick="switchTab('plan', this)">用药计划</div>
+        <div class="tab-item" onclick="switchTab('task', this)">提醒任务</div>
+        <div class="tab-item" onclick="switchTab('log', this)">服药日志</div>
+      </div>
+
+      <!-- Tab 1: 用药计划 -->
+      <div class="tab-panel active" id="tab-plan">
+        <div class="card">
+          <div class="toolbar">
+            <div class="toolbar-left">
+              <input type="text" class="form-input" id="planSearch" placeholder="搜索住户姓名" oninput="filterPlanTable()">
+              <select class="form-select" id="planStatusFilter" onchange="filterPlanTable()">
+                <option value="">全部状态</option>
+                <option value="进行中">进行中</option>
+                <option value="已结束">已结束</option>
+                <option value="已暂停">已暂停</option>
+              </select>
+            </div>
+            <div class="toolbar-right">
+              <button class="btn btn-primary" onclick="openPlanModal()">+ 新建用药计划</button>
+            </div>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>住户姓名</th>
+                  <th>房间号</th>
+                  <th>药品名称</th>
+                  <th>用法用量</th>
+                  <th>用药频率</th>
+                  <th>开始日期</th>
+                  <th>结束日期</th>
+                  <th>疗程状态</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="planTableBody"></tbody>
+            </table>
+          </div>
+          <div class="pagination">
+            <span class="page-info">共 6 条</span>
+            <button class="page-btn active">1</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 2: 提醒任务 -->
+      <div class="tab-panel" id="tab-task">
+        <div class="card">
+          <div class="toolbar">
+            <div class="toolbar-left">
+              <input type="text" class="form-input" id="taskSearch" placeholder="搜索住户姓名" oninput="filterTaskTable()">
+              <select class="form-select" id="taskStatusFilter" onchange="filterTaskTable()">
+                <option value="">全部状态</option>
+                <option value="待执行">待执行</option>
+                <option value="执行中">执行中</option>
+                <option value="已完成">已完成</option>
+                <option value="超时未回应">超时未回应</option>
+                <option value="住户拒服">住户拒服</option>
+              </select>
+              <input type="date" class="form-input form-input-date" id="taskDateFilter" onchange="filterTaskTable()">
+            </div>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>任务编号</th>
+                  <th>住户姓名</th>
+                  <th>房间号</th>
+                  <th>药品</th>
+                  <th>计划时间</th>
+                  <th>提醒地点</th>
+                  <th>任务状态</th>
+                  <th>执行结果</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="taskTableBody"></tbody>
+            </table>
+          </div>
+          <div class="pagination">
+            <span class="page-info">共 8 条</span>
+            <button class="page-btn active">1</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 3: 服药日志 -->
+      <div class="tab-panel" id="tab-log">
+        <div class="card">
+          <div class="toolbar">
+            <div class="toolbar-left">
+              <input type="text" class="form-input" id="logSearch" placeholder="搜索住户姓名" oninput="filterLogTable()">
+              <input type="date" class="form-input form-input-date" id="logDateStart" onchange="filterLogTable()" title="开始日期">
+              <span style="color:#999">至</span>
+              <input type="date" class="form-input form-input-date" id="logDateEnd" onchange="filterLogTable()" title="结束日期">
+              <select class="form-select" id="logResultFilter" onchange="filterLogTable()">
+                <option value="">全部结果</option>
+                <option value="已服药">已服药</option>
+                <option value="拒服">拒服</option>
+                <option value="超时未回应">超时未回应</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>日期</th>
+                  <th>住户姓名</th>
+                  <th>房间号</th>
+                  <th>药品</th>
+                  <th>用法用量</th>
+                  <th>计划时间</th>
+                  <th>实际服药时间</th>
+                  <th>服药结果</th>
+                  <th>备注</th>
+                </tr>
+              </thead>
+              <tbody id="logTableBody"></tbody>
+            </table>
+          </div>
+          <div class="stats-bar">
+            <div class="stat-item">
+              <span>今日已服药</span>
+              <span class="stat-value green">6 人次</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+              <span>拒服</span>
+              <span class="stat-value orange">1 人次</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+              <span>超时未回应</span>
+              <span class="stat-value red">1 人次</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+              <span>服药率</span>
+              <span class="stat-value blue">75%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: 新建/编辑用药计划 -->
+<div class="modal-overlay" id="planModal">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <div class="modal-title" id="planModalTitle">新建用药计划</div>
+      <button class="modal-close" onclick="closeModal('planModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label"><span class="required">*</span>住户姓名</label>
+          <select class="form-control" id="formResident">
+            <option value="">请选择住户</option>
+            <option value="张大爷">张大爷</option>
+            <option value="李奶奶">李奶奶</option>
+            <option value="赵阿姨">赵阿姨</option>
+            <option value="孙爷爷">孙爷爷</option>
+            <option value="王叔叔">王叔叔</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label"><span class="required">*</span>药品名称</label>
+          <input type="text" class="form-control" id="formMedicine" placeholder="请输入药品名称">
+        </div>
+        <div class="form-group">
+          <label class="form-label">药品分类</label>
+          <select class="form-control" id="formCategory">
+            <option value="">请选择分类</option>
+            <option value="降压药">降压药</option>
+            <option value="降糖药">降糖药</option>
+            <option value="心血管药">心血管药</option>
+            <option value="钙片">钙片</option>
+            <option value="维生素">维生素</option>
+            <option value="其他">其他</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">用法</label>
+          <select class="form-control" id="formUsage">
+            <option value="">请选择用法</option>
+            <option value="口服">口服</option>
+            <option value="注射">注射</option>
+            <option value="外用">外用</option>
+            <option value="含服">含服</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">单次用量</label>
+          <input type="text" class="form-control" id="formDosage" placeholder="如：1片、10ml">
+        </div>
+        <div class="form-group">
+          <label class="form-label">用药频率</label>
+          <select class="form-control" id="formFrequency">
+            <option value="">请选择频率</option>
+            <option value="每日1次">每日1次</option>
+            <option value="每日2次">每日2次</option>
+            <option value="每日3次">每日3次</option>
+            <option value="每周1次">每周1次</option>
+            <option value="按需">按需</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">用药时间</label>
+          <div class="checkbox-group">
+            <label class="checkbox-item"><input type="checkbox" value="早餐后"> 早餐后</label>
+            <label class="checkbox-item"><input type="checkbox" value="午餐后"> 午餐后</label>
+            <label class="checkbox-item"><input type="checkbox" value="晚餐后"> 晚餐后</label>
+            <label class="checkbox-item"><input type="checkbox" value="睡前"> 睡前</label>
+            <label class="checkbox-item"><input type="checkbox" value="空腹"> 空腹</label>
+            <label class="checkbox-item"><input type="checkbox" value="餐前"> 餐前</label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">开始日期</label>
+          <input type="date" class="form-control" id="formStartDate">
+        </div>
+        <div class="form-group">
+          <label class="form-label">结束日期</label>
+          <input type="date" class="form-control" id="formEndDate">
+        </div>
+        <div class="form-group full">
+          <label class="form-label">备注</label>
+          <textarea class="form-control" id="formRemark" placeholder="请输入备注信息"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('planModal')">取消</button>
+      <button class="btn btn-primary" onclick="savePlan()">确定</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: 任务详情 -->
+<div class="modal-overlay" id="taskDetailModal">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <div class="modal-title">任务详情</div>
+      <button class="modal-close" onclick="closeModal('taskDetailModal')">&times;</button>
+    </div>
+    <div class="modal-body" id="taskDetailBody"></div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('taskDetailModal')">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: 确认删除 -->
+<div class="modal-overlay" id="deleteConfirmModal">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div class="modal-title">确认删除</div>
+      <button class="modal-close" onclick="closeModal('deleteConfirmModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="confirm-icon warning">&#9888;</div>
+      <div class="confirm-text" id="deleteConfirmText">确定要删除该用药计划吗？删除后不可恢复。</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('deleteConfirmModal')">取消</button>
+      <button class="btn btn-primary" id="deleteConfirmBtn" style="background:#FF4D4F;border-color:#FF4D4F;" onclick="confirmDelete()">确定删除</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: 确认标记完成 -->
+<div class="modal-overlay" id="markCompleteModal">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div class="modal-title">手动标记完成</div>
+      <button class="modal-close" onclick="closeModal('markCompleteModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="confirm-icon" style="color:#52C41A;">&#10003;</div>
+      <div class="confirm-text" id="markCompleteText">确定要将该任务标记为已完成吗？</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('markCompleteModal')">取消</button>
+      <button class="btn btn-primary" onclick="confirmMarkComplete()">确定</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// ==================== Data ====================
+var planData = [
+  { id: 1, name: '张大爷', room: '101', medicine: '降压药(硝苯地平)', usage: '每日1次/每次1片', frequency: '每日', startDate: '2026-04-01', endDate: '2026-06-30', status: '进行中' },
+  { id: 2, name: '张大爷', room: '101', medicine: '降糖药(二甲双胍)', usage: '每日2次/每次1片', frequency: '每日', startDate: '2026-04-01', endDate: '2026-06-30', status: '进行中' },
+  { id: 3, name: '李奶奶', room: '102', medicine: '钙片', usage: '每日1次/每次1片', frequency: '每日', startDate: '2026-03-15', endDate: '2026-06-15', status: '进行中' },
+  { id: 4, name: '赵阿姨', room: '201', medicine: '胰岛素', usage: '每日2次/餐前注射', frequency: '每日', startDate: '2026-04-10', endDate: '2026-07-10', status: '进行中' },
+  { id: 5, name: '孙爷爷', room: '202', medicine: '心脏病药(阿司匹林)', usage: '每日1次/每次1片', frequency: '每日', startDate: '2026-01-01', endDate: '2026-03-31', status: '已结束' },
+  { id: 6, name: '王叔叔', room: '103', medicine: '维生素D', usage: '每日1次/每次1粒', frequency: '每日', startDate: '2026-04-20', endDate: '2026-05-20', status: '已暂停' }
+];
+
+var taskData = [
+  { id: 'TASK-001', name: '张大爷', room: '101', medicine: '降压药', planTime: '2026-04-26 08:00', location: '101房间', status: '已完成', result: '已服药', timeline: [
+    { time: '08:00', text: '系统生成提醒任务', dot: '' },
+    { time: '08:05', text: '任务下发到机器人', dot: '' },
+    { time: '08:10', text: '机器人到达101房间', dot: '' },
+    { time: '08:12', text: '提醒住户服药', dot: '' },
+    { time: '08:13', text: '住户确认服药', dot: 'success' }
+  ]},
+  { id: 'TASK-002', name: '张大爷', room: '101', medicine: '降糖药', planTime: '2026-04-26 12:00', location: '101房间', status: '已完成', result: '已服药', timeline: [
+    { time: '12:00', text: '系统生成提醒任务', dot: '' },
+    { time: '12:02', text: '任务下发到机器人', dot: '' },
+    { time: '12:04', text: '机器人到达101房间', dot: '' },
+    { time: '12:05', text: '提醒住户服药', dot: '' },
+    { time: '12:05', text: '住户确认服药', dot: 'success' }
+  ]},
+  { id: 'TASK-003', name: '李奶奶', room: '102', medicine: '钙片', planTime: '2026-04-26 09:00', location: '102房间', status: '已完成', result: '已服药', timeline: [
+    { time: '09:00', text: '系统生成提醒任务', dot: '' },
+    { time: '09:03', text: '任务下发到机器人', dot: '' },
+    { time: '09:07', text: '机器人到达102房间', dot: '' },
+    { time: '09:09', text: '提醒住户服药', dot: '' },
+    { time: '09:10', text: '住户确认服药', dot: 'success' }
+  ]},
+  { id: 'TASK-004', name: '赵阿姨', room: '201', medicine: '胰岛素', planTime: '2026-04-26 12:00', location: '餐厅', status: '执行中', result: '--', timeline: [
+    { time: '12:00', text: '系统生成提醒任务', dot: '' },
+    { time: '12:02', text: '任务下发到机器人', dot: '' },
+    { time: '12:05', text: '机器人前往餐厅', dot: '' }
+  ]},
+  { id: 'TASK-005', name: '孙爷爷', room: '202', medicine: '阿司匹林', planTime: '2026-04-26 08:00', location: '202房间', status: '超时未回应', result: '超时未回应', timeline: [
+    { time: '08:00', text: '系统生成提醒任务', dot: '' },
+    { time: '08:05', text: '任务下发到机器人', dot: '' },
+    { time: '08:10', text: '机器人到达202房间', dot: '' },
+    { time: '08:12', text: '提醒住户服药', dot: '' },
+    { time: '08:25', text: '住户未回应，二次提醒', dot: 'warning' },
+    { time: '08:35', text: '住户仍未回应，标记超时', dot: 'danger' },
+    { time: '08:35', text: '推送通知到平台', dot: 'danger' }
+  ]},
+  { id: 'TASK-006', name: '王叔叔', room: '103', medicine: '维生素D', planTime: '2026-04-26 09:00', location: '103房间', status: '住户拒服', result: '拒服', timeline: [
+    { time: '09:00', text: '系统生成提醒任务', dot: '' },
+    { time: '09:03', text: '任务下发到机器人', dot: '' },
+    { time: '09:06', text: '机器人到达103房间', dot: '' },
+    { time: '09:08', text: '提醒住户服药', dot: '' },
+    { time: '09:09', text: '住户表示不想服用', dot: 'warning' },
+    { time: '09:09', text: '记录拒服，推送通知到平台', dot: 'warning' }
+  ]},
+  { id: 'TASK-007', name: '张大爷', room: '101', medicine: '降压药', planTime: '2026-04-27 08:00', location: '101房间', status: '待执行', result: '--', timeline: [] },
+  { id: 'TASK-008', name: '李奶奶', room: '102', medicine: '钙片', planTime: '2026-04-27 09:00', location: '102房间', status: '待执行', result: '--', timeline: [] }
+];
+
+var logData = [
+  { date: '2026-04-26', name: '张大爷', room: '101', medicine: '降压药', usage: '每日1次/1片', planTime: '08:00', actualTime: '08:13', result: '已服药', remark: '正常服用' },
+  { date: '2026-04-26', name: '张大爷', room: '101', medicine: '降糖药', usage: '每日2次/1片', planTime: '12:00', actualTime: '12:05', result: '已服药', remark: '午餐后服用' },
+  { date: '2026-04-26', name: '李奶奶', room: '102', medicine: '钙片', usage: '每日1次/1片', planTime: '09:00', actualTime: '09:10', result: '已服药', remark: '--' },
+  { date: '2026-04-26', name: '王叔叔', room: '103', medicine: '维生素D', usage: '每日1次/1粒', planTime: '09:00', actualTime: '--', result: '拒服', remark: '住户表示不想吃' },
+  { date: '2026-04-26', name: '孙爷爷', room: '202', medicine: '阿司匹林', usage: '每日1次/1片', planTime: '08:00', actualTime: '--', result: '超时未回应', remark: '两次提醒未回应，已通知护工' },
+  { date: '2026-04-25', name: '张大爷', room: '101', medicine: '降压药', usage: '每日1次/1片', planTime: '08:00', actualTime: '08:10', result: '已服药', remark: '--' },
+  { date: '2026-04-25', name: '张大爷', room: '101', medicine: '降糖药', usage: '每日2次/1片', planTime: '12:00', actualTime: '12:08', result: '已服药', remark: '--' },
+  { date: '2026-04-25', name: '李奶奶', room: '102', medicine: '钙片', usage: '每日1次/1片', planTime: '09:00', actualTime: '09:15', result: '已服药', remark: '--' },
+  { date: '2026-04-25', name: '赵阿姨', room: '201', medicine: '胰岛素', usage: '每日2次/餐前', planTime: '07:30', actualTime: '07:35', result: '已服药', remark: '餐前注射' },
+  { date: '2026-04-25', name: '孙爷爷', room: '202', medicine: '阿司匹林', usage: '每日1次/1片', planTime: '08:00', actualTime: '08:20', result: '已服药', remark: '--' }
+];
+
+var nextPlanId = 7;
+var editingPlanId = null;
+var deletingPlanId = null;
+var markingTaskId = null;
+
+// ==================== Sidebar ====================
+function toggleNavGroup(el) {
+  var arrow = el.querySelector('.arrow');
+  var children = el.nextElementSibling;
+  if (children && children.classList.contains('nav-children')) {
+    var isExpanded = children.classList.contains('show');
+    if (isExpanded) {
+      children.classList.remove('show');
+      arrow.classList.remove('expanded');
+    } else {
+      children.classList.add('show');
+      arrow.classList.add('expanded');
+    }
+  }
+}
+
+// ==================== Tab Switching ====================
+function switchTab(tab, el) {
+  var tabs = document.querySelectorAll('.tab-item');
+  var panels = document.querySelectorAll('.tab-panel');
+  tabs.forEach(function(t) { t.classList.remove('active'); });
+  panels.forEach(function(p) { p.classList.remove('active'); });
+  el.classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+}
+
+// ==================== Plan Table ====================
+function getStatusTag(status) {
+  var map = {
+    '进行中': 'tag-blue',
+    '已结束': 'tag-gray',
+    '已暂停': 'tag-orange'
+  };
+  return '<span class="tag ' + (map[status] || 'tag-gray') + '">' + status + '</span>';
+}
+
+function renderPlanTable(data) {
+  var tbody = document.getElementById('planTableBody');
+  if (data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">&#128196;</div><div>暂无数据</div></div></td></tr>';
+    return;
+  }
+  var html = '';
+  data.forEach(function(item) {
+    var pauseBtn = item.status === '已暂停'
+      ? '<button class="btn-link" onclick="togglePause(' + item.id + ')">恢复</button>'
+      : item.status === '进行中'
+        ? '<button class="btn-link" onclick="togglePause(' + item.id + ')">暂停</button>'
+        : '';
+    html += '<tr>' +
+      '<td>' + item.name + '</td>' +
+      '<td>' + item.room + '</td>' +
+      '<td>' + item.medicine + '</td>' +
+      '<td>' + item.usage + '</td>' +
+      '<td>' + item.frequency + '</td>' +
+      '<td>' + item.startDate + '</td>' +
+      '<td>' + item.endDate + '</td>' +
+      '<td>' + getStatusTag(item.status) + '</td>' +
+      '<td><div class="table-actions">' +
+        '<button class="btn-link" onclick="viewPlanDetail(' + item.id + ')">查看详情</button>' +
+        '<button class="btn-link" onclick="editPlan(' + item.id + ')">编辑</button>' +
+        pauseBtn +
+        '<button class="btn-link danger" onclick="deletePlan(' + item.id + ')">删除</button>' +
+      '</div></td>' +
+    '</tr>';
+  });
+  tbody.innerHTML = html;
+}
+
+function filterPlanTable() {
+  var search = document.getElementById('planSearch').value.trim().toLowerCase();
+  var status = document.getElementById('planStatusFilter').value;
+  var filtered = planData.filter(function(item) {
+    var matchSearch = !search || item.name.toLowerCase().indexOf(search) !== -1;
+    var matchStatus = !status || item.status === status;
+    return matchSearch && matchStatus;
+  });
+  renderPlanTable(filtered);
+}
+
+// ==================== Task Table ====================
+function getTaskStatusTag(status) {
+  var map = {
+    '待执行': 'tag-gray',
+    '执行中': 'tag-blue-pulse',
+    '已完成': 'tag-green',
+    '超时未回应': 'tag-red',
+    '住户拒服': 'tag-orange'
+  };
+  return '<span class="tag ' + (map[status] || 'tag-gray') + '">' + status + '</span>';
+}
+
+function getResultText(result) {
+  if (result === '--') return '<span class="status-default">' + result + '</span>';
+  if (result === '已服药') return '<span class="status-success">' + result + ' &#10003;</span>';
+  if (result === '拒服') return '<span class="status-warning">' + result + ' &#10007;</span>';
+  if (result === '超时未回应') return '<span class="status-danger">' + result + '</span>';
+  return '<span>' + result + '</span>';
+}
+
+function renderTaskTable(data) {
+  var tbody = document.getElementById('taskTableBody');
+  if (data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">&#128196;</div><div>暂无数据</div></div></td></tr>';
+    return;
+  }
+  var html = '';
+  data.forEach(function(item) {
+    var canMark = (item.status === '执行中' || item.status === '超时未回应');
+    var markBtn = canMark
+      ? '<button class="btn-link" onclick="markComplete(\'' + item.id + '\')">手动标记完成</button>'
+      : '';
+    html += '<tr>' +
+      '<td>' + item.id + '</td>' +
+      '<td>' + item.name + '</td>' +
+      '<td>' + item.room + '</td>' +
+      '<td>' + item.medicine + '</td>' +
+      '<td>' + item.planTime + '</td>' +
+      '<td>' + item.location + '</td>' +
+      '<td>' + getTaskStatusTag(item.status) + '</td>' +
+      '<td>' + getResultText(item.result) + '</td>' +
+      '<td><div class="table-actions">' +
+        '<button class="btn-link" onclick="viewTaskDetail(\'' + item.id + '\')">查看详情</button>' +
+        markBtn +
+      '</div></td>' +
+    '</tr>';
+  });
+  tbody.innerHTML = html;
+}
+
+function filterTaskTable() {
+  var search = document.getElementById('taskSearch').value.trim().toLowerCase();
+  var status = document.getElementById('taskStatusFilter').value;
+  var date = document.getElementById('taskDateFilter').value;
+  var filtered = taskData.filter(function(item) {
+    var matchSearch = !search || item.name.toLowerCase().indexOf(search) !== -1;
+    var matchStatus = !status || item.status === status;
+    var matchDate = !date || item.planTime.indexOf(date) !== -1;
+    return matchSearch && matchStatus && matchDate;
+  });
+  renderTaskTable(filtered);
+}
+
+// ==================== Log Table ====================
+function getLogResultTag(result) {
+  var map = {
+    '已服药': 'tag-green',
+    '拒服': 'tag-orange',
+    '超时未回应': 'tag-red'
+  };
+  return '<span class="tag ' + (map[result] || 'tag-gray') + '">' + result + '</span>';
+}
+
+function renderLogTable(data) {
+  var tbody = document.getElementById('logTableBody');
+  if (data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">&#128196;</div><div>暂无数据</div></div></td></tr>';
+    return;
+  }
+  var html = '';
+  data.forEach(function(item) {
+    html += '<tr>' +
+      '<td>' + item.date + '</td>' +
+      '<td>' + item.name + '</td>' +
+      '<td>' + item.room + '</td>' +
+      '<td>' + item.medicine + '</td>' +
+      '<td>' + item.usage + '</td>' +
+      '<td>' + item.planTime + '</td>' +
+      '<td>' + (item.actualTime || '--') + '</td>' +
+      '<td>' + getLogResultTag(item.result) + '</td>' +
+      '<td>' + (item.remark || '--') + '</td>' +
+    '</tr>';
+  });
+  tbody.innerHTML = html;
+}
+
+function filterLogTable() {
+  var search = document.getElementById('logSearch').value.trim().toLowerCase();
+  var dateStart = document.getElementById('logDateStart').value;
+  var dateEnd = document.getElementById('logDateEnd').value;
+  var result = document.getElementById('logResultFilter').value;
+  var filtered = logData.filter(function(item) {
+    var matchSearch = !search || item.name.toLowerCase().indexOf(search) !== -1;
+    var matchDateStart = !dateStart || item.date >= dateStart;
+    var matchDateEnd = !dateEnd || item.date <= dateEnd;
+    var matchResult = !result || item.result === result;
+    return matchSearch && matchDateStart && matchDateEnd && matchResult;
+  });
+  renderLogTable(filtered);
+}
+
+// ==================== Plan Modal ====================
+function openPlanModal(id) {
+  editingPlanId = id || null;
+  var title = document.getElementById('planModalTitle');
+  if (id) {
+    title.textContent = '编辑用药计划';
+    var item = planData.find(function(p) { return p.id === id; });
+    if (item) {
+      document.getElementById('formResident').value = item.name;
+      document.getElementById('formMedicine').value = item.medicine;
+      document.getElementById('formDosage').value = item.usage.split('/')[1] || '';
+      document.getElementById('formStartDate').value = item.startDate;
+      document.getElementById('formEndDate').value = item.endDate;
+    }
+  } else {
+    title.textContent = '新建用药计划';
+    document.getElementById('formResident').value = '';
+    document.getElementById('formMedicine').value = '';
+    document.getElementById('formCategory').value = '';
+    document.getElementById('formUsage').value = '';
+    document.getElementById('formDosage').value = '';
+    document.getElementById('formFrequency').value = '';
+    document.getElementById('formStartDate').value = '';
+    document.getElementById('formEndDate').value = '';
+    document.getElementById('formRemark').value = '';
+    var cbs = document.querySelectorAll('.checkbox-group input[type="checkbox"]');
+    cbs.forEach(function(cb) { cb.checked = false; });
+  }
+  document.getElementById('planModal').classList.add('show');
+}
+
+function editPlan(id) {
+  openPlanModal(id);
+}
+
+function savePlan() {
+  var resident = document.getElementById('formResident').value;
+  var medicine = document.getElementById('formMedicine').value;
+  if (!resident) { showToast('请选择住户姓名', 'warning'); return; }
+  if (!medicine) { showToast('请输入药品名称', 'warning'); return; }
+
+  var dosage = document.getElementById('formDosage').value || '每次1片';
+  var frequency = document.getElementById('formFrequency').value || '每日';
+  var startDate = document.getElementById('formStartDate').value || '2026-04-26';
+  var endDate = document.getElementById('formEndDate').value || '2026-06-30';
+
+  var roomMap = { '张大爷': '101', '李奶奶': '102', '赵阿姨': '201', '孙爷爷': '202', '王叔叔': '103' };
+  var room = roomMap[resident] || '--';
+
+  if (editingPlanId) {
+    var item = planData.find(function(p) { return p.id === editingPlanId; });
+    if (item) {
+      item.name = resident;
+      item.room = room;
+      item.medicine = medicine;
+      item.usage = frequency.replace('每日', '每日') + '/' + dosage;
+      item.startDate = startDate;
+      item.endDate = endDate;
+    }
+    showToast('用药计划已更新', 'success');
+  } else {
+    planData.push({
+      id: nextPlanId++,
+      name: resident,
+      room: room,
+      medicine: medicine,
+      usage: frequency.replace('每日', '每日') + '/' + dosage,
+      frequency: frequency,
+      startDate: startDate,
+      endDate: endDate,
+      status: '进行中'
+    });
+    showToast('用药计划已创建', 'success');
+  }
+
+  closeModal('planModal');
+  filterPlanTable();
+}
+
+function viewPlanDetail(id) {
+  var item = planData.find(function(p) { return p.id === id; });
+  if (!item) return;
+  var body = document.getElementById('taskDetailBody');
+  body.innerHTML =
+    '<div class="detail-section-title">用药计划详情</div>' +
+    '<div class="detail-grid">' +
+      '<div class="detail-item"><div class="detail-label">住户姓名</div><div class="detail-value">' + item.name + '</div></div>' +
+      '<div class="detail-item"><div class="detail-label">房间号</div><div class="detail-value">' + item.room + '</div></div>' +
+      '<div class="detail-item"><div class="detail-label">药品名称</div><div class="detail-value">' + item.medicine + '</div></div>' +
+      '<div class="detail-item"><div class="detail-label">用法用量</div><div class="detail-value">' + item.usage + '</div></div>' +
+      '<div class="detail-item"><div class="detail-label">用药频率</div><div class="detail-value">' + item.frequency + '</div></div>' +
+      '<div class="detail-item"><div class="detail-label">疗程状态</div><div class="detail-value">' + getStatusTag(item.status) + '</div></div>' +
+      '<div class="detail-item"><div class="detail-label">开始日期</div><div class="detail-value">' + item.startDate + '</div></div>' +
+      '<div class="detail-item"><div class="detail-label">结束日期</div><div class="detail-value">' + item.endDate + '</div></div>' +
+    '</div>';
+  document.getElementById('taskDetailModal').classList.add('show');
+}
+
+function togglePause(id) {
+  var item = planData.find(function(p) { return p.id === id; });
+  if (!item) return;
+  if (item.status === '进行中') {
+    item.status = '已暂停';
+    showToast('用药计划已暂停', 'success');
+  } else if (item.status === '已暂停') {
+    item.status = '进行中';
+    showToast('用药计划已恢复', 'success');
+  }
+  filterPlanTable();
+}
+
+function deletePlan(id) {
+  deletingPlanId = id;
+  var item = planData.find(function(p) { return p.id === id; });
+  document.getElementById('deleteConfirmText').textContent =
+    '确定要删除「' + item.name + ' - ' + item.medicine + '」的用药计划吗？删除后不可恢复。';
+  document.getElementById('deleteConfirmModal').classList.add('show');
+}
+
+function confirmDelete() {
+  if (deletingPlanId) {
+    planData = planData.filter(function(p) { return p.id !== deletingPlanId; });
+    deletingPlanId = null;
+    closeModal('deleteConfirmModal');
+    filterPlanTable();
+    showToast('用药计划已删除', 'success');
+  }
+}
+
+// ==================== Task Detail ====================
+function viewTaskDetail(taskId) {
+  var item = taskData.find(function(t) { return t.id === taskId; });
+  if (!item) return;
+
+  var timelineHtml = '';
+  if (item.timeline && item.timeline.length > 0) {
+    timelineHtml = '<div class="detail-section-title">执行状态时间线</div><div class="timeline">';
+    item.timeline.forEach(function(step) {
+      var dotClass = step.dot || '';
+      var contentClass = step.dot || '';
+      timelineHtml +=
+        '<div class="timeline-item">' +
+          '<div class="timeline-dot ' + dotClass + '"></div>' +
+          '<div class="timeline-time">' + step.time + '</div>' +
+          '<div class="timeline-content ' + contentClass + '">' + step.text + '</div>' +
+        '</div>';
+    });
+    timelineHtml += '</div>';
+  } else {
+    timelineHtml = '<div class="detail-section-title">执行状态时间线</div><div style="color:#999;font-size:13px;padding:16px 0;">任务尚未开始执行</div>';
+  }
+
+  var body = document.getElementById('taskDetailBody');
+  body.innerHTML =
+    '<div class="detail-section-title">任务基本信息</div>' +
+    '<div class="detail-grid">' +
+      '<div class="detail-item"><div class="detail-label">任务编号</div><div class="detail-value">' + item.id + '</div></div>' +
+      '<div class="detail-item"><div class="detail-label">住户姓名</div><div class="detail-value">' + item.name + '</div></div>' +
+      '<div class="detail-item"><div class="detail-label">房间号</div><div class="detail-value">' + item.room + '</div></div>' +
+      '<div class="detail-item"><div class="detail-label">药品</div><div class="detail-value">' + item.medicine + '</div></div>' +
+      '<div class="detail-item"><div class="detail-label">计划时间</div><div class="detail-value">' + item.planTime + '</div></div>' +
+      '<div class="detail-item"><div class="detail-label">提醒地点</div><div class="detail-value">' + item.location + '</div></div>' +
+      '<div class="detail-item"><div class="detail-label">任务状态</div><div class="detail-value">' + getTaskStatusTag(item.status) + '</div></div>' +
+      '<div class="detail-item"><div class="detail-label">执行结果</div><div class="detail-value">' + getResultText(item.result) + '</div></div>' +
+    '</div>' +
+    timelineHtml;
+
+  document.getElementById('taskDetailModal').classList.add('show');
+}
+
+function markComplete(taskId) {
+  markingTaskId = taskId;
+  var item = taskData.find(function(t) { return t.id === taskId; });
+  document.getElementById('markCompleteText').textContent =
+    '确定要将任务「' + item.id + ' - ' + item.name + ' - ' + item.medicine + '」标记为已完成吗？';
+  document.getElementById('markCompleteModal').classList.add('show');
+}
+
+function confirmMarkComplete() {
+  if (markingTaskId) {
+    var item = taskData.find(function(t) { return t.id === markingTaskId; });
+    if (item) {
+      item.status = '已完成';
+      item.result = '已服药';
+      item.timeline.push({ time: '刚刚', text: '管理员手动标记完成', dot: 'success' });
+    }
+    markingTaskId = null;
+    closeModal('markCompleteModal');
+    filterTaskTable();
+    showToast('任务已标记为完成', 'success');
+  }
+}
+
+// ==================== Modal ====================
+function closeModal(id) {
+  document.getElementById(id).classList.remove('show');
+}
+
+// Close modal on overlay click
+document.querySelectorAll('.modal-overlay').forEach(function(overlay) {
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) {
+      overlay.classList.remove('show');
+    }
+  });
+});
+
+// ==================== Toast ====================
+function showToast(message, type) {
+  type = type || 'success';
+  var container = document.getElementById('toastContainer');
+  var iconMap = {
+    success: '&#10003;',
+    error: '&#10007;',
+    warning: '&#9888;'
+  };
+  var toast = document.createElement('div');
+  toast.className = 'toast ' + type;
+  toast.innerHTML = '<span class="toast-icon">' + (iconMap[type] || '') + '</span><span>' + message + '</span>';
+  container.appendChild(toast);
+  setTimeout(function() {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(-10px)';
+    toast.style.transition = 'all 0.3s';
+    setTimeout(function() { toast.remove(); }, 300);
+  }, 2500);
+}
+
+// ==================== Init ====================
+renderPlanTable(planData);
+renderTaskTable(taskData);
+renderLogTable(logData);
+</script>
+</body>
+</html>
