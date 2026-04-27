@@ -1,1 +1,1 @@
-# dance-library
+# library
