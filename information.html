@@ -76,6 +76,8 @@ ul { list-style: none; }
 .btn-link.danger:hover { color: #ff7875; }
 .btn-danger { background: #ff4d4f; border-color: #ff4d4f; color: #fff; }
 .btn-danger:hover { background: #ff7875; border-color: #ff7875; color: #fff; }
+.btn-success { background: #52c41a; border-color: #52c41a; color: #fff; }
+.btn-success:hover { background: #73d13d; border-color: #73d13d; color: #fff; }
 
 /* Tabs */
 .tabs-bar { display: flex; border-bottom: 1px solid #f0f0f0; margin-bottom: 20px; gap: 0; }
@@ -128,18 +130,22 @@ ul { list-style: none; }
 .form-label .required { color: #ff4d4f; margin-right: 4px; }
 .form-input { width: 100%; height: 40px; border: 1px solid #d9d9d9; border-radius: 4px; padding: 0 12px; font-size: 14px; outline: none; transition: border-color 0.2s; color: rgba(0,0,0,0.65); }
 .form-input:focus { border-color: #1890ff; box-shadow: 0 0 0 2px rgba(24,144,255,0.1); }
+.form-input:disabled { background: #f5f5f5; cursor: not-allowed; color: rgba(0,0,0,0.45); }
 .form-textarea { width: 100%; min-height: 80px; border: 1px solid #d9d9d9; border-radius: 4px; padding: 8px 12px; font-size: 14px; outline: none; transition: border-color 0.2s; resize: vertical; color: rgba(0,0,0,0.65); font-family: inherit; }
 .form-textarea:focus { border-color: #1890ff; box-shadow: 0 0 0 2px rgba(24,144,255,0.1); }
 .form-select { width: 100%; height: 40px; border: 1px solid #d9d9d9; border-radius: 4px; padding: 0 12px; font-size: 14px; outline: none; cursor: pointer; background: #fff; color: rgba(0,0,0,0.65); appearance: auto; }
 .form-select:focus { border-color: #1890ff; box-shadow: 0 0 0 2px rgba(24,144,255,0.1); }
+.form-select:disabled { background: #f5f5f5; cursor: not-allowed; color: rgba(0,0,0,0.45); }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0 32px; }
 
 /* Upload Area */
 .upload-area { border: 2px dashed #d9d9d9; border-radius: 6px; padding: 32px; text-align: center; cursor: pointer; transition: all 0.2s; background: #fafafa; }
 .upload-area:hover { border-color: #1890ff; background: #e6f7ff; }
+.upload-area.has-file { border-color: #52c41a; background: #f6ffed; }
 .upload-icon { font-size: 40px; color: #1890ff; margin-bottom: 8px; }
 .upload-text { font-size: 14px; color: rgba(0,0,0,0.65); }
 .upload-hint { font-size: 12px; color: rgba(0,0,0,0.45); margin-top: 4px; }
+.upload-filename { font-size: 14px; color: #52c41a; font-weight: 500; }
 
 /* Interest Tags */
 .interest-tags { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -205,6 +211,9 @@ ul { list-style: none; }
 .modal-body { padding: 24px; font-size: 14px; color: rgba(0,0,0,0.65); line-height: 1.6; }
 .modal-footer { padding: 12px 24px; border-top: 1px solid #f0f0f0; display: flex; justify-content: flex-end; gap: 8px; }
 
+/* Large Modal */
+.modal-large { width: 600px; max-width: 90vw; }
+
 /* Form Actions */
 .form-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 32px; padding-top: 24px; border-top: 1px solid #f0f0f0; }
 
@@ -237,6 +246,57 @@ ul { list-style: none; }
 .toast.success { border-left: 3px solid #52c41a; }
 .toast.error { border-left: 3px solid #ff4d4f; }
 .toast-icon { font-size: 18px; }
+
+/* Face Upload Section */
+.face-upload-section { border: 1px solid #f0f0f0; border-radius: 6px; padding: 20px; margin-bottom: 20px; }
+.face-upload-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.face-upload-title { font-size: 14px; font-weight: 500; color: rgba(0,0,0,0.85); }
+.face-upload-status { display: flex; align-items: center; gap: 8px; }
+.face-status-badge { padding: 2px 8px; border-radius: 3px; font-size: 12px; }
+.face-status-matched { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
+.face-status-pending { background: #fffbe6; color: #faad14; border: 1px solid #ffe58f; }
+.face-status-none { background: #f5f5f5; color: rgba(0,0,0,0.45); border: 1px solid #d9d9d9; }
+.face-preview { width: 120px; height: 120px; border-radius: 8px; background: #f5f5f5; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 2px dashed #d9d9d9; }
+.face-preview img { width: 100%; height: 100%; object-fit: cover; }
+.face-preview-placeholder { font-size: 48px; color: #bfbfbf; }
+.face-info { margin-top: 12px; font-size: 13px; color: rgba(0,0,0,0.65); }
+.face-info-item { display: flex; gap: 8px; margin-bottom: 4px; }
+.face-info-label { color: rgba(0,0,0,0.45); }
+
+/* Face Selection Grid */
+.face-selection-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; max-height: 400px; overflow-y: auto; padding: 8px; }
+.face-selection-item { border: 2px solid #f0f0f0; border-radius: 8px; padding: 12px; cursor: pointer; transition: all 0.2s; text-align: center; }
+.face-selection-item:hover { border-color: #1890ff; }
+.face-selection-item.selected { border-color: #1890ff; background: #e6f7ff; }
+.face-selection-img { width: 80px; height: 80px; border-radius: 50%; background: #f5f5f5; margin: 0 auto 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.face-selection-img img { width: 100%; height: 100%; object-fit: cover; }
+.face-selection-id { font-size: 12px; color: rgba(0,0,0,0.45); margin-bottom: 4px; }
+.face-selection-name { font-size: 14px; font-weight: 500; color: rgba(0,0,0,0.85); }
+
+/* Upload Mode Tabs */
+.upload-mode-tabs { display: flex; border-bottom: 1px solid #f0f0f0; margin-bottom: 24px; }
+.upload-mode-tab { padding: 12px 24px; cursor: pointer; font-size: 14px; color: rgba(0,0,0,0.65); border-bottom: 2px solid transparent; transition: all 0.2s; }
+.upload-mode-tab:hover { color: #1890ff; }
+.upload-mode-tab.active { color: #1890ff; border-bottom-color: #1890ff; font-weight: 500; }
+
+/* Batch Upload Area */
+.batch-upload-area { border: 2px dashed #d9d9d9; border-radius: 8px; padding: 48px; text-align: center; background: #fafafa; transition: all 0.2s; }
+.batch-upload-area:hover { border-color: #1890ff; background: #e6f7ff; }
+.batch-upload-area.has-file { border-color: #52c41a; background: #f6ffed; }
+.batch-upload-icon { font-size: 48px; margin-bottom: 16px; }
+.batch-upload-title { font-size: 16px; color: rgba(0,0,0,0.85); margin-bottom: 8px; }
+.batch-upload-hint { font-size: 13px; color: rgba(0,0,0,0.45); margin-bottom: 16px; }
+.batch-upload-actions { display: flex; gap: 12px; justify-content: center; }
+
+/* ID Code Display */
+.id-code-display { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; background: #f5f5f5; border-radius: 4px; font-family: monospace; font-size: 13px; color: rgba(0,0,0,0.65); }
+.id-code-label { color: rgba(0,0,0,0.45); }
+.id-code-value { font-weight: 500; color: #1890ff; }
+
+/* Map Selection Info */
+.map-selection-info { background: #e6f7ff; border: 1px solid #91d5ff; border-radius: 4px; padding: 12px; margin-top: 8px; }
+.map-selection-info-title { font-size: 13px; font-weight: 500; color: #1890ff; margin-bottom: 4px; }
+.map-selection-info-text { font-size: 12px; color: rgba(0,0,0,0.65); }
 </style>
 </head>
 <body>
@@ -269,7 +329,7 @@ ul { list-style: none; }
         <span class="arrow expanded">&#9654;</span>
       </div>
       <div class="submenu open">
-        <div class="menu-item"><span>人脸库</span></div>
+        <div class="menu-item" onclick="goToFaceLibrary()"><span>人脸库</span></div>
         <div class="menu-item active"><span>信息管理</span></div>
         <div class="menu-item"><span>音频库</span></div>
         <div class="menu-item"><span>表情库</span></div>
@@ -311,7 +371,7 @@ ul { list-style: none; }
         </div>
 
         <div class="toolbar">
-          <input type="text" class="toolbar-search" id="searchInput" placeholder="搜索姓名/房间号" oninput="filterCards()">
+          <input type="text" class="toolbar-search" id="searchInput" placeholder="搜索姓名/房间号/ID编码" oninput="filterCards()">
           <select class="toolbar-select" id="groupFilter" onchange="filterCards()">
             <option value="">全部分组</option>
             <option value="楼层1">楼层1</option>
@@ -348,116 +408,233 @@ ul { list-style: none; }
           <div class="page-title" id="formTitle">添加住户信息</div>
         </div>
 
-        <div class="card" style="padding: 32px;">
-          <div class="form-row">
-            <div>
-              <div class="form-group">
-                <label class="form-label"><span class="required">*</span>姓名</label>
-                <input type="text" class="form-input" id="formName" placeholder="请输入姓名">
-              </div>
-              <div class="form-group">
-                <label class="form-label">性别</label>
-                <select class="form-select" id="formGender">
-                  <option value="男">男</option>
-                  <option value="女">女</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label class="form-label">年龄</label>
-                <input type="number" class="form-input" id="formAge" placeholder="请输入年龄" min="1" max="150">
-              </div>
-              <div class="form-group">
-                <label class="form-label"><span class="required">*</span>房间号</label>
-                <input type="text" class="form-input" id="formRoom" placeholder="请输入房间号，如101">
-              </div>
-              <div class="form-group">
-                <label class="form-label">联系电话</label>
-                <input type="tel" class="form-input" id="formPhone" placeholder="请输入联系电话">
-              </div>
-              <div class="form-group">
-                <label class="form-label">紧急联系人</label>
-                <input type="text" class="form-input" id="formEmergencyContact" placeholder="请输入紧急联系人姓名">
-              </div>
-              <div class="form-group">
-                <label class="form-label">紧急联系电话</label>
-                <input type="tel" class="form-input" id="formEmergencyPhone" placeholder="请输入紧急联系电话">
-              </div>
-              <div class="form-group">
-                <label class="form-label">所属分组</label>
-                <select class="form-select" id="formGroup">
-                  <option value="楼层1">楼层1</option>
-                  <option value="楼层2">楼层2</option>
-                  <option value="楼层3">楼层3</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label class="form-label">家庭状况</label>
-                <textarea class="form-textarea" id="formFamily" placeholder="请输入家庭状况，如子女情况、家庭关系等"></textarea>
-              </div>
-            </div>
-            <div>
-              <div class="form-group">
-                <label class="form-label">住户头像</label>
-                <div class="upload-area" onclick="handleUploadClick()">
-                  <div class="upload-icon">&#128247;</div>
-                  <div class="upload-text">点击或拖拽上传头像</div>
-                  <div class="upload-hint">支持 JPG、PNG 格式，不超过 2MB</div>
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="form-label">兴趣爱好</label>
-                <div class="interest-tags" id="interestTags">
-                  <div class="interest-tag" onclick="toggleInterest(this)">阅读</div>
-                  <div class="interest-tag" onclick="toggleInterest(this)">散步</div>
-                  <div class="interest-tag" onclick="toggleInterest(this)">听音乐</div>
-                  <div class="interest-tag" onclick="toggleInterest(this)">下棋</div>
-                  <div class="interest-tag" onclick="toggleInterest(this)">太极拳</div>
-                  <div class="interest-tag" onclick="toggleInterest(this)">书法</div>
-                  <div class="interest-tag" onclick="toggleInterest(this)">编织</div>
-                  <div class="interest-tag" onclick="toggleInterest(this)">听戏</div>
-                  <div class="interest-tag" onclick="toggleInterest(this)">跳舞</div>
-                  <div class="interest-tag" onclick="toggleInterest(this)">喝茶</div>
-                  <div class="interest-tag" onclick="toggleInterest(this)">聊天</div>
-                  <div class="interest-custom-input">
-                    <input type="text" id="customInterestInput" placeholder="+ 自定义" onkeydown="if(event.key==='Enter'){event.preventDefault();addCustomInterest();}">
+        <!-- Upload Mode Tabs -->
+        <div class="upload-mode-tabs" id="uploadModeTabs">
+          <div class="upload-mode-tab active" onclick="switchUploadMode('single')">单个上传</div>
+          <div class="upload-mode-tab" onclick="switchUploadMode('batch')">批量上传</div>
+        </div>
+
+        <!-- Single Upload Form -->
+        <div id="singleUploadForm">
+          <div class="card" style="padding: 32px;">
+            <div class="form-row">
+              <div>
+                <!-- ID编码 -->
+                <div class="form-group">
+                  <label class="form-label">ID编码</label>
+                  <div class="id-code-display">
+                    <span class="id-code-label">系统自动生成</span>
+                    <span class="id-code-value" id="formIdCode">-</span>
                   </div>
                 </div>
+
+                <!-- 姓名 -->
+                <div class="form-group">
+                  <label class="form-label"><span class="required">*</span>姓名</label>
+                  <input type="text" class="form-input" id="formName" placeholder="请输入姓名" onblur="checkFaceMatch()">
+                </div>
+
+                <!-- 性别 -->
+                <div class="form-group">
+                  <label class="form-label"><span class="required">*</span>性别</label>
+                  <select class="form-select" id="formGender">
+                    <option value="">请选择性别</option>
+                    <option value="男">男</option>
+                    <option value="女">女</option>
+                  </select>
+                </div>
+
+                <!-- 出生日期 -->
+                <div class="form-group">
+                  <label class="form-label"><span class="required">*</span>出生日期</label>
+                  <input type="date" class="form-input" id="formBirthDate" onchange="calculateAge()">
+                </div>
+
+                <!-- 年龄（自动计算，只读） -->
+                <div class="form-group">
+                  <label class="form-label">年龄</label>
+                  <input type="text" class="form-input" id="formAgeDisplay" readonly placeholder="根据出生日期自动计算">
+                </div>
+
+                <!-- 地图选择 -->
+                <div class="form-group">
+                  <label class="form-label">地图选择</label>
+                  <select class="form-select" id="formMap" onchange="onMapChange()">
+                    <option value="">请选择地图</option>
+                  </select>
+                </div>
+
+                <!-- 点位选择（房间号） -->
+                <div class="form-group">
+                  <label class="form-label">点位选择（房间号）</label>
+                  <select class="form-select" id="formPoint" disabled>
+                    <option value="">请先选择地图</option>
+                  </select>
+                  <div class="map-selection-info" id="mapSelectionInfo" style="display:none;">
+                    <div class="map-selection-info-title">已选择房间</div>
+                    <div class="map-selection-info-text" id="selectedRoomText">-</div>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">联系电话</label>
+                  <input type="tel" class="form-input" id="formPhone" placeholder="请输入联系电话">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">紧急联系人</label>
+                  <input type="text" class="form-input" id="formEmergencyContact" placeholder="请输入紧急联系人姓名">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">紧急联系电话</label>
+                  <input type="tel" class="form-input" id="formEmergencyPhone" placeholder="请输入紧急联系电话">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">所属分组</label>
+                  <select class="form-select" id="formGroup">
+                    <option value="楼层1">楼层1</option>
+                    <option value="楼层2">楼层2</option>
+                    <option value="楼层3">楼层3</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">家庭状况</label>
+                  <textarea class="form-textarea" id="formFamily" placeholder="请输入家庭状况，如子女情况、家庭关系等"></textarea>
+                </div>
               </div>
-              <div class="form-group">
-                <label class="form-label">慢性病史</label>
-                <textarea class="form-textarea" id="formChronic" placeholder="请输入慢性病史信息"></textarea>
-              </div>
-              <div class="form-group">
-                <label class="form-label">过敏史</label>
-                <textarea class="form-textarea" id="formAllergy" placeholder="请输入过敏史信息"></textarea>
-              </div>
-              <div class="form-group">
-                <label class="form-label">饮食习惯与禁忌</label>
-                <textarea class="form-textarea" id="formDiet" placeholder="请输入饮食习惯与禁忌"></textarea>
-              </div>
-              <div class="form-group">
-                <label class="form-label">自理能力评估</label>
-                <select class="form-select" id="formSelfCare">
-                  <option value="完全自理">完全自理</option>
-                  <option value="半自理">半自理</option>
-                  <option value="需协助">需协助</option>
-                  <option value="完全依赖">完全依赖</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label class="form-label">健康状态</label>
-                <select class="form-select" id="formHealth">
-                  <option value="正常">正常</option>
-                  <option value="需关注">需关注</option>
-                  <option value="重点关注">重点关注</option>
-                </select>
+              <div>
+                <!-- 住户人脸 -->
+                <div class="form-group">
+                  <label class="form-label"><span class="required">*</span>住户人脸</label>
+                  <div class="face-upload-section">
+                    <div class="face-upload-header">
+                      <span class="face-upload-title">人脸关联</span>
+                      <span class="face-upload-status" id="faceStatus">
+                        <span class="face-status-badge face-status-none">未关联</span>
+                      </span>
+                    </div>
+                    <div class="face-preview" id="facePreview">
+                      <span class="face-preview-placeholder">&#128100;</span>
+                    </div>
+                    <div class="face-info" id="faceInfo" style="display:none;">
+                      <div class="face-info-item">
+                        <span class="face-info-label">人脸ID:</span>
+                        <span id="faceIdText">-</span>
+                      </div>
+                      <div class="face-info-item">
+                        <span class="face-info-label">关联姓名:</span>
+                        <span id="faceNameText">-</span>
+                      </div>
+                    </div>
+                    <input type="hidden" id="formFaceId">
+                    <input type="hidden" id="formFaceImage">
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">兴趣爱好</label>
+                  <div class="interest-tags" id="interestTags">
+                    <div class="interest-tag" onclick="toggleInterest(this)">阅读</div>
+                    <div class="interest-tag" onclick="toggleInterest(this)">散步</div>
+                    <div class="interest-tag" onclick="toggleInterest(this)">听音乐</div>
+                    <div class="interest-tag" onclick="toggleInterest(this)">下棋</div>
+                    <div class="interest-tag" onclick="toggleInterest(this)">太极拳</div>
+                    <div class="interest-tag" onclick="toggleInterest(this)">书法</div>
+                    <div class="interest-tag" onclick="toggleInterest(this)">编织</div>
+                    <div class="interest-tag" onclick="toggleInterest(this)">听戏</div>
+                    <div class="interest-tag" onclick="toggleInterest(this)">跳舞</div>
+                    <div class="interest-tag" onclick="toggleInterest(this)">喝茶</div>
+                    <div class="interest-tag" onclick="toggleInterest(this)">聊天</div>
+                    <div class="interest-custom-input">
+                      <input type="text" id="customInterestInput" placeholder="+ 自定义" onkeydown="if(event.key==='Enter'){event.preventDefault();addCustomInterest();}">
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">慢性病史</label>
+                  <textarea class="form-textarea" id="formChronic" placeholder="请输入慢性病史信息"></textarea>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">过敏史</label>
+                  <textarea class="form-textarea" id="formAllergy" placeholder="请输入过敏史信息"></textarea>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">饮食习惯与禁忌</label>
+                  <textarea class="form-textarea" id="formDiet" placeholder="请输入饮食习惯与禁忌"></textarea>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">自理能力评估</label>
+                  <select class="form-select" id="formSelfCare">
+                    <option value="完全自理">完全自理</option>
+                    <option value="半自理">半自理</option>
+                    <option value="需协助">需协助</option>
+                    <option value="完全依赖">完全依赖</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">健康状态</label>
+                  <select class="form-select" id="formHealth">
+                    <option value="正常">正常</option>
+                    <option value="需关注">需关注</option>
+                    <option value="重点关注">重点关注</option>
+                  </select>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div class="form-actions">
-            <button class="btn" onclick="showListPage()">取消</button>
-            <button class="btn btn-primary" onclick="saveResident()">确定</button>
+            <div class="form-actions">
+              <button class="btn" onclick="showListPage()">取消</button>
+              <button class="btn btn-primary" onclick="saveResident()">确定</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Batch Upload Form -->
+        <div id="batchUploadForm" style="display:none;">
+          <div class="card" style="padding: 32px;">
+            <div class="batch-upload-area" id="batchUploadArea">
+              <div class="batch-upload-icon">&#128194;</div>
+              <div class="batch-upload-title">拖拽Excel文件到此处，或点击上传</div>
+              <div class="batch-upload-hint">支持 .xlsx, .xls 格式文件，请使用标准模板</div>
+              <div class="batch-upload-actions">
+                <button class="btn" onclick="downloadExcelTemplate()">
+                  <span>&#128229;</span> 下载Excel模板
+                </button>
+                <button class="btn btn-primary" onclick="document.getElementById('batchFileInput').click()">
+                  <span>&#128194;</span> 选择文件
+                </button>
+              </div>
+              <input type="file" id="batchFileInput" accept=".xlsx,.xls" style="display:none;" onchange="handleBatchFileSelect(event)">
+            </div>
+
+            <!-- Batch Upload Preview -->
+            <div id="batchPreviewSection" style="display:none; margin-top: 24px;">
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+                <h3 style="font-size:16px; font-weight:500;">待导入数据预览</h3>
+                <span id="batchCount" style="color:rgba(0,0,0,0.45);">共 0 条</span>
+              </div>
+              <div style="max-height:400px; overflow:auto; border:1px solid #f0f0f0; border-radius:4px;">
+                <table style="width:100%; border-collapse:collapse; font-size:13px;">
+                  <thead style="background:#fafafa;">
+                    <tr>
+                      <th style="padding:12px; text-align:left; border-bottom:1px solid #f0f0f0;">序号</th>
+                      <th style="padding:12px; text-align:left; border-bottom:1px solid #f0f0f0;">ID编码</th>
+                      <th style="padding:12px; text-align:left; border-bottom:1px solid #f0f0f0;">姓名</th>
+                      <th style="padding:12px; text-align:left; border-bottom:1px solid #f0f0f0;">性别</th>
+                      <th style="padding:12px; text-align:left; border-bottom:1px solid #f0f0f0;">出生日期</th>
+                      <th style="padding:12px; text-align:left; border-bottom:1px solid #f0f0f0;">房间号</th>
+                      <th style="padding:12px; text-align:left; border-bottom:1px solid #f0f0f0;">状态</th>
+                    </tr>
+                  </thead>
+                  <tbody id="batchPreviewTable">
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button class="btn" onclick="showListPage()">取消</button>
+              <button class="btn btn-primary" id="batchSubmitBtn" onclick="submitBatchUpload()" disabled>确认导入</button>
+            </div>
           </div>
         </div>
       </div>
@@ -527,6 +704,43 @@ ul { list-style: none; }
   </div>
 </div>
 
+<!-- Face Not Found Modal -->
+<div class="modal-overlay" id="faceNotFoundModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span>人脸库未录入</span>
+      <span class="modal-close" onclick="hideFaceNotFoundModal()">&#10005;</span>
+    </div>
+    <div class="modal-body">
+      <p>当前姓名「<strong id="faceNotFoundName">-</strong>」未在人脸库录入，请先前往人脸库完成人脸录入。</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="hideFaceNotFoundModal()">取消</button>
+      <button class="btn btn-primary" onclick="goToFaceLibrary()">前往人脸库</button>
+    </div>
+  </div>
+</div>
+
+<!-- Face Selection Modal -->
+<div class="modal-overlay" id="faceSelectionModal">
+  <div class="modal modal-large">
+    <div class="modal-header">
+      <span>选择匹配的人脸</span>
+      <span class="modal-close" onclick="hideFaceSelectionModal()">&#10005;</span>
+    </div>
+    <div class="modal-body">
+      <p style="margin-bottom:16px;">人脸库中存在多个「<strong id="faceSelectionName">-</strong>」的人脸记录，请选择正确的人脸进行关联：</p>
+      <div class="face-selection-grid" id="faceSelectionGrid">
+        <!-- Face options rendered by JS -->
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="hideFaceSelectionModal()">取消</button>
+      <button class="btn btn-primary" onclick="confirmFaceSelection()">确认选择</button>
+    </div>
+  </div>
+</div>
+
 <!-- Toast -->
 <div class="toast" id="toast">
   <span class="toast-icon" id="toastIcon">&#9989;</span>
@@ -535,10 +749,53 @@ ul { list-style: none; }
 
 <script>
 // ============ DATA ============
+// 模拟地图数据
+const mapData = {
+  '一楼平面图': [
+    { id: 'P101', name: '101室', x: 100, y: 100 },
+    { id: 'P102', name: '102室', x: 200, y: 100 },
+    { id: 'P103', name: '103室', x: 300, y: 100 },
+    { id: 'P104', name: '104室', x: 400, y: 100 },
+    { id: 'P105', name: '105室', x: 500, y: 100 }
+  ],
+  '二楼平面图': [
+    { id: 'P201', name: '201室', x: 100, y: 100 },
+    { id: 'P202', name: '202室', x: 200, y: 100 },
+    { id: 'P203', name: '203室', x: 300, y: 100 },
+    { id: 'P204', name: '204室', x: 400, y: 100 },
+    { id: 'P205', name: '205室', x: 500, y: 100 }
+  ],
+  '三楼平面图': [
+    { id: 'P301', name: '301室', x: 100, y: 100 },
+    { id: 'P302', name: '302室', x: 200, y: 100 },
+    { id: 'P303', name: '303室', x: 300, y: 100 },
+    { id: 'P304', name: '304室', x: 400, y: 100 },
+    { id: 'P305', name: '305室', x: 500, y: 100 }
+  ]
+};
+
+// 模拟人脸库数据
+const faceLibrary = {
+  '张大爷': [
+    { id: 'FACE001', name: '张大爷', image: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect fill="%23e6f7ff" width="100" height="100"/><text x="50" y="60" font-size="40" text-anchor="middle">&#128116;</text></svg>' }
+  ],
+  '李奶奶': [
+    { id: 'FACE002', name: '李奶奶', image: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect fill="%23fff0f6" width="100" height="100"/><text x="50" y="60" font-size="40" text-anchor="middle">&#128117;</text></svg>' }
+  ],
+  '王叔叔': [
+    { id: 'FACE003', name: '王叔叔', image: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect fill="%23e6f7ff" width="100" height="100"/><text x="50" y="60" font-size="40" text-anchor="middle">&#128116;</text></svg>' }
+  ],
+  '测试用户': [
+    { id: 'FACE004', name: '测试用户', image: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect fill="%23e6f7ff" width="100" height="100"/><text x="50" y="60" font-size="40" text-anchor="middle">&#128100;</text></svg>' },
+    { id: 'FACE005', name: '测试用户', image: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect fill="%23fff0f6" width="100" height="100"/><text x="50" y="60" font-size="40" text-anchor="middle">&#128100;</text></svg>' }
+  ]
+};
+
 let residents = [
   {
-    id: 1, name: '张大爷', gender: '男', age: 78, room: '101', group: '楼层1',
-    avatar: '&#128116;', interests: ['下棋', '散步'], health: '正常',
+    id: 1, idCode: 'RES20260001', name: '张大爷', gender: '男', birthDate: '1948-05-15', age: 78, room: '101', map: '一楼平面图', point: 'P101', group: '楼层1',
+    avatar: '&#128116;', faceId: 'FACE001', faceImage: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect fill="%23e6f7ff" width="100" height="100"/><text x="50" y="60" font-size="40" text-anchor="middle">&#128116;</text></svg>',
+    interests: ['下棋', '散步'], health: '正常',
     chronic: '无', allergy: '无', diet: '清淡饮食', selfCare: '完全自理',
     phone: '13800001001', emergencyContact: '张先生', emergencyPhone: '13900001001',
     history: [
@@ -549,8 +806,9 @@ let residents = [
     ]
   },
   {
-    id: 2, name: '李奶奶', gender: '女', age: 82, room: '102', group: '楼层1',
-    avatar: '&#128117;', interests: ['阅读', '听音乐'], health: '需关注',
+    id: 2, idCode: 'RES20260002', name: '李奶奶', gender: '女', birthDate: '1944-03-20', age: 82, room: '102', map: '一楼平面图', point: 'P102', group: '楼层1',
+    avatar: '&#128117;', faceId: 'FACE002', faceImage: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect fill="%23fff0f6" width="100" height="100"/><text x="50" y="60" font-size="40" text-anchor="middle">&#128117;</text></svg>',
+    interests: ['阅读', '听音乐'], health: '需关注',
     chronic: '高血压', allergy: '青霉素过敏', diet: '低盐饮食', selfCare: '半自理',
     phone: '13800001002', emergencyContact: '李女士', emergencyPhone: '13900001002',
     history: [
@@ -561,8 +819,9 @@ let residents = [
     ]
   },
   {
-    id: 3, name: '王叔叔', gender: '男', age: 75, room: '103', group: '楼层1',
-    avatar: '&#128116;', interests: ['太极拳'], health: '正常',
+    id: 3, idCode: 'RES20260003', name: '王叔叔', gender: '男', birthDate: '1951-08-10', age: 75, room: '103', map: '一楼平面图', point: 'P103', group: '楼层1',
+    avatar: '&#128116;', faceId: 'FACE003', faceImage: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect fill="%23e6f7ff" width="100" height="100"/><text x="50" y="60" font-size="40" text-anchor="middle">&#128116;</text></svg>',
+    interests: ['太极拳'], health: '正常',
     chronic: '无', allergy: '无', diet: '无特殊要求', selfCare: '完全自理',
     phone: '13800001003', emergencyContact: '王女士', emergencyPhone: '13900001003',
     history: [
@@ -571,7 +830,7 @@ let residents = [
     ]
   },
   {
-    id: 4, name: '赵阿姨', gender: '女', age: 80, room: '201', group: '楼层2',
+    id: 4, idCode: 'RES20260004', name: '赵阿姨', gender: '女', birthDate: '1946-11-05', age: 80, room: '201', map: '二楼平面图', point: 'P201', group: '楼层2',
     avatar: '&#128117;', interests: ['编织', '听戏'], health: '重点关注',
     chronic: '糖尿病、高血压', allergy: '海鲜过敏', diet: '低糖低盐饮食', selfCare: '需协助',
     phone: '13800001004', emergencyContact: '赵先生', emergencyPhone: '13900001004',
@@ -584,7 +843,7 @@ let residents = [
     ]
   },
   {
-    id: 5, name: '孙爷爷', gender: '男', age: 85, room: '202', group: '楼层2',
+    id: 5, idCode: 'RES20260005', name: '孙爷爷', gender: '男', birthDate: '1941-02-28', age: 85, room: '202', map: '二楼平面图', point: 'P202', group: '楼层2',
     avatar: '&#128116;', interests: ['书法', '下棋'], health: '需关注',
     chronic: '心脏病', allergy: '无', diet: '低脂饮食', selfCare: '半自理',
     phone: '13800001005', emergencyContact: '孙先生', emergencyPhone: '13900001005',
@@ -595,7 +854,7 @@ let residents = [
     ]
   },
   {
-    id: 6, name: '周奶奶', gender: '女', age: 79, room: '203', group: '楼层2',
+    id: 6, idCode: 'RES20260006', name: '周奶奶', gender: '女', birthDate: '1947-06-18', age: 79, room: '203', map: '二楼平面图', point: 'P203', group: '楼层2',
     avatar: '&#128117;', interests: ['散步', '聊天'], health: '正常',
     chronic: '无', allergy: '无', diet: '无特殊要求', selfCare: '完全自理',
     phone: '13800001006', emergencyContact: '周先生', emergencyPhone: '13900001006',
@@ -606,7 +865,7 @@ let residents = [
     ]
   },
   {
-    id: 7, name: '吴大爷', gender: '男', age: 88, room: '301', group: '楼层3',
+    id: 7, idCode: 'RES20260007', name: '吴大爷', gender: '男', birthDate: '1938-09-12', age: 88, room: '301', map: '三楼平面图', point: 'P301', group: '楼层3',
     avatar: '&#128116;', interests: ['听戏', '喝茶'], health: '重点关注',
     chronic: '多种慢性病（高血压、糖尿病、关节炎）', allergy: '磺胺类药物过敏', diet: '低糖低盐低脂饮食', selfCare: '需协助',
     phone: '13800001007', emergencyContact: '吴女士', emergencyPhone: '13900001007',
@@ -619,7 +878,7 @@ let residents = [
     ]
   },
   {
-    id: 8, name: '陈阿姨', gender: '女', age: 76, room: '302', group: '楼层3',
+    id: 8, idCode: 'RES20260008', name: '陈阿姨', gender: '女', birthDate: '1950-01-08', age: 76, room: '302', map: '三楼平面图', point: 'P302', group: '楼层3',
     avatar: '&#128117;', interests: ['跳舞', '阅读'], health: '正常',
     chronic: '无', allergy: '无', diet: '无特殊要求', selfCare: '完全自理',
     phone: '13800001008', emergencyContact: '陈先生', emergencyPhone: '13900001008',
@@ -638,6 +897,8 @@ let deletingId = null;
 let detailId = null;
 let currentPage = 1;
 const pageSize = 8;
+let selectedFace = null;
+let batchData = [];
 
 // ============ SIDEBAR ============
 function toggleSubmenu(el) {
@@ -647,6 +908,13 @@ function toggleSubmenu(el) {
     submenu.classList.toggle('open');
     if (arrow) arrow.classList.toggle('expanded');
   }
+}
+
+function goToFaceLibrary() {
+  hideFaceNotFoundModal();
+  hideFaceSelectionModal();
+  showToast('正在跳转到人脸库...', 'success');
+  // 实际项目中这里会跳转到人脸库页面
 }
 
 // ============ PAGE NAVIGATION ============
@@ -664,6 +932,8 @@ function showAddPage() {
   editingId = null;
   document.getElementById('formTitle').textContent = '添加住户信息';
   clearForm();
+  generateIdCode();
+  initMapSelect();
   showPage('page-form');
 }
 
@@ -671,7 +941,11 @@ function showEditPage(id) {
   editingId = id;
   document.getElementById('formTitle').textContent = '编辑住户信息';
   const r = residents.find(x => x.id === id);
-  if (r) fillForm(r);
+  if (r) {
+    clearForm();
+    initMapSelect();
+    fillForm(r);
+  }
   showPage('page-form');
 }
 
@@ -681,12 +955,326 @@ function showDetailPage(id) {
   showPage('page-detail');
 }
 
+// ============ UPLOAD MODE SWITCH ============
+function switchUploadMode(mode) {
+  document.querySelectorAll('.upload-mode-tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  
+  if (mode === 'single') {
+    document.getElementById('singleUploadForm').style.display = 'block';
+    document.getElementById('batchUploadForm').style.display = 'none';
+  } else {
+    document.getElementById('singleUploadForm').style.display = 'none';
+    document.getElementById('batchUploadForm').style.display = 'block';
+  }
+}
+
+// ============ ID CODE GENERATION ============
+function generateIdCode() {
+  const year = new Date().getFullYear();
+  const existingCodes = residents.map(r => r.idCode);
+  let maxSeq = 0;
+  existingCodes.forEach(code => {
+    const match = code.match(/RES\d{4}(\d{4})/);
+    if (match) {
+      maxSeq = Math.max(maxSeq, parseInt(match[1]));
+    }
+  });
+  const newSeq = String(maxSeq + 1).padStart(4, '0');
+  const newIdCode = `RES${year}${newSeq}`;
+  document.getElementById('formIdCode').textContent = newIdCode;
+  return newIdCode;
+}
+
+// ============ MAP & POINT SELECTION ============
+function initMapSelect() {
+  const mapSelect = document.getElementById('formMap');
+  mapSelect.innerHTML = '<option value="">请选择地图</option>';
+  Object.keys(mapData).forEach(mapName => {
+    const option = document.createElement('option');
+    option.value = mapName;
+    option.textContent = mapName;
+    mapSelect.appendChild(option);
+  });
+}
+
+function onMapChange() {
+  const mapSelect = document.getElementById('formMap');
+  const pointSelect = document.getElementById('formPoint');
+  const selectedMap = mapSelect.value;
+  
+  pointSelect.innerHTML = '<option value="">请选择点位</option>';
+  
+  if (selectedMap && mapData[selectedMap]) {
+    pointSelect.disabled = false;
+    mapData[selectedMap].forEach(point => {
+      const option = document.createElement('option');
+      option.value = point.id;
+      option.textContent = `${point.name} (${point.id})`;
+      pointSelect.appendChild(option);
+    });
+  } else {
+    pointSelect.disabled = true;
+    document.getElementById('mapSelectionInfo').style.display = 'none';
+  }
+  
+  updateSelectedRoomDisplay();
+}
+
+function updateSelectedRoomDisplay() {
+  const pointSelect = document.getElementById('formPoint');
+  const selectedPointId = pointSelect.value;
+  const mapSelect = document.getElementById('formMap');
+  const selectedMap = mapSelect.value;
+  
+  if (selectedPointId && selectedMap && mapData[selectedMap]) {
+    const point = mapData[selectedMap].find(p => p.id === selectedPointId);
+    if (point) {
+      document.getElementById('selectedRoomText').textContent = `${selectedMap} - ${point.name}`;
+      document.getElementById('mapSelectionInfo').style.display = 'block';
+    }
+  } else {
+    document.getElementById('mapSelectionInfo').style.display = 'none';
+  }
+}
+
+document.getElementById('formPoint').addEventListener('change', updateSelectedRoomDisplay);
+
+// ============ AGE CALCULATION ============
+function calculateAge() {
+  const birthDate = document.getElementById('formBirthDate').value;
+  if (birthDate) {
+    const birth = new Date(birthDate);
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+    document.getElementById('formAgeDisplay').value = age + '岁';
+    return age;
+  }
+  document.getElementById('formAgeDisplay').value = '';
+  return 0;
+}
+
+// ============ FACE MATCHING ============
+function checkFaceMatch() {
+  const name = document.getElementById('formName').value.trim();
+  if (!name) return;
+  
+  const faces = faceLibrary[name];
+  
+  if (!faces || faces.length === 0) {
+    // 场景2：人脸库不存在该姓名
+    document.getElementById('faceNotFoundName').textContent = name;
+    document.getElementById('faceNotFoundModal').classList.add('show');
+    resetFaceSelection();
+  } else if (faces.length === 1) {
+    // 场景1：人脸库已存在该姓名，自动显示人脸头像
+    selectFace(faces[0]);
+  } else {
+    // 场景3：人脸库存在该姓名多张人脸，弹出选择菜单
+    document.getElementById('faceSelectionName').textContent = name;
+    renderFaceSelectionGrid(faces);
+    document.getElementById('faceSelectionModal').classList.add('show');
+  }
+}
+
+function resetFaceSelection() {
+  selectedFace = null;
+  document.getElementById('formFaceId').value = '';
+  document.getElementById('formFaceImage').value = '';
+  document.getElementById('facePreview').innerHTML = '<span class="face-preview-placeholder">&#128100;</span>';
+  document.getElementById('faceInfo').style.display = 'none';
+  document.getElementById('faceStatus').innerHTML = '<span class="face-status-badge face-status-none">未关联</span>';
+}
+
+function selectFace(face) {
+  selectedFace = face;
+  document.getElementById('formFaceId').value = face.id;
+  document.getElementById('formFaceImage').value = face.image;
+  document.getElementById('facePreview').innerHTML = `<img src="${face.image}" alt="人脸">`;
+  document.getElementById('faceInfo').style.display = 'block';
+  document.getElementById('faceIdText').textContent = face.id;
+  document.getElementById('faceNameText').textContent = face.name;
+  document.getElementById('faceStatus').innerHTML = '<span class="face-status-badge face-status-matched">已关联</span>';
+}
+
+function renderFaceSelectionGrid(faces) {
+  const grid = document.getElementById('faceSelectionGrid');
+  grid.innerHTML = faces.map((face, index) => `
+    <div class="face-selection-item" data-index="${index}" onclick="selectFaceOption(${index})">
+      <div class="face-selection-img">
+        <img src="${face.image}" alt="${face.name}">
+      </div>
+      <div class="face-selection-id">ID: ${face.id}</div>
+      <div class="face-selection-name">${face.name}</div>
+    </div>
+  `).join('');
+}
+
+function selectFaceOption(index) {
+  document.querySelectorAll('.face-selection-item').forEach((item, i) => {
+    item.classList.toggle('selected', i === index);
+  });
+  const name = document.getElementById('faceSelectionName').textContent;
+  selectedFace = faceLibrary[name][index];
+}
+
+function confirmFaceSelection() {
+  if (selectedFace) {
+    selectFace(selectedFace);
+    hideFaceSelectionModal();
+  } else {
+    showToast('请选择一个人脸', 'error');
+  }
+}
+
+function hideFaceNotFoundModal() {
+  document.getElementById('faceNotFoundModal').classList.remove('show');
+}
+
+function hideFaceSelectionModal() {
+  document.getElementById('faceSelectionModal').classList.remove('show');
+}
+
+// ============ BATCH UPLOAD ============
+function downloadExcelTemplate() {
+  // 创建Excel模板内容（CSV格式）
+  const template = [
+    ['ID编码', '姓名', '性别', '出生日期', '房间号', '地图', '点位ID', '所属分组', '联系电话', '紧急联系人', '紧急联系电话', '慢性病史', '过敏史', '饮食习惯', '自理能力', '健康状态', '兴趣爱好'],
+    ['RES20260009', '张三', '男', '1950-01-01', '101', '一楼平面图', 'P101', '楼层1', '13800000000', '张小三', '13900000000', '无', '无', '清淡饮食', '完全自理', '正常', '阅读,散步'],
+    ['', '李四', '女', '1945-06-15', '102', '一楼平面图', 'P102', '楼层1', '13800000001', '李小四', '13900000001', '高血压', '无', '低盐饮食', '半自理', '需关注', '听音乐']
+  ];
+  
+  const csvContent = template.map(row => row.join(',')).join('\n');
+  const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = '住户信息导入模板.csv';
+  link.click();
+  showToast('模板下载成功', 'success');
+}
+
+function handleBatchFileSelect(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  // 模拟解析Excel文件
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    // 模拟数据解析（实际项目中需要引入xlsx库解析）
+    simulateBatchParse(file.name);
+  };
+  reader.readAsBinaryString(file);
+}
+
+function simulateBatchParse(filename) {
+  // 模拟解析结果
+  batchData = [
+    { idCode: generateBatchIdCode(1), name: '钱大爷', gender: '男', birthDate: '1949-03-15', room: '104', map: '一楼平面图', point: 'P104', group: '楼层1', phone: '13800001009', status: 'ready' },
+    { idCode: generateBatchIdCode(2), name: '孙奶奶', gender: '女', birthDate: '1943-07-22', room: '105', map: '一楼平面图', point: 'P105', group: '楼层1', phone: '13800001010', status: 'ready' },
+    { idCode: generateBatchIdCode(3), name: '周叔叔', gender: '男', birthDate: '1952-11-08', room: '204', map: '二楼平面图', point: 'P204', group: '楼层2', phone: '13800001011', status: 'ready' }
+  ];
+  
+  renderBatchPreview();
+  document.getElementById('batchUploadArea').classList.add('has-file');
+  document.querySelector('.batch-upload-title').textContent = `已选择文件: ${filename}`;
+  document.querySelector('.batch-upload-hint').textContent = '数据已解析，请确认后导入';
+  showToast('文件解析成功', 'success');
+}
+
+function generateBatchIdCode(offset) {
+  const year = new Date().getFullYear();
+  const existingCodes = residents.map(r => r.idCode);
+  let maxSeq = 0;
+  existingCodes.forEach(code => {
+    const match = code.match(/RES\d{4}(\d{4})/);
+    if (match) {
+      maxSeq = Math.max(maxSeq, parseInt(match[1]));
+    }
+  });
+  const newSeq = String(maxSeq + offset).padStart(4, '0');
+  return `RES${year}${newSeq}`;
+}
+
+function renderBatchPreview() {
+  const tbody = document.getElementById('batchPreviewTable');
+  document.getElementById('batchCount').textContent = `共 ${batchData.length} 条`;
+  
+  tbody.innerHTML = batchData.map((item, index) => `
+    <tr>
+      <td style="padding:12px; border-bottom:1px solid #f0f0f0;">${index + 1}</td>
+      <td style="padding:12px; border-bottom:1px solid #f0f0f0;">${item.idCode}</td>
+      <td style="padding:12px; border-bottom:1px solid #f0f0f0;">${item.name}</td>
+      <td style="padding:12px; border-bottom:1px solid #f0f0f0;">${item.gender}</td>
+      <td style="padding:12px; border-bottom:1px solid #f0f0f0;">${item.birthDate}</td>
+      <td style="padding:12px; border-bottom:1px solid #f0f0f0;">${item.room}</td>
+      <td style="padding:12px; border-bottom:1px solid #f0f0f0;"><span style="color:#52c41a;">待导入</span></td>
+    </tr>
+  `).join('');
+  
+  document.getElementById('batchPreviewSection').style.display = 'block';
+  document.getElementById('batchSubmitBtn').disabled = false;
+}
+
+function submitBatchUpload() {
+  if (batchData.length === 0) {
+    showToast('没有数据可导入', 'error');
+    return;
+  }
+  
+  // 批量添加住户
+  batchData.forEach(item => {
+    const newId = Math.max(...residents.map(r => r.id), 0) + 1;
+    const age = calculateAgeFromBirthDate(item.birthDate);
+    residents.push({
+      id: newId,
+      ...item,
+      age: age,
+      avatar: item.gender === '男' ? '&#128116;' : '&#128117;',
+      interests: [],
+      health: '正常',
+      chronic: '',
+      allergy: '',
+      diet: '',
+      selfCare: '完全自理',
+      emergencyContact: '',
+      emergencyPhone: '',
+      history: [{ time: new Date().toISOString().slice(0,16).replace('T',' '), text: '住户信息通过批量导入录入系统', type: 'success' }]
+    });
+  });
+  
+  showToast(`成功导入 ${batchData.length} 条住户信息`, 'success');
+  batchData = [];
+  document.getElementById('batchFileInput').value = '';
+  document.getElementById('batchPreviewSection').style.display = 'none';
+  document.getElementById('batchSubmitBtn').disabled = true;
+  document.getElementById('batchUploadArea').classList.remove('has-file');
+  document.querySelector('.batch-upload-title').textContent = '拖拽Excel文件到此处，或点击上传';
+  document.querySelector('.batch-upload-hint').textContent = '支持 .xlsx, .xls 格式文件，请使用标准模板';
+  showListPage();
+}
+
+function calculateAgeFromBirthDate(birthDate) {
+  if (!birthDate) return 0;
+  const birth = new Date(birthDate);
+  const today = new Date();
+  let age = today.getFullYear() - birth.getFullYear();
+  const monthDiff = today.getMonth() - birth.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+    age--;
+  }
+  return age;
+}
+
 // ============ RENDER CARDS ============
 function getFilteredResidents() {
   return residents.filter(r => {
     const matchGroup = !currentGroup || r.group === currentGroup;
     const q = currentSearch.toLowerCase();
-    const matchSearch = !q || r.name.toLowerCase().includes(q) || r.room.includes(q);
+    const matchSearch = !q || r.name.toLowerCase().includes(q) || r.room.includes(q) || (r.idCode && r.idCode.toLowerCase().includes(q));
     return matchGroup && matchSearch;
   });
 }
@@ -724,7 +1312,7 @@ function renderCard(r) {
             ${r.name}
             <span class="gender-tag gender-${genderClass}">${r.gender}</span>
           </div>
-          <div class="card-age">${r.age}岁</div>
+          <div class="card-age">${r.age}岁 · ID:${r.idCode || '-'}</div>
           <div class="card-room"><span class="room-icon">&#127968;</span>${r.group} - ${r.room}室</div>
         </div>
       </div>
@@ -787,22 +1375,46 @@ function filterCards() {
 
 // ============ FORM ============
 function clearForm() {
-  ['formName','formAge','formRoom','formPhone','formEmergencyContact','formEmergencyPhone','formChronic','formAllergy','formDiet'].forEach(id => {
+  ['formName','formPhone','formEmergencyContact','formEmergencyPhone','formChronic','formAllergy','formDiet'].forEach(id => {
     document.getElementById(id).value = '';
   });
-  document.getElementById('formGender').value = '男';
+  document.getElementById('formGender').value = '';
+  document.getElementById('formBirthDate').value = '';
+  document.getElementById('formAgeDisplay').value = '';
+  document.getElementById('formMap').value = '';
+  document.getElementById('formPoint').innerHTML = '<option value="">请先选择地图</option>';
+  document.getElementById('formPoint').disabled = true;
+  document.getElementById('mapSelectionInfo').style.display = 'none';
   document.getElementById('formGroup').value = '楼层1';
   document.getElementById('formSelfCare').value = '完全自理';
   document.getElementById('formHealth').value = '正常';
   document.querySelectorAll('.interest-tag').forEach(t => t.classList.remove('selected'));
   document.querySelectorAll('.interest-tag[ondblclick]').forEach(t => t.remove());
+  resetFaceSelection();
+  // Reset upload mode
+  document.querySelectorAll('.upload-mode-tab').forEach(t => t.classList.remove('active'));
+  document.querySelector('.upload-mode-tab').classList.add('active');
+  document.getElementById('singleUploadForm').style.display = 'block';
+  document.getElementById('batchUploadForm').style.display = 'none';
 }
 
 function fillForm(r) {
+  document.getElementById('formIdCode').textContent = r.idCode || generateIdCode();
   document.getElementById('formName').value = r.name;
   document.getElementById('formGender').value = r.gender;
-  document.getElementById('formAge').value = r.age;
-  document.getElementById('formRoom').value = r.room;
+  document.getElementById('formBirthDate').value = r.birthDate || '';
+  calculateAge();
+  
+  // Map and point selection
+  if (r.map) {
+    document.getElementById('formMap').value = r.map;
+    onMapChange();
+    if (r.point) {
+      document.getElementById('formPoint').value = r.point;
+      updateSelectedRoomDisplay();
+    }
+  }
+  
   document.getElementById('formPhone').value = r.phone || '';
   document.getElementById('formEmergencyContact').value = r.emergencyContact || '';
   document.getElementById('formEmergencyPhone').value = r.emergencyPhone || '';
@@ -812,6 +1424,12 @@ function fillForm(r) {
   document.getElementById('formDiet').value = r.diet || '';
   document.getElementById('formSelfCare').value = r.selfCare || '完全自理';
   document.getElementById('formHealth').value = r.health;
+
+  // Face info
+  if (r.faceId) {
+    const face = { id: r.faceId, name: r.name, image: r.faceImage || '' };
+    selectFace(face);
+  }
 
   document.querySelectorAll('.interest-tag').forEach(t => {
     t.classList.toggle('selected', r.interests.includes(t.textContent));
@@ -860,21 +1478,36 @@ function getSelectedInterests() {
   return Array.from(document.querySelectorAll('.interest-tag.selected')).map(t => t.textContent);
 }
 
-function handleUploadClick() {
-  showToast('头像上传功能演示', 'success');
-}
-
 function saveResident() {
   const name = document.getElementById('formName').value.trim();
-  const room = document.getElementById('formRoom').value.trim();
+  const gender = document.getElementById('formGender').value;
+  const birthDate = document.getElementById('formBirthDate').value;
+  const faceId = document.getElementById('formFaceId').value;
+  
   if (!name) { showToast('请输入姓名', 'error'); return; }
-  if (!room) { showToast('请输入房间号', 'error'); return; }
+  if (!gender) { showToast('请选择性别', 'error'); return; }
+  if (!birthDate) { showToast('请选择出生日期', 'error'); return; }
+  if (!faceId) { showToast('请关联住户人脸', 'error'); return; }
+
+  const map = document.getElementById('formMap').value;
+  const point = document.getElementById('formPoint').value;
+  let room = '';
+  
+  if (map && point && mapData[map]) {
+    const pointData = mapData[map].find(p => p.id === point);
+    if (pointData) {
+      room = pointData.name.replace('室', '');
+    }
+  }
 
   const data = {
     name,
-    gender: document.getElementById('formGender').value,
-    age: parseInt(document.getElementById('formAge').value) || 0,
-    room,
+    gender,
+    birthDate,
+    age: calculateAge(),
+    room: room || '未分配',
+    map: map || '',
+    point: point || '',
     phone: document.getElementById('formPhone').value.trim(),
     emergencyContact: document.getElementById('formEmergencyContact').value.trim(),
     emergencyPhone: document.getElementById('formEmergencyPhone').value.trim(),
@@ -885,19 +1518,27 @@ function saveResident() {
     allergy: document.getElementById('formAllergy').value.trim(),
     diet: document.getElementById('formDiet').value.trim(),
     selfCare: document.getElementById('formSelfCare').value,
-    health: document.getElementById('formHealth').value
+    health: document.getElementById('formHealth').value,
+    faceId: faceId,
+    faceImage: document.getElementById('formFaceImage').value
   };
 
   if (editingId) {
     const idx = residents.findIndex(r => r.id === editingId);
     if (idx >= 0) {
+      data.idCode = residents[idx].idCode;
+      data.id = residents[idx].id;
+      data.avatar = residents[idx].avatar;
+      data.history = residents[idx].history;
       residents[idx] = { ...residents[idx], ...data };
       showToast('住户信息已更新', 'success');
     }
   } else {
     const newId = Math.max(...residents.map(r => r.id)) + 1;
+    const newIdCode = document.getElementById('formIdCode').textContent;
     residents.push({
       id: newId,
+      idCode: newIdCode,
       ...data,
       avatar: data.gender === '男' ? '&#128116;' : '&#128117;',
       history: [{ time: new Date().toISOString().slice(0,16).replace('T',' '), text: '住户信息已录入系统', type: 'success' }]
@@ -912,7 +1553,7 @@ function saveResident() {
 function showDeleteModal(id) {
   deletingId = id;
   const r = residents.find(x => x.id === id);
-  document.getElementById('deleteModalBody').innerHTML = `确定要删除住户 <strong>${r ? r.name : ''}</strong> 的信息吗？删除后不可恢复。`;
+  document.getElementById('deleteModalBody').innerHTML = `确定要删除住户 <strong>${r ? r.name : ''}</strong> (ID: ${r ? r.idCode : '-'}) 的信息吗？删除后不可恢复。`;
   document.getElementById('deleteModal').classList.add('show');
 }
 
@@ -985,6 +1626,7 @@ function renderDetail() {
         <div class="detail-meta-item">&#128197; ${r.age}岁</div>
         <div class="detail-meta-item">&#127968; ${r.group} - ${r.room}室</div>
         <div class="detail-meta-item">&#128222; ${r.phone || '未填写'}</div>
+        <div class="detail-meta-item">ID: ${r.idCode || '-'}</div>
       </div>
     </div>
   `;
@@ -1014,10 +1656,13 @@ function switchDetailTab(el, tabName) {
 
 function renderDetailBasic(r) {
   const items = [
+    { label: 'ID编码', value: r.idCode || '-' },
     { label: '姓名', value: r.name },
     { label: '性别', value: r.gender },
+    { label: '出生日期', value: r.birthDate || '-' },
     { label: '年龄', value: r.age + '岁' },
     { label: '房间号', value: r.group + ' - ' + r.room + '室' },
+    { label: '地图位置', value: (r.map || '-') + (r.point ? ' (' + r.point + ')' : '') },
     { label: '联系电话', value: r.phone || '未填写' },
     { label: '紧急联系人', value: r.emergencyContact || '未填写' },
     { label: '紧急联系电话', value: r.emergencyPhone || '未填写' },
