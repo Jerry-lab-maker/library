@@ -778,11 +778,16 @@ setInterval(updateClock, 10000);
 // ============================================================
 // 弹窗系统
 // ============================================================
+let alertTimer = null;
 function showAlert(id) {
   document.getElementById(id).classList.add('visible');
+  // 5秒后自动关闭
+  clearTimeout(alertTimer);
+  alertTimer = setTimeout(() => hideAlert(id), 5000);
 }
 function hideAlert(id) {
   document.getElementById(id).classList.remove('visible');
+  clearTimeout(alertTimer);
 }
 
 // ============================================================
@@ -937,54 +942,40 @@ function switchState(index) {
 // 演示轮播（实际由机器人程序驱动）
 // ============================================================
 const demoSequence = [
-  { delay: 3500, state: 0 },  // 开机后进入待机
-  { delay: 4000, state: 1 },  // 聆听
-  { delay: 3000, state: 2 },  // 思考
-  { delay: 3000, state: 3 },  // 说话（带对话）
-  { delay: 5000, state: 0 },  // 回到待机
-  { delay: 3000, state: 1 },  // 聆听
-  { delay: 3000, state: 2 },  // 思考
-  { delay: 3000, state: 5 },  // 音乐（带对话）
-  { delay: 5000, state: 0 },  // 回到待机
-  { delay: 2000, state: 4 },  // 弹出低电量提示
-  { delay: 5000, state: 0 },  // 回到待机
-  { delay: 3000, state: 1 },  // 聆听
-  { delay: 3000, state: 2 },  // 思考
-  { delay: 3000, state: 6 },  // 跳舞（带对话）
-  { delay: 5000, state: 0 },  // 回到待机
-  { delay: 2000, state: 5 },  // 弹出网络异常提示
-  { delay: 5000, state: 0 },  // 回到待机
-  { delay: 2000, state: 6 },  // 弹出危险提示
-  { delay: 5000, state: 0 },  // 回到待机 → 循环
+  { delay: 3500, action: 'state', value: 0 },   // 开机后进入待机
+  { delay: 4000, action: 'state', value: 1 },   // 聆听
+  { delay: 3000, action: 'state', value: 2 },   // 思考
+  { delay: 3000, action: 'state', value: 3 },   // 说话（带对话）
+  { delay: 5000, action: 'state', value: 0 },   // 回到待机
+  { delay: 3000, action: 'state', value: 1 },   // 聆听
+  { delay: 3000, action: 'state', value: 2 },   // 思考
+  { delay: 3000, action: 'state', value: 4 },   // 音乐（带对话）
+  { delay: 5000, action: 'state', value: 0 },   // 回到待机
+  { delay: 2000, action: 'alert', value: 'alertBattery' },  // 低电量弹窗（5秒自动消失）
+  { delay: 7000, action: 'state', value: 0 },   // 回到待机
+  { delay: 3000, action: 'state', value: 1 },   // 聆听
+  { delay: 3000, action: 'state', value: 2 },   // 思考
+  { delay: 3000, action: 'state', value: 6 },   // 跳舞（带对话）
+  { delay: 5000, action: 'state', value: 0 },   // 回到待机
+  { delay: 2000, action: 'alert', value: 'alertNetwork' },  // 网络异常弹窗
+  { delay: 7000, action: 'state', value: 0 },   // 回到待机
+  { delay: 2000, action: 'alert', value: 'alertDanger' },   // 危险弹窗
+  { delay: 7000, action: 'state', value: 0 },   // 回到待机 → 循环
 ];
 
 let demoIndex = 0;
 function runDemo() {
   const item = demoSequence[demoIndex % demoSequence.length];
-  if (item.state === 4) {
-    showAlert('alertBattery');
-  } else if (item.state === 5) {
-    // 判断是否需要弹网络弹窗
-    if (demoIndex % demoSequence.length === 15) {
-      showAlert('alertNetwork');
-    } else {
-      switchState(item.state);
-    }
-  } else if (item.state === 6) {
-    // 判断是否需要弹危险弹窗
-    if (demoIndex % demoSequence.length === 17) {
-      showAlert('alertDanger');
-    } else {
-      switchState(item.state);
-    }
+  if (item.action === 'alert') {
+    showAlert(item.value);
   } else {
-    switchState(item.state);
+    switchState(item.value);
   }
   demoIndex++;
   setTimeout(runDemo, item.delay);
 }
 
-// 启动演示
+// 启动演示（开机3秒后开始）
 setTimeout(runDemo, 3500);
 </script>
 
