@@ -88,22 +88,16 @@
   }
 
   .boot-logo {
-    width: 80px; height: 80px;
-    border-radius: 28px;
-    background: linear-gradient(135deg, var(--accent), #D4613A);
+    width: 420px;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 8px 32px rgba(232,115,74,0.25);
     animation: bootLogoIn 1s cubic-bezier(0.34, 1.56, 0.64, 1) both;
   }
-  .boot-logo svg {
-    width: 42px; height: 42px;
-    fill: none;
-    stroke: #FFFFFF;
-    stroke-width: 2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
+  .boot-logo img {
+    width: 420px;
+    height: auto;
+    object-fit: contain;
   }
   @keyframes bootLogoIn {
     from { opacity: 0; transform: scale(0.5) rotate(-10deg); }
@@ -318,6 +312,22 @@
     max-height: 300px;
     opacity: 1;
     margin-top: 8px;
+    overflow-y: auto;
+  }
+
+  /* 对话时隐藏底部信息条和语音指示 */
+  .content.chat-active .info-strip,
+  .content.chat-active .voice-indicator {
+    opacity: 0;
+    max-height: 0;
+    margin-top: 0;
+    padding: 0;
+    overflow: hidden;
+    pointer-events: none;
+    transition: opacity 0.4s ease, max-height 0.4s ease, margin 0.4s ease, padding 0.4s ease;
+  }
+  .info-strip, .voice-indicator {
+    transition: opacity 0.4s ease, max-height 0.4s ease, margin 0.4s ease, padding 0.4s ease;
   }
 
   .chat-bubble {
@@ -399,7 +409,13 @@
     font-weight: 700;
     color: var(--text-primary);
     line-height: 1.3;
+    transition: opacity 0.4s ease;
   }
+  .info-chip-value.fading { opacity: 0; }
+  .info-chip-label {
+    transition: opacity 0.4s ease;
+  }
+  .info-chip-label.fading { opacity: 0; }
 
   /* 底部语音指示 */
   .voice-indicator {
@@ -612,15 +628,9 @@
   <!-- ===== 1. 开机Logo页 ===== -->
   <div class="boot-screen" id="bootScreen" role="status" aria-label="开机画面">
     <div class="boot-logo" aria-hidden="true">
-      <svg viewBox="0 0 24 24">
-        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-        <path d="M2 17l10 5 10-5"/>
-        <path d="M2 12l10 5 10-5"/>
-      </svg>
+      <img src="assets/logo.png" alt="光谷东智">
     </div>
-    <div class="boot-company">光谷东智</div>
-    <div class="boot-divider"></div>
-    <div class="boot-tagline">智慧陪伴 · 温暖守护</div>
+    <div class="boot-tagline">智慧生活、伴你左右</div>
     <div class="boot-loading" aria-label="加载中">
       <div class="boot-loading-dot"></div>
       <div class="boot-loading-dot"></div>
@@ -724,14 +734,14 @@
     </div>
 
     <!-- 信息条 -->
-    <div class="info-strip">
+    <div class="info-strip" id="infoStrip">
       <div class="info-chip">
         <svg viewBox="0 0 24 24" stroke="#E8734A" aria-hidden="true">
           <circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
         </svg>
         <div class="info-chip-text">
-          <span class="info-chip-label">武汉天气</span>
-          <span class="info-chip-value">25°C 晴</span>
+          <span class="info-chip-label" id="weatherLabel">武汉天气</span>
+          <span class="info-chip-value" id="weatherValue">25°C 晴</span>
         </div>
       </div>
       <div class="info-chip">
@@ -739,8 +749,8 @@
           <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
         </svg>
         <div class="info-chip-text">
-          <span class="info-chip-label">今日提醒</span>
-          <span class="info-chip-value">下午3点吃药</span>
+          <span class="info-chip-label" id="taskLabel">当前任务</span>
+          <span class="info-chip-value" id="taskValue">提醒王奶奶吃药</span>
         </div>
       </div>
     </div>
@@ -776,6 +786,49 @@ updateClock();
 setInterval(updateClock, 10000);
 
 // ============================================================
+// 底部信息轮播
+// ============================================================
+const weatherSlides = [
+  { label: '武汉天气', value: '25°C 晴' },
+  { label: '今日预报', value: '晴转多云 18~28°C' },
+  { label: '明日预报', value: '小雨 16~22°C' },
+];
+const taskSlides = [
+  { label: '当前任务', value: '提醒王奶奶吃药' },
+  { label: '队列任务', value: '还有3项待执行' },
+];
+
+let weatherIdx = 0, taskIdx = 0;
+const weatherLabel = document.getElementById('weatherLabel');
+const weatherValue = document.getElementById('weatherValue');
+const taskLabel = document.getElementById('taskLabel');
+const taskValue = document.getElementById('taskValue');
+
+function updateCarousel(labelEl, valueEl, slides, idx) {
+  // 淡出
+  labelEl.classList.add('fading');
+  valueEl.classList.add('fading');
+  setTimeout(() => {
+    const item = slides[idx % slides.length];
+    labelEl.textContent = item.label;
+    valueEl.textContent = item.value;
+    // 淡入
+    labelEl.classList.remove('fading');
+    valueEl.classList.remove('fading');
+  }, 400);
+}
+
+setInterval(() => {
+  weatherIdx++;
+  updateCarousel(weatherLabel, weatherValue, weatherSlides, weatherIdx);
+}, 5000);
+
+setInterval(() => {
+  taskIdx++;
+  updateCarousel(taskLabel, taskValue, taskSlides, taskIdx);
+}, 5000);
+
+// ============================================================
 // 弹窗系统
 // ============================================================
 let alertTimer = null;
@@ -794,14 +847,17 @@ function hideAlert(id) {
 // 对话系统
 // ============================================================
 const chatArea = document.getElementById('chatArea');
+const mainContent = document.getElementById('mainContent');
 let chatVisible = false;
 
 function showChat() {
   chatArea.classList.add('visible');
+  mainContent.classList.add('chat-active');
   chatVisible = true;
 }
 function hideChat() {
   chatArea.classList.remove('visible');
+  mainContent.classList.remove('chat-active');
   chatVisible = false;
   // 清空对话
   setTimeout(() => { chatArea.innerHTML = ''; }, 500);
