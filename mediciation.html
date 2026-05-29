@@ -386,6 +386,7 @@ select.form-control { cursor: pointer; }
               </select>
             </div>
             <div class="toolbar-right">
+              <button class="btn" onclick="openGlobalConfigModal()">全局配置</button>
               <button class="btn btn-primary" onclick="openPlanModal()">+ 新建用药计划</button>
             </div>
           </div>
@@ -397,7 +398,7 @@ select.form-control { cursor: pointer; }
                   <th>房间号</th>
                   <th>药品名称</th>
                   <th>用法用量</th>
-                  <th>用药频率</th>
+                  <th>提醒时间</th>
                   <th>开始日期</th>
                   <th>结束日期</th>
                   <th>疗程状态</th>
@@ -426,7 +427,7 @@ select.form-control { cursor: pointer; }
                 <option value="执行中">执行中</option>
                 <option value="已完成">已完成</option>
                 <option value="超时未回应">超时未回应</option>
-                <option value="住户拒服">住户拒服</option>
+                <option value="未确认">未确认</option>
               </select>
               <input type="date" class="form-input form-input-date" id="taskDateFilter" onchange="filterTaskTable()">
             </div>
@@ -467,8 +468,8 @@ select.form-control { cursor: pointer; }
               <input type="date" class="form-input form-input-date" id="logDateEnd" onchange="filterLogTable()" title="结束日期">
               <select class="form-select" id="logResultFilter" onchange="filterLogTable()">
                 <option value="">全部结果</option>
-                <option value="已服药">已服药</option>
-                <option value="拒服">拒服</option>
+                <option value="已确认">已确认</option>
+                <option value="未确认">未确认</option>
                 <option value="超时未回应">超时未回应</option>
               </select>
             </div>
@@ -484,7 +485,7 @@ select.form-control { cursor: pointer; }
                   <th>用法用量</th>
                   <th>计划时间</th>
                   <th>实际服药时间</th>
-                  <th>服药结果</th>
+                  <th>确认结果</th>
                   <th>备注</th>
                 </tr>
               </thead>
@@ -493,12 +494,12 @@ select.form-control { cursor: pointer; }
           </div>
           <div class="stats-bar">
             <div class="stat-item">
-              <span>今日已服药</span>
+              <span>今日已确认</span>
               <span class="stat-value green">6 人次</span>
             </div>
             <div class="stat-divider"></div>
             <div class="stat-item">
-              <span>拒服</span>
+              <span>未确认</span>
               <span class="stat-value orange">1 人次</span>
             </div>
             <div class="stat-divider"></div>
@@ -508,7 +509,7 @@ select.form-control { cursor: pointer; }
             </div>
             <div class="stat-divider"></div>
             <div class="stat-item">
-              <span>服药率</span>
+              <span>确认率</span>
               <span class="stat-value blue">75%</span>
             </div>
           </div>
@@ -568,26 +569,11 @@ select.form-control { cursor: pointer; }
           <label class="form-label">单次用量</label>
           <input type="text" class="form-control" id="formDosage" placeholder="如：1片、10ml">
         </div>
-        <div class="form-group">
-          <label class="form-label">用药频率</label>
-          <select class="form-control" id="formFrequency">
-            <option value="">请选择频率</option>
-            <option value="每日1次">每日1次</option>
-            <option value="每日2次">每日2次</option>
-            <option value="每日3次">每日3次</option>
-            <option value="每周1次">每周1次</option>
-            <option value="按需">按需</option>
-          </select>
-        </div>
         <div class="form-group full">
-          <label class="form-label">用药时间</label>
-          <div class="checkbox-group">
-            <label class="checkbox-item"><input type="checkbox" value="早餐后"> 早餐后</label>
-            <label class="checkbox-item"><input type="checkbox" value="午餐后"> 午餐后</label>
-            <label class="checkbox-item"><input type="checkbox" value="晚餐后"> 晚餐后</label>
-            <label class="checkbox-item"><input type="checkbox" value="睡前"> 睡前</label>
-            <label class="checkbox-item"><input type="checkbox" value="空腹"> 空腹</label>
-            <label class="checkbox-item"><input type="checkbox" value="餐前"> 餐前</label>
+          <label class="form-label">提醒时间</label>
+          <div id="remindTimesContainer" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+            <input type="time" class="form-control" style="width:140px;" value="">
+            <button type="button" class="btn btn-sm" onclick="addRemindTime()" title="添加时间">+</button>
           </div>
         </div>
         <div class="form-group">
@@ -647,16 +633,36 @@ select.form-control { cursor: pointer; }
 <div class="modal-overlay" id="markCompleteModal">
   <div class="modal modal-sm">
     <div class="modal-header">
-      <div class="modal-title">手动标记完成</div>
+      <div class="modal-title">手动标记已确认</div>
       <button class="modal-close" onclick="closeModal('markCompleteModal')">&times;</button>
     </div>
     <div class="modal-body">
       <div class="confirm-icon" style="color:#52C41A;">&#10003;</div>
-      <div class="confirm-text" id="markCompleteText">确定要将该任务标记为已完成吗？</div>
+      <div class="confirm-text" id="markCompleteText">确定要将该任务标记为已确认吗？</div>
     </div>
     <div class="modal-footer">
       <button class="btn" onclick="closeModal('markCompleteModal')">取消</button>
       <button class="btn btn-primary" onclick="confirmMarkComplete()">确定</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: 全局配置 -->
+<div class="modal-overlay" id="globalConfigModal">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div class="modal-title">全局配置</div>
+      <button class="modal-close" onclick="closeModal('globalConfigModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">机器人到达后等待时间（分钟）</label>
+        <input type="number" class="form-control" id="globalWaitTime" min="1" max="30" value="5" placeholder="请输入等待时间">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('globalConfigModal')">取消</button>
+      <button class="btn btn-primary" onclick="saveGlobalConfig()">确定</button>
     </div>
   </div>
 </div>
@@ -667,30 +673,30 @@ select.form-control { cursor: pointer; }
 <script>
 // ==================== Data ====================
 var planData = [
-  { id: 1, name: '张大爷', room: '101', medicine: '降压药(硝苯地平)', usage: '每日1次/每次1片', frequency: '每日', startDate: '2026-04-01', endDate: '2026-06-30', status: '进行中' },
-  { id: 2, name: '张大爷', room: '101', medicine: '降糖药(二甲双胍)', usage: '每日2次/每次1片', frequency: '每日', startDate: '2026-04-01', endDate: '2026-06-30', status: '进行中' },
-  { id: 3, name: '李奶奶', room: '102', medicine: '钙片', usage: '每日1次/每次1片', frequency: '每日', startDate: '2026-03-15', endDate: '2026-06-15', status: '进行中' },
-  { id: 4, name: '赵阿姨', room: '201', medicine: '胰岛素', usage: '每日2次/餐前注射', frequency: '每日', startDate: '2026-04-10', endDate: '2026-07-10', status: '进行中' },
-  { id: 5, name: '孙爷爷', room: '202', medicine: '心脏病药(阿司匹林)', usage: '每日1次/每次1片', frequency: '每日', startDate: '2026-01-01', endDate: '2026-03-31', status: '已结束' },
-  { id: 6, name: '王叔叔', room: '103', medicine: '维生素D', usage: '每日1次/每次1粒', frequency: '每日', startDate: '2026-04-20', endDate: '2026-05-20', status: '已暂停' }
+  { id: 1, name: '张大爷', room: '101', medicine: '降压药(硝苯地平)', usage: '每日1次/每次1片', remindTimes: '08:00', startDate: '2026-04-01', endDate: '2026-06-30', status: '进行中' },
+  { id: 2, name: '张大爷', room: '101', medicine: '降糖药(二甲双胍)', usage: '每日2次/每次1片', remindTimes: '08:00, 18:00', startDate: '2026-04-01', endDate: '2026-06-30', status: '进行中' },
+  { id: 3, name: '李奶奶', room: '102', medicine: '钙片', usage: '每日1次/每次1片', remindTimes: '09:00', startDate: '2026-03-15', endDate: '2026-06-15', status: '进行中' },
+  { id: 4, name: '赵阿姨', room: '201', medicine: '胰岛素', usage: '每日2次/餐前注射', remindTimes: '07:30, 17:30', startDate: '2026-04-10', endDate: '2026-07-10', status: '进行中' },
+  { id: 5, name: '孙爷爷', room: '202', medicine: '心脏病药(阿司匹林)', usage: '每日1次/每次1片', remindTimes: '08:00', startDate: '2026-01-01', endDate: '2026-03-31', status: '已结束' },
+  { id: 6, name: '王叔叔', room: '103', medicine: '维生素D', usage: '每日1次/每次1粒', remindTimes: '09:00', startDate: '2026-04-20', endDate: '2026-05-20', status: '已暂停' }
 ];
 
 var taskData = [
-  { id: 'TASK-001', name: '张大爷', room: '101', medicine: '降压药', planTime: '2026-04-26 08:00', location: '101房间', status: '已完成', result: '已服药', timeline: [
+  { id: 'TASK-001', name: '张大爷', room: '101', medicine: '降压药', planTime: '2026-04-26 08:00', location: '101房间', status: '已完成', result: '已确认', timeline: [
     { time: '08:00', text: '系统生成提醒任务', dot: '' },
     { time: '08:05', text: '任务下发到机器人', dot: '' },
     { time: '08:10', text: '机器人到达101房间', dot: '' },
     { time: '08:12', text: '提醒住户服药', dot: '' },
     { time: '08:13', text: '住户确认服药', dot: 'success' }
   ]},
-  { id: 'TASK-002', name: '张大爷', room: '101', medicine: '降糖药', planTime: '2026-04-26 12:00', location: '101房间', status: '已完成', result: '已服药', timeline: [
+  { id: 'TASK-002', name: '张大爷', room: '101', medicine: '降糖药', planTime: '2026-04-26 12:00', location: '101房间', status: '已完成', result: '已确认', timeline: [
     { time: '12:00', text: '系统生成提醒任务', dot: '' },
     { time: '12:02', text: '任务下发到机器人', dot: '' },
     { time: '12:04', text: '机器人到达101房间', dot: '' },
     { time: '12:05', text: '提醒住户服药', dot: '' },
     { time: '12:05', text: '住户确认服药', dot: 'success' }
   ]},
-  { id: 'TASK-003', name: '李奶奶', room: '102', medicine: '钙片', planTime: '2026-04-26 09:00', location: '102房间', status: '已完成', result: '已服药', timeline: [
+  { id: 'TASK-003', name: '李奶奶', room: '102', medicine: '钙片', planTime: '2026-04-26 09:00', location: '102房间', status: '已完成', result: '已确认', timeline: [
     { time: '09:00', text: '系统生成提醒任务', dot: '' },
     { time: '09:03', text: '任务下发到机器人', dot: '' },
     { time: '09:07', text: '机器人到达102房间', dot: '' },
@@ -711,35 +717,36 @@ var taskData = [
     { time: '08:35', text: '住户仍未回应，标记超时', dot: 'danger' },
     { time: '08:35', text: '推送通知到平台', dot: 'danger' }
   ]},
-  { id: 'TASK-006', name: '王叔叔', room: '103', medicine: '维生素D', planTime: '2026-04-26 09:00', location: '103房间', status: '住户拒服', result: '拒服', timeline: [
+  { id: 'TASK-006', name: '王叔叔', room: '103', medicine: '维生素D', planTime: '2026-04-26 09:00', location: '103房间', status: '未确认', result: '未确认', timeline: [
     { time: '09:00', text: '系统生成提醒任务', dot: '' },
     { time: '09:03', text: '任务下发到机器人', dot: '' },
     { time: '09:06', text: '机器人到达103房间', dot: '' },
     { time: '09:08', text: '提醒住户服药', dot: '' },
     { time: '09:09', text: '住户表示不想服用', dot: 'warning' },
-    { time: '09:09', text: '记录拒服，推送通知到平台', dot: 'warning' }
+    { time: '09:09', text: '记录未确认，推送通知到平台', dot: 'warning' }
   ]},
   { id: 'TASK-007', name: '张大爷', room: '101', medicine: '降压药', planTime: '2026-04-27 08:00', location: '101房间', status: '待执行', result: '--', timeline: [] },
   { id: 'TASK-008', name: '李奶奶', room: '102', medicine: '钙片', planTime: '2026-04-27 09:00', location: '102房间', status: '待执行', result: '--', timeline: [] }
 ];
 
 var logData = [
-  { date: '2026-04-26', name: '张大爷', room: '101', medicine: '降压药', usage: '每日1次/1片', planTime: '08:00', actualTime: '08:13', result: '已服药', remark: '正常服用' },
-  { date: '2026-04-26', name: '张大爷', room: '101', medicine: '降糖药', usage: '每日2次/1片', planTime: '12:00', actualTime: '12:05', result: '已服药', remark: '午餐后服用' },
-  { date: '2026-04-26', name: '李奶奶', room: '102', medicine: '钙片', usage: '每日1次/1片', planTime: '09:00', actualTime: '09:10', result: '已服药', remark: '--' },
-  { date: '2026-04-26', name: '王叔叔', room: '103', medicine: '维生素D', usage: '每日1次/1粒', planTime: '09:00', actualTime: '--', result: '拒服', remark: '住户表示不想吃' },
+  { date: '2026-04-26', name: '张大爷', room: '101', medicine: '降压药', usage: '每日1次/1片', planTime: '08:00', actualTime: '08:13', result: '已确认', remark: '正常服用' },
+  { date: '2026-04-26', name: '张大爷', room: '101', medicine: '降糖药', usage: '每日2次/1片', planTime: '12:00', actualTime: '12:05', result: '已确认', remark: '午餐后服用' },
+  { date: '2026-04-26', name: '李奶奶', room: '102', medicine: '钙片', usage: '每日1次/1片', planTime: '09:00', actualTime: '09:10', result: '已确认', remark: '--' },
+  { date: '2026-04-26', name: '王叔叔', room: '103', medicine: '维生素D', usage: '每日1次/1粒', planTime: '09:00', actualTime: '--', result: '未确认', remark: '住户表示不想吃' },
   { date: '2026-04-26', name: '孙爷爷', room: '202', medicine: '阿司匹林', usage: '每日1次/1片', planTime: '08:00', actualTime: '--', result: '超时未回应', remark: '两次提醒未回应，已通知护工' },
-  { date: '2026-04-25', name: '张大爷', room: '101', medicine: '降压药', usage: '每日1次/1片', planTime: '08:00', actualTime: '08:10', result: '已服药', remark: '--' },
-  { date: '2026-04-25', name: '张大爷', room: '101', medicine: '降糖药', usage: '每日2次/1片', planTime: '12:00', actualTime: '12:08', result: '已服药', remark: '--' },
-  { date: '2026-04-25', name: '李奶奶', room: '102', medicine: '钙片', usage: '每日1次/1片', planTime: '09:00', actualTime: '09:15', result: '已服药', remark: '--' },
-  { date: '2026-04-25', name: '赵阿姨', room: '201', medicine: '胰岛素', usage: '每日2次/餐前', planTime: '07:30', actualTime: '07:35', result: '已服药', remark: '餐前注射' },
-  { date: '2026-04-25', name: '孙爷爷', room: '202', medicine: '阿司匹林', usage: '每日1次/1片', planTime: '08:00', actualTime: '08:20', result: '已服药', remark: '--' }
+  { date: '2026-04-25', name: '张大爷', room: '101', medicine: '降压药', usage: '每日1次/1片', planTime: '08:00', actualTime: '08:10', result: '已确认', remark: '--' },
+  { date: '2026-04-25', name: '张大爷', room: '101', medicine: '降糖药', usage: '每日2次/1片', planTime: '12:00', actualTime: '12:08', result: '已确认', remark: '--' },
+  { date: '2026-04-25', name: '李奶奶', room: '102', medicine: '钙片', usage: '每日1次/1片', planTime: '09:00', actualTime: '09:15', result: '已确认', remark: '--' },
+  { date: '2026-04-25', name: '赵阿姨', room: '201', medicine: '胰岛素', usage: '每日2次/餐前', planTime: '07:30', actualTime: '07:35', result: '已确认', remark: '餐前注射' },
+  { date: '2026-04-25', name: '孙爷爷', room: '202', medicine: '阿司匹林', usage: '每日1次/1片', planTime: '08:00', actualTime: '08:20', result: '已确认', remark: '--' }
 ];
 
 var nextPlanId = 7;
 var editingPlanId = null;
 var deletingPlanId = null;
 var markingTaskId = null;
+var globalWaitMinutes = 5;
 
 // ==================== Sidebar ====================
 function toggleNavGroup(el) {
@@ -795,7 +802,7 @@ function renderPlanTable(data) {
       '<td>' + item.room + '</td>' +
       '<td>' + item.medicine + '</td>' +
       '<td>' + item.usage + '</td>' +
-      '<td>' + item.frequency + '</td>' +
+      '<td>' + item.remindTimes + '</td>' +
       '<td>' + item.startDate + '</td>' +
       '<td>' + item.endDate + '</td>' +
       '<td>' + getStatusTag(item.status) + '</td>' +
@@ -828,15 +835,15 @@ function getTaskStatusTag(status) {
     '执行中': 'tag-blue-pulse',
     '已完成': 'tag-green',
     '超时未回应': 'tag-red',
-    '住户拒服': 'tag-orange'
+    '未确认': 'tag-orange'
   };
   return '<span class="tag ' + (map[status] || 'tag-gray') + '">' + status + '</span>';
 }
 
 function getResultText(result) {
   if (result === '--') return '<span class="status-default">' + result + '</span>';
-  if (result === '已服药') return '<span class="status-success">' + result + ' &#10003;</span>';
-  if (result === '拒服') return '<span class="status-warning">' + result + ' &#10007;</span>';
+  if (result === '已确认') return '<span class="status-success">' + result + ' &#10003;</span>';
+  if (result === '未确认') return '<span class="status-warning">' + result + ' &#10007;</span>';
   if (result === '超时未回应') return '<span class="status-danger">' + result + '</span>';
   return '<span>' + result + '</span>';
 }
@@ -851,7 +858,7 @@ function renderTaskTable(data) {
   data.forEach(function(item) {
     var canMark = (item.status === '执行中' || item.status === '超时未回应');
     var markBtn = canMark
-      ? '<button class="btn-link" onclick="markComplete(\'' + item.id + '\')">手动标记完成</button>'
+      ? '<button class="btn-link" onclick="markComplete(\'' + item.id + '\')">手动标记已确认</button>'
       : '';
     html += '<tr>' +
       '<td>' + item.id + '</td>' +
@@ -887,8 +894,8 @@ function filterTaskTable() {
 // ==================== Log Table ====================
 function getLogResultTag(result) {
   var map = {
-    '已服药': 'tag-green',
-    '拒服': 'tag-orange',
+    '已确认': 'tag-green',
+    '未确认': 'tag-orange',
     '超时未回应': 'tag-red'
   };
   return '<span class="tag ' + (map[result] || 'tag-gray') + '">' + result + '</span>';
@@ -945,6 +952,8 @@ function openPlanModal(id) {
       document.getElementById('formDosage').value = item.usage.split('/')[1] || '';
       document.getElementById('formStartDate').value = item.startDate;
       document.getElementById('formEndDate').value = item.endDate;
+      // 回填提醒时间
+      initRemindTimes(item.remindTimes || '');
     }
   } else {
     title.textContent = '新建用药计划';
@@ -953,14 +962,70 @@ function openPlanModal(id) {
     document.getElementById('formCategory').value = '';
     document.getElementById('formUsage').value = '';
     document.getElementById('formDosage').value = '';
-    document.getElementById('formFrequency').value = '';
     document.getElementById('formStartDate').value = '';
     document.getElementById('formEndDate').value = '';
     document.getElementById('formRemark').value = '';
-    var cbs = document.querySelectorAll('.checkbox-group input[type="checkbox"]');
-    cbs.forEach(function(cb) { cb.checked = false; });
+    // 初始化一个空的提醒时间输入框
+    initRemindTimes('');
   }
   document.getElementById('planModal').classList.add('show');
+}
+
+function initRemindTimes(timesStr) {
+  var container = document.getElementById('remindTimesContainer');
+  container.innerHTML = '';
+  var times = timesStr ? timesStr.split(',').map(function(t) { return t.trim(); }).filter(function(t) { return t; }) : [];
+  if (times.length === 0) {
+    times = [''];
+  }
+  times.forEach(function(t, i) {
+    var input = document.createElement('input');
+    input.type = 'time';
+    input.className = 'form-control';
+    input.style.width = '140px';
+    input.value = t;
+    container.appendChild(input);
+    var addBtn = document.createElement('button');
+    addBtn.type = 'button';
+    addBtn.className = 'btn btn-sm';
+    addBtn.textContent = '+';
+    addBtn.title = '添加时间';
+    addBtn.onclick = addRemindTime;
+    container.appendChild(addBtn);
+    if (times.length > 1) {
+      var delBtn = document.createElement('button');
+      delBtn.type = 'button';
+      delBtn.className = 'btn btn-sm btn-danger';
+      delBtn.textContent = '\u00d7';
+      delBtn.title = '删除此时间';
+      delBtn.onclick = (function(inputEl) { return function() { inputEl.parentElement.removeChild(inputEl); delBtn.parentElement.removeChild(delBtn); addBtn.parentElement.removeChild(addBtn); }; })(input);
+      container.appendChild(delBtn);
+    }
+  });
+}
+
+function addRemindTime() {
+  var container = document.getElementById('remindTimesContainer');
+  var input = document.createElement('input');
+  input.type = 'time';
+  input.className = 'form-control';
+  input.style.width = '140px';
+  input.value = '';
+  container.appendChild(input);
+  var addBtn = document.createElement('button');
+  addBtn.type = 'button';
+  addBtn.className = 'btn btn-sm';
+  addBtn.textContent = '+';
+  addBtn.title = '添加时间';
+  addBtn.onclick = addRemindTime;
+  container.appendChild(addBtn);
+  var delBtn = document.createElement('button');
+  delBtn.type = 'button';
+  delBtn.className = 'btn btn-sm btn-danger';
+  delBtn.textContent = '\u00d7';
+  delBtn.title = '删除此时间';
+  delBtn.onclick = function() { container.removeChild(input); container.removeChild(addBtn); container.removeChild(delBtn); };
+  container.appendChild(delBtn);
 }
 
 function editPlan(id) {
@@ -974,9 +1039,17 @@ function savePlan() {
   if (!medicine) { showToast('请输入药品名称', 'warning'); return; }
 
   var dosage = document.getElementById('formDosage').value || '每次1片';
-  var frequency = document.getElementById('formFrequency').value || '每日';
   var startDate = document.getElementById('formStartDate').value || '2026-04-26';
   var endDate = document.getElementById('formEndDate').value || '2026-06-30';
+
+  // 收集提醒时间
+  var timeInputs = document.querySelectorAll('#remindTimesContainer input[type="time"]');
+  var times = [];
+  timeInputs.forEach(function(input) {
+    if (input.value) times.push(input.value);
+  });
+  times.sort();
+  var remindTimes = times.join(', ');
 
   var roomMap = { '张大爷': '101', '李奶奶': '102', '赵阿姨': '201', '孙爷爷': '202', '王叔叔': '103' };
   var room = roomMap[resident] || '--';
@@ -987,7 +1060,8 @@ function savePlan() {
       item.name = resident;
       item.room = room;
       item.medicine = medicine;
-      item.usage = frequency.replace('每日', '每日') + '/' + dosage;
+      item.usage = '每日' + (times.length > 1 ? times.length + '次' : '1次') + '/' + dosage;
+      item.remindTimes = remindTimes;
       item.startDate = startDate;
       item.endDate = endDate;
     }
@@ -998,8 +1072,8 @@ function savePlan() {
       name: resident,
       room: room,
       medicine: medicine,
-      usage: frequency.replace('每日', '每日') + '/' + dosage,
-      frequency: frequency,
+      usage: '每日' + (times.length > 1 ? times.length + '次' : '1次') + '/' + dosage,
+      remindTimes: remindTimes,
       startDate: startDate,
       endDate: endDate,
       status: '进行中'
@@ -1022,7 +1096,7 @@ function viewPlanDetail(id) {
       '<div class="detail-item"><div class="detail-label">房间号</div><div class="detail-value">' + item.room + '</div></div>' +
       '<div class="detail-item"><div class="detail-label">药品名称</div><div class="detail-value">' + item.medicine + '</div></div>' +
       '<div class="detail-item"><div class="detail-label">用法用量</div><div class="detail-value">' + item.usage + '</div></div>' +
-      '<div class="detail-item"><div class="detail-label">用药频率</div><div class="detail-value">' + item.frequency + '</div></div>' +
+      '<div class="detail-item"><div class="detail-label">提醒时间</div><div class="detail-value">' + item.remindTimes + '</div></div>' +
       '<div class="detail-item"><div class="detail-label">疗程状态</div><div class="detail-value">' + getStatusTag(item.status) + '</div></div>' +
       '<div class="detail-item"><div class="detail-label">开始日期</div><div class="detail-value">' + item.startDate + '</div></div>' +
       '<div class="detail-item"><div class="detail-label">结束日期</div><div class="detail-value">' + item.endDate + '</div></div>' +
@@ -1095,7 +1169,7 @@ function viewTaskDetail(taskId) {
       '<div class="detail-item"><div class="detail-label">计划时间</div><div class="detail-value">' + item.planTime + '</div></div>' +
       '<div class="detail-item"><div class="detail-label">提醒地点</div><div class="detail-value">' + item.location + '</div></div>' +
       '<div class="detail-item"><div class="detail-label">任务状态</div><div class="detail-value">' + getTaskStatusTag(item.status) + '</div></div>' +
-      '<div class="detail-item"><div class="detail-label">执行结果</div><div class="detail-value">' + getResultText(item.result) + '</div></div>' +
+      '<div class="detail-item"><div class="detail-label">确认结果</div><div class="detail-value">' + getResultText(item.result) + '</div></div>' +
     '</div>' +
     timelineHtml;
 
@@ -1106,7 +1180,7 @@ function markComplete(taskId) {
   markingTaskId = taskId;
   var item = taskData.find(function(t) { return t.id === taskId; });
   document.getElementById('markCompleteText').textContent =
-    '确定要将任务「' + item.id + ' - ' + item.name + ' - ' + item.medicine + '」标记为已完成吗？';
+    '确定要将任务「' + item.id + ' - ' + item.name + ' - ' + item.medicine + '」标记为已确认吗？';
   document.getElementById('markCompleteModal').classList.add('show');
 }
 
@@ -1115,7 +1189,7 @@ function confirmMarkComplete() {
     var item = taskData.find(function(t) { return t.id === markingTaskId; });
     if (item) {
       item.status = '已完成';
-      item.result = '已服药';
+      item.result = '已确认';
       item.timeline.push({ time: '刚刚', text: '管理员手动标记完成', dot: 'success' });
     }
     markingTaskId = null;
@@ -1158,6 +1232,23 @@ function showToast(message, type) {
     toast.style.transition = 'all 0.3s';
     setTimeout(function() { toast.remove(); }, 300);
   }, 2500);
+}
+
+// ==================== Global Config ====================
+function openGlobalConfigModal() {
+  document.getElementById('globalWaitTime').value = globalWaitMinutes || 5;
+  document.getElementById('globalConfigModal').classList.add('show');
+}
+
+function saveGlobalConfig() {
+  var val = parseInt(document.getElementById('globalWaitTime').value);
+  if (isNaN(val) || val < 1 || val > 30) {
+    showToast('等待时间范围为1-30分钟', 'warning');
+    return;
+  }
+  globalWaitMinutes = val;
+  closeModal('globalConfigModal');
+  showToast('全局配置已保存', 'success');
 }
 
 // ==================== Init ====================
