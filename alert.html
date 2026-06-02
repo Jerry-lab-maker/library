@@ -286,7 +286,7 @@
         <div class="sidebar__menu-item active expanded" data-menu="ops"><span class="sidebar__menu-icon">🔧</span><span>运维中心</span><span class="sidebar__menu-arrow expanded">›</span></div>
         <div class="sidebar__submenu show">
           <div class="sidebar__menu-item sidebar__menu-item--sub active" data-page="alarm-list">异常告警</div>
-          <div class="sidebar__menu-item sidebar__menu-item--sub" data-page="alarm-config">告警配置</div>
+          <div class="sidebar__menu-item sidebar__menu-item--sub" data-page="alarm-config">故障字典</div>
         </div>
         <div class="sidebar__menu-item" data-menu="project"><span class="sidebar__menu-icon">📁</span><span>项目管理</span><span class="sidebar__menu-arrow">›</span></div>
         <div class="sidebar__menu-item" data-menu="resource"><span class="sidebar__menu-icon">💾</span><span>资源管理</span><span class="sidebar__menu-arrow">›</span></div>
@@ -328,8 +328,8 @@
                 <div class="filter-item"><span class="filter-item__label">模块名称</span><select class="filter-item__select" id="filterModule"><option value="">请选择模块</option></select></div>
               </div>
               <div class="filter-row" id="filterExpand">
-                <div class="filter-item"><span class="filter-item__label">机器人类型</span><select class="filter-item__select" id="filterType"><option value="">全部</option><option value="迎宾型">迎宾型</option><option value="配送型">配送型</option><option value="清洁型">清洁型</option><option value="巡检型">巡检型</option></select></div>
-                <div class="filter-item"><span class="filter-item__label">机器人型号</span><select class="filter-item__select" id="filterModel"><option value="">全部</option><option value="RX-100">RX-100</option><option value="DX-200">DX-200</option><option value="QX-300">QX-300</option><option value="XJ-400">XJ-400</option></select></div>
+                <div class="filter-item"><span class="filter-item__label">机器人类型</span><select class="filter-item__select" id="filterType"><option value="">全部</option><option value="全尺寸人形">全尺寸人形</option><option value="小尺寸人形">小尺寸人形</option><option value="轮式人形">轮式人形</option><option value="四足机器人">四足机器人</option><option value="物流机器人">物流机器人</option><option value="清洁机器人">清洁机器人</option></select></div>
+                <div class="filter-item"><span class="filter-item__label">机器人型号</span><select class="filter-item__select" id="filterModel"><option value="">全部</option><option value="Lumen H1">Lumen H1</option><option value="Lumen S1">Lumen S1</option><option value="Lumen S2">Lumen S2</option><option value="Lumen S3">Lumen S3</option><option value="Lumen U1">Lumen U1</option><option value="Lumen H1D">Lumen H1D</option><option value="Lumen Q1">Lumen Q1</option><option value="Lumen Q2">Lumen Q2</option><option value="Lumen HL1">Lumen HL1</option><option value="Lumen HL2">Lumen HL2</option><option value="Lumen HL3">Lumen HL3</option><option value="Lumen P1">Lumen P1</option><option value="Lumen P2">Lumen P2</option><option value="Lumen P3">Lumen P3</option></select></div>
                 <div class="filter-item"><span class="filter-item__label">状态</span><select class="filter-item__select" id="filterStatus"><option value="">全部</option><option value="pending">待确认</option><option value="processing">处理中</option><option value="repaired">已修复</option><option value="closed">已关闭</option></select></div>
                 <div class="filter-item"><span class="filter-item__label">告警时间</span><input type="date" class="filter-item__input" style="width:140px" id="filterStartTime"><span>-</span><input type="date" class="filter-item__input" style="width:140px" id="filterEndTime"></div>
               </div>
@@ -461,20 +461,43 @@
       <div class="modal__footer"><button class="btn btn--default" onclick="closeModal('alarmActionModal')">取消</button><button class="btn btn--primary" id="alarmActionOk">确定</button></div>
     </div>
   </div>
+  <div class="modal-overlay" id="assignModal">
+    <div class="modal" style="width:420px">
+      <div class="modal__header"><span class="modal__title">指派处理</span><span class="modal__close" onclick="closeModal('assignModal')">×</span></div>
+      <div class="modal__body">
+        <p class="confirm-text" id="assignModalText"></p>
+        <div style="margin-top:16px">
+          <label style="display:block;margin-bottom:8px;font-weight:500">选择处理人员：</label>
+          <select id="assignPersonSelect" style="width:100%;height:36px;border:1px solid #d9d9d9;border-radius:4px;padding:0 12px;font-size:14px">
+            <option value="">请选择</option>
+            <option value="张三">张三</option>
+            <option value="李四">李四</option>
+            <option value="王五">王五</option>
+            <option value="赵六">赵六</option>
+            <option value="孙七">孙七</option>
+            <option value="周八">周八</option>
+            <option value="吴九">吴九</option>
+            <option value="郑十">郑十</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal__footer"><button class="btn btn--default" onclick="closeModal('assignModal')">取消</button><button class="btn btn--primary" id="assignOk">确定</button></div>
+    </div>
+  </div>
 
   <script>
     // ==================== 数据 ====================
     const alarmData = [
-      { id:'ALM-001', code:'ERR-1001', name:'任务执行超时', desc:'任务执行超时，无法在规定时间内完成导航任务', level:'serious', levelName:'严重', deviceSn:'SN-RX-001', deviceName:'迎宾机器人-01', deviceType:'迎宾型', deviceModel:'RX-100', module:'task_scheduler', project:'上海中心项目', version:'v2.5.1', productType:'迎宾型', productModel:'RX-100', time:'2026-05-28 14:30:25', status:'processing', statusName:'处理中', handler:'张三', faultType:'任务处理类', faultPart:'task_scheduler' },
-      { id:'ALM-002', code:'ERR-2003', name:'激光雷达数据异常', desc:'激光雷达点云数据异常，无法正常建图', level:'fatal', levelName:'致命', deviceSn:'SN-RX-002', deviceName:'配送机器人-03', deviceType:'配送型', deviceModel:'DX-200', module:'lidar_module', project:'北京望京项目', version:'v3.1.0', productType:'配送型', productModel:'DX-200', time:'2026-05-28 10:15:33', status:'pending', statusName:'待确认', handler:'李四', faultType:'定位导航类', faultPart:'lidar_module' },
-      { id:'ALM-003', code:'ERR-3005', name:'梯控通信失败', desc:'与电梯控制器通信中断，无法呼叫电梯', level:'serious', levelName:'严重', deviceSn:'SN-RX-003', deviceName:'清洁机器人-02', deviceType:'清洁型', deviceModel:'QX-300', module:'elevator_ctrl', project:'深圳科技园项目', version:'v2.8.2', productType:'清洁型', productModel:'QX-300', time:'2026-05-27 16:45:12', status:'repaired', statusName:'已修复', handler:'王五', faultType:'场景交互类', faultPart:'elevator_ctrl' },
-      { id:'ALM-004', code:'ERR-4010', name:'碰撞检测触发', desc:'机器人触发碰撞检测传感器，已紧急停止', level:'fatal', levelName:'致命', deviceSn:'SN-RX-004', deviceName:'巡检机器人-01', deviceType:'巡检型', deviceModel:'XJ-400', module:'safety_module', project:'广州塔项目', version:'v1.9.5', productType:'巡检型', productModel:'XJ-400', time:'2026-05-27 09:20:45', status:'closed', statusName:'已关闭', handler:'赵六', faultType:'安全事件类', faultPart:'safety_module' },
-      { id:'ALM-005', code:'ERR-5001', name:'电池电量过低', desc:'电池电量低于15%，已自动返回充电桩', level:'general', levelName:'一般', deviceSn:'SN-RX-005', deviceName:'迎宾机器人-02', deviceType:'迎宾型', deviceModel:'RX-100', module:'power_module', project:'上海中心项目', version:'v2.5.1', productType:'迎宾型', productModel:'RX-100', time:'2026-05-28 08:10:00', status:'pending', statusName:'待确认', handler:'-', faultType:'电池/电源类', faultPart:'power_module' },
-      { id:'ALM-006', code:'ERR-6002', name:'IMU传感器异常', desc:'惯性测量单元数据漂移严重，影响定位精度', level:'serious', levelName:'严重', deviceSn:'SN-RX-006', deviceName:'配送机器人-01', deviceType:'配送型', deviceModel:'DX-200', module:'imu_sensor', project:'杭州西湖项目', version:'v3.0.0', productType:'配送型', productModel:'DX-200', time:'2026-05-28 11:30:00', status:'processing', statusName:'处理中', handler:'孙七', faultType:'自检状态类', faultPart:'imu_sensor' },
-      { id:'ALM-007', code:'ERR-7001', name:'WiFi连接断开', desc:'机器人与云端通信断开，无法接收远程指令', level:'serious', levelName:'严重', deviceSn:'SN-RX-007', deviceName:'清洁机器人-01', deviceType:'清洁型', deviceModel:'QX-300', module:'network_module', project:'成都天府项目', version:'v2.8.0', productType:'清洁型', productModel:'QX-300', time:'2026-05-28 13:00:00', status:'pending', statusName:'待确认', handler:'-', faultType:'通信网络类', faultPart:'network_module' },
-      { id:'ALM-008', code:'ERR-8001', name:'CPU使用率过高', desc:'CPU使用率持续超过90%，系统响应缓慢', level:'general', levelName:'一般', deviceSn:'SN-RX-008', deviceName:'巡检机器人-02', deviceType:'巡检型', deviceModel:'XJ-400', module:'system_monitor', project:'武汉光谷项目', version:'v1.9.5', productType:'巡检型', productModel:'XJ-400', time:'2026-05-27 20:15:00', status:'closed', statusName:'已关闭', handler:'周八', faultType:'系统资源类', faultPart:'system_monitor' },
-      { id:'ALM-009', code:'ERR-9001', name:'摄像头画面丢失', desc:'前置摄像头无视频信号输出', level:'serious', levelName:'严重', deviceSn:'SN-RX-009', deviceName:'迎宾机器人-03', deviceType:'迎宾型', deviceModel:'RX-100', module:'camera_module', project:'南京新街口项目', version:'v2.5.2', productType:'迎宾型', productModel:'RX-100', time:'2026-05-28 09:45:00', status:'processing', statusName:'处理中', handler:'吴九', faultType:'外设接口类', faultPart:'camera_module' },
-      { id:'ALM-010', code:'ERR-1002', name:'路径规划失败', desc:'无法规划从当前位置到目标位置的有效路径', level:'general', levelName:'一般', deviceSn:'SN-RX-010', deviceName:'配送机器人-02', deviceType:'配送型', deviceModel:'DX-200', module:'path_planner', project:'北京望京项目', version:'v3.1.0', productType:'配送型', productModel:'DX-200', time:'2026-05-28 15:20:00', status:'pending', statusName:'待确认', handler:'-', faultType:'定位导航类', faultPart:'path_planner' },
+      { id:'ALM-001', code:'ERR-1001', name:'任务执行超时', desc:'任务执行超时，无法在规定时间内完成导航任务', level:'serious', levelName:'严重', deviceSn:'SN-H1-001', deviceName:'全尺寸人形机器人-01', deviceType:'全尺寸人形', deviceModel:'Lumen H1', module:'task_scheduler', project:'上海中心项目', version:'v2.5.1', productType:'全尺寸人形', productModel:'Lumen H1', time:'2026-05-28 14:30:25', status:'processing', statusName:'处理中', handler:'张三', faultType:'任务处理类', faultPart:'task_scheduler', muted:false, muteDeadline:null },
+      { id:'ALM-002', code:'ERR-2003', name:'激光雷达数据异常', desc:'激光雷达点云数据异常，无法正常建图', level:'fatal', levelName:'致命', deviceSn:'SN-HL2-001', deviceName:'物流机器人-01', deviceType:'物流机器人', deviceModel:'Lumen HL2', module:'lidar_module', project:'北京望京项目', version:'v3.1.0', productType:'物流机器人', productModel:'Lumen HL2', time:'2026-05-28 10:15:33', status:'pending', statusName:'待确认', handler:'-', faultType:'定位导航类', faultPart:'lidar_module', muted:false, muteDeadline:null },
+      { id:'ALM-003', code:'ERR-3005', name:'梯控通信失败', desc:'与电梯控制器通信中断，无法呼叫电梯', level:'serious', levelName:'严重', deviceSn:'SN-P2-001', deviceName:'清洁机器人-01', deviceType:'清洁机器人', deviceModel:'Lumen P2', module:'elevator_ctrl', project:'深圳科技园项目', version:'v2.8.2', productType:'清洁机器人', productModel:'Lumen P2', time:'2026-05-27 16:45:12', status:'repaired', statusName:'已修复', handler:'王五', faultType:'场景交互类', faultPart:'elevator_ctrl', muted:false, muteDeadline:null },
+      { id:'ALM-004', code:'ERR-4010', name:'碰撞检测触发', desc:'机器人触发碰撞检测传感器，已紧急停止', level:'fatal', levelName:'致命', deviceSn:'SN-Q1-001', deviceName:'四足机器人-01', deviceType:'四足机器人', deviceModel:'Lumen Q1', module:'safety_module', project:'广州塔项目', version:'v1.9.5', productType:'四足机器人', productModel:'Lumen Q1', time:'2026-05-27 09:20:45', status:'closed', statusName:'已关闭', handler:'赵六', faultType:'安全事件类', faultPart:'safety_module', muted:false, muteDeadline:null },
+      { id:'ALM-005', code:'ERR-5001', name:'电池电量过低', desc:'电池电量低于15%，已自动返回充电桩', level:'general', levelName:'一般', deviceSn:'SN-S1-001', deviceName:'小尺寸人形机器人-01', deviceType:'小尺寸人形', deviceModel:'Lumen S1', module:'power_module', project:'上海中心项目', version:'v2.5.1', productType:'小尺寸人形', productModel:'Lumen S1', time:'2026-05-28 08:10:00', status:'pending', statusName:'待确认', handler:'-', faultType:'电池/电源类', faultPart:'power_module', muted:false, muteDeadline:null },
+      { id:'ALM-006', code:'ERR-6002', name:'IMU传感器异常', desc:'惯性测量单元数据漂移严重，影响定位精度', level:'serious', levelName:'严重', deviceSn:'SN-U1-001', deviceName:'轮式人形机器人-01', deviceType:'轮式人形', deviceModel:'Lumen U1', module:'imu_sensor', project:'杭州西湖项目', version:'v3.0.0', productType:'轮式人形', productModel:'Lumen U1', time:'2026-05-28 11:30:00', status:'processing', statusName:'处理中', handler:'孙七', faultType:'自检状态类', faultPart:'imu_sensor', muted:false, muteDeadline:null },
+      { id:'ALM-007', code:'ERR-7001', name:'WiFi连接断开', desc:'机器人与云端通信断开，无法接收远程指令', level:'serious', levelName:'严重', deviceSn:'SN-HL1-001', deviceName:'物流机器人-02', deviceType:'物流机器人', deviceModel:'Lumen HL1', module:'network_module', project:'成都天府项目', version:'v2.8.0', productType:'物流机器人', productModel:'Lumen HL1', time:'2026-05-28 13:00:00', status:'pending', statusName:'待确认', handler:'-', faultType:'通信网络类', faultPart:'network_module', muted:false, muteDeadline:null },
+      { id:'ALM-008', code:'ERR-8001', name:'CPU使用率过高', desc:'CPU使用率持续超过90%，系统响应缓慢', level:'general', levelName:'一般', deviceSn:'SN-Q2-001', deviceName:'四足机器人-02', deviceType:'四足机器人', deviceModel:'Lumen Q2', module:'system_monitor', project:'武汉光谷项目', version:'v1.9.5', productType:'四足机器人', productModel:'Lumen Q2', time:'2026-05-27 20:15:00', status:'closed', statusName:'已关闭', handler:'周八', faultType:'系统资源类', faultPart:'system_monitor', muted:false, muteDeadline:null },
+      { id:'ALM-009', code:'ERR-9001', name:'摄像头画面丢失', desc:'前置摄像头无视频信号输出', level:'serious', levelName:'严重', deviceSn:'SN-S2-001', deviceName:'小尺寸人形机器人-02', deviceType:'小尺寸人形', deviceModel:'Lumen S2', module:'camera_module', project:'南京新街口项目', version:'v2.5.2', productType:'小尺寸人形', productModel:'Lumen S2', time:'2026-05-28 09:45:00', status:'processing', statusName:'处理中', handler:'吴九', faultType:'外设接口类', faultPart:'camera_module', muted:false, muteDeadline:null },
+      { id:'ALM-010', code:'ERR-1002', name:'路径规划失败', desc:'无法规划从当前位置到目标位置的有效路径', level:'general', levelName:'一般', deviceSn:'SN-H1D-001', deviceName:'轮式人形机器人-02', deviceType:'轮式人形', deviceModel:'Lumen H1D', module:'path_planner', project:'北京望京项目', version:'v3.1.0', productType:'轮式人形', productModel:'Lumen H1D', time:'2026-05-28 15:20:00', status:'pending', statusName:'待确认', handler:'-', faultType:'定位导航类', faultPart:'path_planner', muted:false, muteDeadline:null },
     ];
 
     let dictData = [
@@ -708,11 +731,26 @@
         </tbody></table></div>`;
 
       // 告警配置
+      const mutedText = a.muted ? '<span class="tag tag--fatal">是</span>' : '<span class="tag tag--success">否</span>';
+      let muteDeadlineText = '-';
+      if (a.muted && a.muteDeadline) {
+        const deadline = new Date(a.muteDeadline);
+        const now = new Date();
+        const diff = deadline - now;
+        if (diff > 0) {
+          const h = Math.floor(diff / 3600000);
+          const m = Math.floor((diff % 3600000) / 60000);
+          const s = Math.floor((diff % 60000) / 1000);
+          muteDeadlineText = h + '小时' + m + '分' + s + '秒';
+        } else {
+          muteDeadlineText = '已到期';
+        }
+      }
       document.getElementById('panel-config').innerHTML = `
         <div class="card"><div class="card__header"><span class="card__title">告警通知配置</span></div><div class="card__body"><div class="info-grid">
           <div class="info-item"><span class="info-item__label">通知渠道：</span><span class="info-item__value"><span class="tag tag--general">短信</span> <span class="tag tag--general">邮件</span> <span class="tag tag--general">站内信</span></span></div>
-          <div class="info-item"><span class="info-item__label">静默截止：</span><span class="info-item__value">-</span></div>
-          <div class="info-item"><span class="info-item__label">屏蔽告警：</span><span class="info-item__value">否</span></div>
+          <div class="info-item"><span class="info-item__label">静默截止：</span><span class="info-item__value">${muteDeadlineText}</span></div>
+          <div class="info-item"><span class="info-item__label">屏蔽告警：</span><span class="info-item__value">${mutedText}</span></div>
         </div></div></div>`;
 
       // 重置详情页内部Tab到第一个
@@ -738,11 +776,42 @@
       const a = alarmData.find(x => x.id === id);
       if (!a) return;
       const labels = { confirm:'确认告警', assign:'指派处理', repair:'标记修复', close:'关闭告警', escalate:'升级告警', mute:'屏蔽告警' };
+
+      // 指派处理：弹出人员选择弹窗
+      if (action === 'assign') {
+        document.getElementById('assignModalText').innerHTML = `请为告警 <strong>${a.code} ${a.name}</strong> 指派处理人员：`;
+        document.getElementById('assignPersonSelect').value = a.handler !== '-' ? a.handler : '';
+        document.getElementById('assignOk').onclick = function() {
+          const person = document.getElementById('assignPersonSelect').value;
+          if (!person) { alert('请选择处理人员'); return; }
+          a.handler = person;
+          closeModal('assignModal');
+          showAlarmDetail(id);
+        };
+        document.getElementById('assignModal').classList.add('show');
+        return;
+      }
+
       showAlarmActionModal(labels[action], `确定要对告警 <strong>${a.code} ${a.name}</strong> 执行"${labels[action]}"操作吗？`, function() {
         closeModal('alarmActionModal');
         if (action === 'confirm') { a.status = 'processing'; a.statusName = '处理中'; }
         else if (action === 'repair') { a.status = 'repaired'; a.statusName = '已修复'; }
         else if (action === 'close') { a.status = 'closed'; a.statusName = '已关闭'; switchToTab('alarm-list'); renderAlarmTable(); return; }
+        else if (action === 'escalate') {
+          // 升级告警等级：hint→general→serious→fatal
+          const levelOrder = ['hint','general','serious','fatal'];
+          const levelNames = { hint:'提示', general:'一般', serious:'严重', fatal:'致命' };
+          const idx = levelOrder.indexOf(a.level);
+          if (idx < levelOrder.length - 1) {
+            a.level = levelOrder[idx + 1];
+            a.levelName = levelNames[a.level];
+          }
+        }
+        else if (action === 'mute') {
+          // 屏蔽告警：设置屏蔽状态和24h倒计时
+          a.muted = true;
+          a.muteDeadline = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+        }
         showAlarmDetail(id); // 刷新详情页
       });
     }
