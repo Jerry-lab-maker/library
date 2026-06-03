@@ -287,6 +287,7 @@
         <div class="sidebar__submenu show">
           <div class="sidebar__menu-item sidebar__menu-item--sub active" data-page="alarm-list">异常告警</div>
           <div class="sidebar__menu-item sidebar__menu-item--sub" data-page="alarm-config">故障字典</div>
+          <div class="sidebar__menu-item sidebar__menu-item--sub" data-page="log-manage">日志管理</div>
         </div>
         <div class="sidebar__menu-item" data-menu="project"><span class="sidebar__menu-icon">📁</span><span>项目管理</span><span class="sidebar__menu-arrow">›</span></div>
         <div class="sidebar__menu-item" data-menu="resource"><span class="sidebar__menu-icon">💾</span><span>资源管理</span><span class="sidebar__menu-arrow">›</span></div>
@@ -369,12 +370,10 @@
           <div class="detail-tabs" id="detailTabs">
             <div class="detail-tabs__item active" data-panel="basic">基本信息</div>
             <div class="detail-tabs__item" data-panel="dictionary">故障字典</div>
-            <div class="detail-tabs__item" data-panel="record">处理记录</div>
             <div class="detail-tabs__item" data-panel="config">告警配置</div>
           </div>
           <div class="detail-panel active" id="panel-basic"></div>
           <div class="detail-panel" id="panel-dictionary"></div>
-          <div class="detail-panel" id="panel-record"></div>
           <div class="detail-panel" id="panel-config"></div>
         </div>
 
@@ -411,6 +410,36 @@
               <span class="pagination__info">共 <span id="dictPaginationTotal">0</span> 条</span>
               <div class="pagination__nav" id="dictPaginationNav"></div>
             </div>
+          </div>
+        </div>
+      </div>
+      <!-- ====== 日志管理页面 ====== -->
+      <div class="page" id="page-log-manage">
+        <div class="card" style="margin-bottom:16px">
+          <div class="card__body">
+            <div class="filter-row">
+              <div class="filter-item"><span class="filter-item__label">机器人SN</span><input type="text" class="filter-item__input" id="logFilterSn" placeholder="请输入SN码"></div>
+              <div class="filter-item"><span class="filter-item__label">项目名称</span><select class="filter-item__select" id="logFilterProject"><option value="">请选择项目</option></select></div>
+              <div class="filter-item"><span class="filter-item__label">日志级别</span><select class="filter-item__select" id="logFilterLevel"><option value="">全部</option><option value="fatal">致命</option><option value="serious">严重</option><option value="general">一般</option><option value="normal">正常</option></select></div>
+              <div class="filter-item"><span class="filter-item__label">模块名称</span><select class="filter-item__select" id="logFilterModule"><option value="">全部</option><option value="task_scheduler">任务调度器</option><option value="path_planner">路径规划器</option><option value="lidar_module">激光雷达</option><option value="elevator_ctrl">梯控模块</option><option value="safety_module">安全模块</option><option value="power_module">电源模块</option><option value="imu_sensor">IMU传感器</option><option value="network_module">网络模块</option><option value="system_monitor">系统监控</option><option value="camera_module">摄像头</option></select></div>
+              <div class="filter-item"><span class="filter-item__label">时间范围</span><input type="date" class="filter-item__input" id="logFilterStart"> <span style="margin:0 4px;color:#999">至</span> <input type="date" class="filter-item__input" id="logFilterEnd"></div>
+            </div>
+            <div class="filter-actions">
+              <button class="btn btn--default" onclick="resetLogFilter()">重置</button>
+              <button class="btn btn--primary" onclick="searchLog()">查询</button>
+              <button class="btn btn--default" onclick="fetchLog()">拉取日志</button>
+              <button class="btn btn--default" onclick="exportLog()">批量导出日志</button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <table class="data-table">
+            <thead><tr><th>记录时间</th><th>机器人SN</th><th>设备名称</th><th>日志条数</th><th>包含模块</th><th>最高级别</th><th class="col-actions">操作</th></tr></thead>
+            <tbody id="logTableBody"></tbody>
+          </table>
+          <div class="pagination">
+            <span class="pagination__info">共 <span id="logPaginationTotal">0</span> 条</span>
+            <div class="pagination__nav" id="logPaginationNav"></div>
           </div>
         </div>
       </div>
@@ -461,27 +490,25 @@
       <div class="modal__footer"><button class="btn btn--default" onclick="closeModal('alarmActionModal')">取消</button><button class="btn btn--primary" id="alarmActionOk">确定</button></div>
     </div>
   </div>
-  <div class="modal-overlay" id="assignModal">
+
+  <!-- ====== 弹窗: 运维人员新增/编辑 ====== -->
+  <div class="modal-overlay" id="staffFormModal">
     <div class="modal" style="width:420px">
-      <div class="modal__header"><span class="modal__title">指派处理</span><span class="modal__close" onclick="closeModal('assignModal')">×</span></div>
+      <div class="modal__header"><span class="modal__title" id="staffFormTitle">新增人员</span><span class="modal__close" onclick="closeModal('staffFormModal')">×</span></div>
       <div class="modal__body">
-        <p class="confirm-text" id="assignModalText"></p>
-        <div style="margin-top:16px">
-          <label style="display:block;margin-bottom:8px;font-weight:500">选择处理人员：</label>
-          <select id="assignPersonSelect" style="width:100%;height:36px;border:1px solid #d9d9d9;border-radius:4px;padding:0 12px;font-size:14px">
-            <option value="">请选择</option>
-            <option value="张三">张三</option>
-            <option value="李四">李四</option>
-            <option value="王五">王五</option>
-            <option value="赵六">赵六</option>
-            <option value="孙七">孙七</option>
-            <option value="周八">周八</option>
-            <option value="吴九">吴九</option>
-            <option value="郑十">郑十</option>
-          </select>
-        </div>
+        <div class="form-row"><label class="form-label"><span class="form-required">*</span>姓名</label><input class="form-input" id="staffFormName" placeholder="请输入姓名"></div>
+        <div class="form-row"><label class="form-label"><span class="form-required">*</span>手机号</label><input class="form-input" id="staffFormPhone" placeholder="请输入手机号"></div>
       </div>
-      <div class="modal__footer"><button class="btn btn--default" onclick="closeModal('assignModal')">取消</button><button class="btn btn--primary" id="assignOk">确定</button></div>
+      <div class="modal__footer"><button class="btn btn--default" onclick="closeModal('staffFormModal')">取消</button><button class="btn btn--primary" onclick="submitStaffForm()">确定</button></div>
+    </div>
+  </div>
+
+  <!-- ====== 弹窗: 日志详情 ====== -->
+  <div class="modal-overlay" id="logDetailModal">
+    <div class="modal" style="width:720px;max-width:95vw">
+      <div class="modal__header"><span class="modal__title">日志详情</span><span class="modal__close" onclick="closeModal('logDetailModal')">×</span></div>
+      <div class="modal__body" id="logDetailBody"></div>
+      <div class="modal__footer"><button class="btn btn--primary" onclick="closeModal('logDetailModal')">关闭</button></div>
     </div>
   </div>
 
@@ -517,6 +544,18 @@
     const modules = ['task_scheduler','lidar_module','elevator_ctrl','safety_module','power_module','imu_sensor','network_module','system_monitor','camera_module','path_planner'];
     const severityMap = { fatal:'致命', serious:'严重', general:'一般', hint:'提示' };
 
+    let projectStaffData = {
+      '上海中心项目': [{name:'张三',phone:'138****1001'},{name:'李四',phone:'138****1002'}],
+      '北京望京项目': [{name:'王五',phone:'139****2001'},{name:'赵六',phone:'139****2002'}],
+      '深圳科技园项目': [{name:'孙七',phone:'137****3001'}],
+      '广州塔项目': [{name:'周八',phone:'136****4001'}],
+      '杭州西湖项目': [{name:'吴九',phone:'135****5001'}],
+      '成都天府项目': [{name:'郑十',phone:'134****6001'}],
+      '武汉光谷项目': [{name:'张三',phone:'138****1001'}],
+      '南京新街口项目': [{name:'李四',phone:'138****1002'}],
+    };
+    let staffEditingAlarmId = null, staffEditingIndex = null;
+
     // ==================== 状态 ====================
     let currentPage = 1, pageSize = 10, filteredAlarms = [...alarmData];
     let dictPage = 1, dictPageSize = 10, filteredDicts = [...dictData];
@@ -528,6 +567,7 @@
       'alarm-list': { label: '异常告警', closable: false },
       'alarm-detail': { label: '故障详情', closable: true },
       'alarm-dictionary': { label: '故障字典', closable: true },
+      'log-manage': { label: '日志管理', closable: true },
     };
 
     function renderTabBar(activeKey) {
@@ -536,6 +576,7 @@
       let tabs = [{ key: 'alarm-list', ...tabConfig['alarm-list'] }];
       if (activeKey === 'alarm-detail') tabs.push({ key: 'alarm-detail', ...tabConfig['alarm-detail'] });
       if (activeKey === 'alarm-dictionary') tabs.push({ key: 'alarm-dictionary', ...tabConfig['alarm-dictionary'] });
+      if (activeKey === 'log-manage') tabs.push({ key: 'log-manage', ...tabConfig['log-manage'] });
       bar.innerHTML = tabs.map(t =>
         `<div class="tab-bar__item ${t.key === activeKey ? 'active' : ''}" onclick="switchToTab('${t.key}')">` +
         `<span>${t.label}</span>` +
@@ -550,11 +591,11 @@
       document.getElementById('page-' + key).classList.add('active');
       renderTabBar(key);
       // 更新面包屑和侧边栏
-      const breadcrumbMap = { 'alarm-list': '异常告警', 'alarm-detail': '故障详情', 'alarm-dictionary': '故障字典' };
+      const breadcrumbMap = { 'alarm-list': '异常告警', 'alarm-detail': '故障详情', 'alarm-dictionary': '故障字典', 'log-manage': '日志管理' };
       document.getElementById('breadcrumb-current').textContent = breadcrumbMap[key] || '';
       // 更新侧边栏高亮
       document.querySelectorAll('.sidebar__menu-item--sub').forEach(i => i.classList.remove('active'));
-      const sideMap = { 'alarm-list': 'alarm-list', 'alarm-detail': 'alarm-list', 'alarm-dictionary': 'alarm-config' };
+      const sideMap = { 'alarm-list': 'alarm-list', 'alarm-detail': 'alarm-list', 'alarm-dictionary': 'alarm-config', 'log-manage': 'log-manage' };
       const sideItem = document.querySelector(`.sidebar__menu-item--sub[data-page="${sideMap[key]}"]`);
       if (sideItem) sideItem.classList.add('active');
     }
@@ -586,6 +627,7 @@
       projects.forEach(p => { ps.innerHTML += `<option value="${p}">${p}</option>`; });
       const ms = document.getElementById('filterModule');
       modules.forEach(m => { ms.innerHTML += `<option value="${m}">${m}</option>`; });
+      initLogFilterOptions();
     }
 
     // ==================== 告警列表 ====================
@@ -596,12 +638,12 @@
       if (pageData.length === 0) {
         tbody.innerHTML = '<tr><td colspan="12" style="text-align:center;padding:40px;color:#999">暂无数据</td></tr>';
       } else {
-        tbody.innerHTML = pageData.map(a => `<tr>
+        tbody.innerHTML = pageData.map(a => `<tr${a.muted?' style="opacity:0.6"':''}>
           <td>${a.code}</td><td title="${a.desc}">${a.desc}</td>
           <td><span class="tag tag--${a.level}">${a.levelName}</span></td>
           <td>${a.time}</td><td>${a.deviceName}</td><td>${a.project}</td>
           <td>${a.version}</td><td>${a.module}</td><td>${a.productType}</td><td>${a.productModel}</td>
-          <td><span class="tag tag--${a.status}">${a.statusName}</span></td>
+          <td>${a.muted?'<span class="tag tag--fatal">已屏蔽</span>':`<span class="tag tag--${a.status}">${a.statusName}</span>`}</td>
           <td class="col-actions"><span class="action-link" onclick="showAlarmDetail('${a.id}')">详情</span></td>
         </tr>`).join('');
       }
@@ -670,11 +712,9 @@
       // 操作按钮（根据状态显示）
       const actions = [];
       if (a.status === 'pending') actions.push({ label:'确认告警', cls:'btn--default', fn:`doAlarmAction('confirm','${id}')` });
-      if (a.status === 'pending' || a.status === 'processing') actions.push({ label:'指派处理', cls:'btn--primary', fn:`doAlarmAction('assign','${id}')` });
       if (a.status === 'processing') actions.push({ label:'标记修复', cls:'btn--success', fn:`doAlarmAction('repair','${id}')` });
       if (a.status === 'repaired') actions.push({ label:'关闭告警', cls:'btn--default', fn:`doAlarmAction('close','${id}')` });
       actions.push({ label:'升级告警', cls:'btn--warning', fn:`doAlarmAction('escalate','${id}')` });
-      actions.push({ label:'屏蔽告警', cls:'btn--default', fn:`doAlarmAction('mute','${id}')` });
       document.getElementById('detailActions').innerHTML = actions.map(b => `<button class="btn ${b.cls}" onclick="${b.fn}">${b.label}</button>`).join('');
 
       // 基本信息
@@ -699,9 +739,7 @@
         </div></div></div>
         <div class="card"><div class="card__header"><span class="card__title">状态流转</span></div><div class="card__body"><div class="timeline">
           <div class="timeline__item"><div class="timeline__dot"></div><div class="timeline__time">${a.time}</div><div class="timeline__text">创建告警 - 系统</div></div>
-          ${a.status!=='pending'?`<div class="timeline__item"><div class="timeline__dot"></div><div class="timeline__time">${a.time}</div><div class="timeline__text">确认告警 - ${a.handler}</div></div>`:''}
-          ${a.status==='repaired'||a.status==='closed'?`<div class="timeline__item"><div class="timeline__dot"></div><div class="timeline__time">${a.time}</div><div class="timeline__text">标记修复 - ${a.handler}</div></div>`:''}
-          ${a.status==='closed'?`<div class="timeline__item"><div class="timeline__dot"></div><div class="timeline__time">${a.time}</div><div class="timeline__text">关闭告警 - ${a.handler}</div></div>`:''}
+          ${(a.actionsHistory || []).map(h => `<div class="timeline__item"><div class="timeline__dot"></div><div class="timeline__time">${h.time}</div><div class="timeline__text">${h.text}</div></div>`).join('')}
         </div></div></div>`;
 
       // 故障字典
@@ -720,38 +758,29 @@
           <ol style="padding-left:20px;color:#333;line-height:2">${d.actions.split('\n').map(x=>`<li>${x}</li>`).join('')}</ol></div>
         </div></div>` : '<div class="card"><div class="card__body" style="text-align:center;color:#999;padding:40px">未找到对应故障字典</div></div>';
 
-      // 处理记录
-      document.getElementById('panel-record').innerHTML = `
-        <div class="card"><div class="card__header"><span class="card__title">操作日志</span></div>
-        <table class="data-table"><thead><tr><th>操作时间</th><th>操作人</th><th>动作</th><th>结果</th><th>备注</th></tr></thead><tbody>
-          <tr><td>${a.time}</td><td>系统</td><td>创建告警</td><td><span class="tag tag--success">成功</span></td><td>-</td></tr>
-          ${a.status!=='pending'?`<tr><td>${a.time}</td><td>${a.handler}</td><td>确认告警</td><td><span class="tag tag--success">成功</span></td><td>-</td></tr>`:''}
-          ${a.status==='repaired'||a.status==='closed'?`<tr><td>${a.time}</td><td>${a.handler}</td><td>标记修复</td><td><span class="tag tag--success">成功</span></td><td>已处理</td></tr>`:''}
-          ${a.status==='closed'?`<tr><td>${a.time}</td><td>${a.handler}</td><td>关闭告警</td><td><span class="tag tag--success">成功</span></td><td>-</td></tr>`:''}
-        </tbody></table></div>`;
-
-      // 告警配置
-      const mutedText = a.muted ? '<span class="tag tag--fatal">是</span>' : '<span class="tag tag--success">否</span>';
-      let muteDeadlineText = '-';
-      if (a.muted && a.muteDeadline) {
-        const deadline = new Date(a.muteDeadline);
-        const now = new Date();
-        const diff = deadline - now;
-        if (diff > 0) {
-          const h = Math.floor(diff / 3600000);
-          const m = Math.floor((diff % 3600000) / 60000);
-          const s = Math.floor((diff % 60000) / 1000);
-          muteDeadlineText = h + '小时' + m + '分' + s + '秒';
-        } else {
-          muteDeadlineText = '已到期';
-        }
-      }
+      // 告警配置 - 项目绑定运维人员
+      const staff = projectStaffData[a.project] || [];
+      const mutedText = a.muted ? '<span class="tag tag--fatal">已屏蔽</span>' : '<span class="tag tag--success">未屏蔽</span>';
+      const muteBtnText = a.muted ? '取消屏蔽' : '屏蔽告警';
+      const muteBtnCls = a.muted ? 'btn--success' : 'btn--default';
       document.getElementById('panel-config').innerHTML = `
-        <div class="card"><div class="card__header"><span class="card__title">告警通知配置</span></div><div class="card__body"><div class="info-grid">
-          <div class="info-item"><span class="info-item__label">通知渠道：</span><span class="info-item__value"><span class="tag tag--general">短信</span> <span class="tag tag--general">邮件</span> <span class="tag tag--general">站内信</span></span></div>
-          <div class="info-item"><span class="info-item__label">静默截止：</span><span class="info-item__value">${muteDeadlineText}</span></div>
-          <div class="info-item"><span class="info-item__label">屏蔽告警：</span><span class="info-item__value">${mutedText}</span></div>
-        </div></div></div>`;
+        <div class="card"><div class="card__header"><span class="card__title">项目运维人员</span><button class="btn btn--primary btn--sm" onclick="showStaffForm('${a.id}',null)">+ 新增人员</button></div><div class="card__body">
+          <div class="info-item" style="margin-bottom:12px"><span class="info-item__label">所属项目：</span><span class="info-item__value" style="font-weight:500">${a.project}</span></div>
+          <table class="data-table"><thead><tr><th>姓名</th><th>手机号</th><th>通知方式</th><th class="col-actions">操作</th></tr></thead><tbody>
+            ${staff.map((s,idx) => `<tr><td>${s.name}</td><td>${s.phone}</td><td><span class="tag tag--general">短信</span></td><td class="col-actions">
+              <span class="action-link" onclick="assignStaff('${a.id}',${idx})">指派</span><span class="action-sep"></span>
+              <span class="action-link" onclick="showStaffForm('${a.id}',${idx})">编辑</span><span class="action-sep"></span>
+              <span class="action-link action-link--danger" onclick="deleteStaff('${a.id}',${idx})">删除</span>
+            </td></tr>`).join('')}
+            ${staff.length===0?'<tr><td colspan="4" style="text-align:center;color:#999;padding:20px">该项目暂未配置运维人员</td></tr>':''}
+          </tbody></table>
+        </div></div>
+        <div class="card"><div class="card__header"><span class="card__title">屏蔽管理</span></div><div class="card__body"><div class="info-grid">
+          <div class="info-item"><span class="info-item__label">屏蔽状态：</span><span class="info-item__value">${mutedText}</span></div>
+          <div class="info-item"><span class="info-item__label">屏蔽范围：</span><span class="info-item__value">${a.muted?a.deviceSn+' 的 '+a.code+' 故障':'-'}</span></div>
+        </div>
+        <div style="margin-top:12px;text-align:right"><button class="btn ${muteBtnCls}" onclick="toggleMute('${a.id}')">${muteBtnText}</button></div>
+        </div></div>`;
 
       // 重置详情页内部Tab到第一个
       document.querySelectorAll('.detail-tabs__item').forEach((t,i) => t.classList.toggle('active', i===0));
@@ -794,9 +823,10 @@
 
       showAlarmActionModal(labels[action], `确定要对告警 <strong>${a.code} ${a.name}</strong> 执行"${labels[action]}"操作吗？`, function() {
         closeModal('alarmActionModal');
-        if (action === 'confirm') { a.status = 'processing'; a.statusName = '处理中'; }
-        else if (action === 'repair') { a.status = 'repaired'; a.statusName = '已修复'; }
-        else if (action === 'close') { a.status = 'closed'; a.statusName = '已关闭'; switchToTab('alarm-list'); renderAlarmTable(); return; }
+        if (!a.actionsHistory) a.actionsHistory = [];
+        if (action === 'confirm') { a.status = 'processing'; a.statusName = '处理中'; a.actionsHistory.push({ time: formatNow(), text: '确认告警 - ' + (a.handler || 'Admin') }); }
+        else if (action === 'repair') { a.status = 'repaired'; a.statusName = '已修复'; a.actionsHistory.push({ time: formatNow(), text: '标记修复 - ' + (a.handler || 'Admin') }); }
+        else if (action === 'close') { a.status = 'closed'; a.statusName = '已关闭'; a.actionsHistory.push({ time: formatNow(), text: '关闭告警 - ' + (a.handler || 'Admin') }); switchToTab('alarm-list'); renderAlarmTable(); return; }
         else if (action === 'escalate') {
           // 升级告警等级：hint→general→serious→fatal
           const levelOrder = ['hint','general','serious','fatal'];
@@ -806,14 +836,26 @@
             a.level = levelOrder[idx + 1];
             a.levelName = levelNames[a.level];
           }
+          a.actionsHistory.push({ time: formatNow(), text: '升级告警 - Admin' });
         }
         else if (action === 'mute') {
-          // 屏蔽告警：设置屏蔽状态和24h倒计时
+          // 屏蔽告警：永久屏蔽该机器人的该故障码
           a.muted = true;
-          a.muteDeadline = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+          a.muteDeadline = null;
         }
         showAlarmDetail(id); // 刷新详情页
       });
+    }
+
+    function toggleMute(id) {
+      const a = alarmData.find(x => x.id === id);
+      if (!a) return;
+      a.muted = !a.muted;
+      a.muteDeadline = null;
+      if (!a.actionsHistory) a.actionsHistory = [];
+      a.actionsHistory.push({ time: formatNow(), text: (a.muted ? '屏蔽告警' : '取消屏蔽') + ' - Admin' });
+      showAlarmDetail(id);
+      renderAlarmTable();
     }
 
     function showAlarmActionModal(title, text, onOk) {
@@ -821,6 +863,67 @@
       document.getElementById('alarmActionText').innerHTML = text;
       document.getElementById('alarmActionOk').onclick = onOk;
       document.getElementById('alarmActionModal').classList.add('show');
+    }
+
+    function formatNow() {
+      const d = new Date();
+      const pad = n => String(n).padStart(2, '0');
+      return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    }
+
+    // ==================== 项目运维人员管理 ====================
+    function assignStaff(alarmId, staffIdx) {
+      const a = alarmData.find(x => x.id === alarmId);
+      if (!a) return;
+      const staff = projectStaffData[a.project] || [];
+      const person = staff[staffIdx];
+      if (!person) return;
+      showAlarmActionModal('指派确认', `确定将告警 <strong>${a.code} ${a.name}</strong> 指派给 <strong>${person.name}</strong>（${person.phone}）吗？`, function() {
+        closeModal('alarmActionModal');
+        a.handler = person.name;
+        if (!a.actionsHistory) a.actionsHistory = [];
+        a.actionsHistory.push({ time: formatNow(), text: '指派处理 - ' + person.name });
+        alert('已将告警指派给 ' + person.name);
+        showAlarmDetail(alarmId);
+      });
+    }
+
+    function showStaffForm(alarmId, idx) {
+      staffEditingAlarmId = alarmId;
+      staffEditingIndex = idx;
+      const a = alarmData.find(x => x.id === alarmId);
+      if (!a) return;
+      const staff = projectStaffData[a.project] || [];
+      const person = idx !== null ? staff[idx] : null;
+      document.getElementById('staffFormTitle').textContent = person ? '编辑人员' : '新增人员';
+      document.getElementById('staffFormName').value = person ? person.name : '';
+      document.getElementById('staffFormPhone').value = person ? person.phone : '';
+      document.getElementById('staffFormModal').classList.add('show');
+    }
+
+    function submitStaffForm() {
+      const a = alarmData.find(x => x.id === staffEditingAlarmId);
+      if (!a) return;
+      const name = document.getElementById('staffFormName').value.trim();
+      const phone = document.getElementById('staffFormPhone').value.trim();
+      if (!name || !phone) { alert('请填写姓名和手机号'); return; }
+      if (!projectStaffData[a.project]) projectStaffData[a.project] = [];
+      if (staffEditingIndex !== null) {
+        projectStaffData[a.project][staffEditingIndex] = { name, phone };
+      } else {
+        projectStaffData[a.project].push({ name, phone });
+      }
+      closeModal('staffFormModal');
+      showAlarmDetail(staffEditingAlarmId);
+    }
+
+    function deleteStaff(alarmId, idx) {
+      const a = alarmData.find(x => x.id === alarmId);
+      if (!a) return;
+      if (!projectStaffData[a.project]) return;
+      if (!confirm('确定要删除该运维人员吗？')) return;
+      projectStaffData[a.project].splice(idx, 1);
+      showAlarmDetail(alarmId);
     }
 
     // ==================== 故障字典管理 ====================
@@ -989,8 +1092,381 @@
         const page = this.dataset.page;
         if (page === 'alarm-list') switchToTab('alarm-list');
         else if (page === 'alarm-config') switchToTab('alarm-dictionary');
+        else if (page === 'log-manage') { switchToTab('log-manage'); renderLogTable(); }
       });
     });
+
+    // ==================== 日志管理 ====================
+    // 日志数据：每10分钟机器人上报的完整数据集（包含所有日志类型）
+    // 共15条：12条正常、3条异常
+    let logData = [
+      // 正常日志包（12条）
+      {
+        id:'LOG-001', time:'2026-05-28 14:30:00', deviceSn:'SN-H1-001', deviceName:'全尺寸人形机器人-01', project:'上海中心项目',
+        logs:[
+          { level:'INFO', logType:'运行信息', module:'system_monitor', content:'系统运行正常，CPU使用率45%，内存使用率60%' },
+          { level:'INFO', logType:'运动数据', module:'motion_ctrl', content:'关节电机位置反馈正常，各轴误差在0.01度以内' },
+          { level:'INFO', logType:'传感器', module:'lidar_module', content:'激光雷达数据正常，有效点数: 1800，信噪比: 25dB' },
+          { level:'INFO', logType:'电量', module:'power_module', content:'电池电量75%，预计续航4.5小时' },
+          { level:'INFO', logType:'硬件', module:'system_monitor', content:'所有硬件模块自检通过' },
+          { level:'INFO', logType:'业务', module:'task_scheduler', content:'当前无执行任务' },
+          { level:'INFO', logType:'通信', module:'network_module', content:'WiFi连接正常，信号强度: -55dBm' },
+          { level:'INFO', logType:'告警', module:'safety_module', content:'安全模块运行正常，无碰撞风险' },
+          { level:'INFO', logType:'人员操作', module:'system_monitor', content:'无人员操作记录' },
+        ]
+      },
+      {
+        id:'LOG-002', time:'2026-05-28 14:20:00', deviceSn:'SN-H1-001', deviceName:'全尺寸人形机器人-01', project:'上海中心项目',
+        logs:[
+          { level:'INFO', logType:'运行信息', module:'system_monitor', content:'系统运行正常，CPU使用率42%，内存使用率58%' },
+          { level:'INFO', logType:'运动数据', module:'motion_ctrl', content:'关节电机位置反馈正常，各轴误差在0.01度以内' },
+          { level:'INFO', logType:'传感器', module:'lidar_module', content:'激光雷达数据正常，有效点数: 1820，信噪比: 26dB' },
+          { level:'INFO', logType:'电量', module:'power_module', content:'电池电量78%，预计续航4.8小时' },
+          { level:'INFO', logType:'硬件', module:'system_monitor', content:'所有硬件模块自检通过' },
+          { level:'INFO', logType:'业务', module:'task_scheduler', content:'当前无执行任务' },
+          { level:'INFO', logType:'通信', module:'network_module', content:'WiFi连接正常，信号强度: -52dBm' },
+          { level:'INFO', logType:'告警', module:'safety_module', content:'安全模块运行正常，无碰撞风险' },
+          { level:'INFO', logType:'人员操作', module:'system_monitor', content:'无人员操作记录' },
+        ]
+      },
+      {
+        id:'LOG-003', time:'2026-05-28 14:10:00', deviceSn:'SN-H1-001', deviceName:'全尺寸人形机器人-01', project:'上海中心项目',
+        logs:[
+          { level:'INFO', logType:'运行信息', module:'system_monitor', content:'系统运行正常，CPU使用率40%，内存使用率55%' },
+          { level:'INFO', logType:'运动数据', module:'motion_ctrl', content:'关节电机位置反馈正常' },
+          { level:'INFO', logType:'传感器', module:'lidar_module', content:'激光雷达数据正常' },
+          { level:'INFO', logType:'电量', module:'power_module', content:'电池电量80%，预计续航5小时' },
+          { level:'INFO', logType:'硬件', module:'system_monitor', content:'所有硬件模块自检通过' },
+          { level:'INFO', logType:'业务', module:'task_scheduler', content:'当前无执行任务' },
+          { level:'INFO', logType:'通信', module:'network_module', content:'WiFi连接正常，信号强度: -50dBm' },
+          { level:'INFO', logType:'告警', module:'safety_module', content:'安全模块运行正常' },
+          { level:'INFO', logType:'人员操作', module:'system_monitor', content:'无人员操作记录' },
+        ]
+      },
+      {
+        id:'LOG-004', time:'2026-05-28 14:00:00', deviceSn:'SN-H1-001', deviceName:'全尺寸人形机器人-01', project:'上海中心项目',
+        logs:[
+          { level:'INFO', logType:'运行信息', module:'system_monitor', content:'系统运行正常，CPU使用率38%，内存使用率52%' },
+          { level:'INFO', logType:'运动数据', module:'motion_ctrl', content:'关节电机位置反馈正常' },
+          { level:'INFO', logType:'传感器', module:'lidar_module', content:'激光雷达数据正常' },
+          { level:'INFO', logType:'电量', module:'power_module', content:'电池电量82%，预计续航5.2小时' },
+          { level:'INFO', logType:'硬件', module:'system_monitor', content:'所有硬件模块自检通过' },
+          { level:'INFO', logType:'业务', module:'task_scheduler', content:'当前无执行任务' },
+          { level:'INFO', logType:'通信', module:'network_module', content:'WiFi连接正常，信号强度: -48dBm' },
+          { level:'INFO', logType:'告警', module:'safety_module', content:'安全模块运行正常' },
+          { level:'INFO', logType:'人员操作', module:'system_monitor', content:'管理员Admin执行了远程重启操作' },
+        ]
+      },
+      {
+        id:'LOG-005', time:'2026-05-28 14:30:00', deviceSn:'SN-HL2-001', deviceName:'物流机器人-01', project:'北京望京项目',
+        logs:[
+          { level:'INFO', logType:'运行信息', module:'system_monitor', content:'系统运行正常，CPU使用率48%，内存使用率53%' },
+          { level:'INFO', logType:'运动数据', module:'motion_ctrl', content:'轮速反馈正常，左右轮误差<1%' },
+          { level:'INFO', logType:'传感器', module:'lidar_module', content:'激光雷达数据正常，有效点数: 1850，信噪比: 28dB' },
+          { level:'INFO', logType:'电量', module:'power_module', content:'电池电量68%，预计续航4.2小时' },
+          { level:'INFO', logType:'硬件', module:'system_monitor', content:'所有硬件模块自检通过' },
+          { level:'INFO', logType:'业务', module:'task_scheduler', content:'当前执行任务: DEL-20260528-003' },
+          { level:'INFO', logType:'通信', module:'network_module', content:'WiFi连接正常，信号强度: -45dBm' },
+          { level:'INFO', logType:'告警', module:'safety_module', content:'安全模块运行正常' },
+          { level:'INFO', logType:'人员操作', module:'system_monitor', content:'无人员操作记录' },
+        ]
+      },
+      {
+        id:'LOG-006', time:'2026-05-28 14:30:00', deviceSn:'SN-P2-001', deviceName:'清洁机器人-01', project:'深圳科技园项目',
+        logs:[
+          { level:'INFO', logType:'运行信息', module:'system_monitor', content:'系统运行正常，CPU使用率38%，内存使用率45%' },
+          { level:'INFO', logType:'运动数据', module:'motion_ctrl', content:'清洁刷电机转速正常: 1200rpm' },
+          { level:'INFO', logType:'传感器', module:'camera_module', content:'摄像头画面清晰，分辨率1920x1080' },
+          { level:'INFO', logType:'电量', module:'power_module', content:'电池电量72%，预计续航5小时' },
+          { level:'INFO', logType:'硬件', module:'system_monitor', content:'所有硬件模块自检通过' },
+          { level:'INFO', logType:'业务', module:'task_scheduler', content:'当前执行清洁任务: CLN-20260528-001' },
+          { level:'INFO', logType:'通信', module:'elevator_ctrl', content:'梯控通信正常，电梯ID: ELV-003' },
+          { level:'INFO', logType:'告警', module:'safety_module', content:'安全模块运行正常' },
+          { level:'INFO', logType:'人员操作', module:'system_monitor', content:'无人员操作记录' },
+        ]
+      },
+      {
+        id:'LOG-007', time:'2026-05-28 14:30:00', deviceSn:'SN-Q1-001', deviceName:'四足机器人-01', project:'广州塔项目',
+        logs:[
+          { level:'INFO', logType:'运行信息', module:'system_monitor', content:'系统运行正常，CPU使用率52%，内存使用率50%' },
+          { level:'INFO', logType:'运动数据', module:'motion_ctrl', content:'四足姿态稳定，机身俯仰角<2度' },
+          { level:'INFO', logType:'传感器', module:'imu_sensor', content:'IMU数据正常，陀螺仪零偏: 0.02deg/s' },
+          { level:'INFO', logType:'电量', module:'power_module', content:'电池电量60%，预计续航2小时' },
+          { level:'INFO', logType:'硬件', module:'system_monitor', content:'所有硬件模块自检通过' },
+          { level:'INFO', logType:'业务', module:'task_scheduler', content:'当前执行巡检任务: PAT-20260528-002' },
+          { level:'INFO', logType:'通信', module:'network_module', content:'4G连接正常，信号强度: -65dBm' },
+          { level:'INFO', logType:'告警', module:'safety_module', content:'安全模块运行正常' },
+          { level:'INFO', logType:'人员操作', module:'system_monitor', content:'无人员操作记录' },
+        ]
+      },
+      {
+        id:'LOG-008', time:'2026-05-28 14:30:00', deviceSn:'SN-S1-001', deviceName:'小尺寸人形机器人-01', project:'上海中心项目',
+        logs:[
+          { level:'INFO', logType:'运行信息', module:'system_monitor', content:'系统运行正常，CPU使用率35%，内存使用率40%' },
+          { level:'INFO', logType:'运动数据', module:'motion_ctrl', content:'关节电机位置反馈正常' },
+          { level:'INFO', logType:'传感器', module:'camera_module', content:'摄像头画面清晰' },
+          { level:'INFO', logType:'电量', module:'power_module', content:'电池电量85%，预计续航6小时' },
+          { level:'INFO', logType:'硬件', module:'system_monitor', content:'所有硬件模块自检通过' },
+          { level:'INFO', logType:'业务', module:'task_scheduler', content:'当前无执行任务' },
+          { level:'INFO', logType:'通信', module:'network_module', content:'WiFi连接正常，信号强度: -58dBm' },
+          { level:'INFO', logType:'告警', module:'safety_module', content:'安全模块运行正常' },
+          { level:'INFO', logType:'人员操作', module:'system_monitor', content:'无人员操作记录' },
+        ]
+      },
+      {
+        id:'LOG-009', time:'2026-05-28 14:30:00', deviceSn:'SN-Q2-001', deviceName:'四足机器人-02', project:'武汉光谷项目',
+        logs:[
+          { level:'INFO', logType:'运行信息', module:'system_monitor', content:'系统运行正常，CPU使用率50%，内存使用率48%' },
+          { level:'INFO', logType:'运动数据', module:'motion_ctrl', content:'四足姿态稳定' },
+          { level:'INFO', logType:'传感器', module:'imu_sensor', content:'IMU数据正常' },
+          { level:'INFO', logType:'电量', module:'power_module', content:'电池电量70%，预计续航2.5小时' },
+          { level:'INFO', logType:'硬件', module:'system_monitor', content:'所有硬件模块自检通过' },
+          { level:'INFO', logType:'业务', module:'task_scheduler', content:'当前执行巡检任务: PAT-20260528-003' },
+          { level:'INFO', logType:'通信', module:'network_module', content:'4G连接正常，信号强度: -60dBm' },
+          { level:'INFO', logType:'告警', module:'safety_module', content:'安全模块运行正常' },
+          { level:'INFO', logType:'人员操作', module:'system_monitor', content:'无人员操作记录' },
+        ]
+      },
+      {
+        id:'LOG-010', time:'2026-05-28 14:20:00', deviceSn:'SN-H1D-001', deviceName:'轮式人形机器人-02', project:'北京望京项目',
+        logs:[
+          { level:'INFO', logType:'运行信息', module:'system_monitor', content:'系统运行正常，CPU使用率44%，内存使用率49%' },
+          { level:'INFO', logType:'运动数据', module:'motion_ctrl', content:'轮速反馈正常' },
+          { level:'INFO', logType:'传感器', module:'lidar_module', content:'激光雷达数据正常' },
+          { level:'INFO', logType:'电量', module:'power_module', content:'电池电量60%，预计续航3.5小时' },
+          { level:'INFO', logType:'硬件', module:'system_monitor', content:'所有硬件模块自检通过' },
+          { level:'INFO', logType:'业务', module:'task_scheduler', content:'当前执行任务: GUIDE-20260528-006' },
+          { level:'INFO', logType:'通信', module:'network_module', content:'WiFi连接正常，信号强度: -50dBm' },
+          { level:'INFO', logType:'告警', module:'safety_module', content:'安全模块运行正常' },
+          { level:'INFO', logType:'人员操作', module:'system_monitor', content:'无人员操作记录' },
+        ]
+      },
+      {
+        id:'LOG-011', time:'2026-05-28 14:10:00', deviceSn:'SN-HL1-001', deviceName:'物流机器人-02', project:'成都天府项目',
+        logs:[
+          { level:'INFO', logType:'运行信息', module:'system_monitor', content:'系统运行正常，CPU使用率40%，内存使用率46%' },
+          { level:'INFO', logType:'运动数据', module:'motion_ctrl', content:'轮速反馈正常' },
+          { level:'INFO', logType:'传感器', module:'lidar_module', content:'激光雷达数据正常' },
+          { level:'INFO', logType:'电量', module:'power_module', content:'电池电量85%，预计续航6.5小时' },
+          { level:'INFO', logType:'硬件', module:'system_monitor', content:'所有硬件模块自检通过' },
+          { level:'INFO', logType:'业务', module:'task_scheduler', content:'当前执行任务: DEL-20260528-005' },
+          { level:'INFO', logType:'通信', module:'network_module', content:'WiFi连接正常，信号强度: -42dBm' },
+          { level:'INFO', logType:'告警', module:'safety_module', content:'安全模块运行正常' },
+          { level:'INFO', logType:'人员操作', module:'system_monitor', content:'无人员操作记录' },
+        ]
+      },
+      {
+        id:'LOG-012', time:'2026-05-28 14:00:00', deviceSn:'SN-S2-001', deviceName:'小尺寸人形机器人-02', project:'南京新街口项目',
+        logs:[
+          { level:'INFO', logType:'运行信息', module:'system_monitor', content:'系统运行正常，CPU使用率36%，内存使用率42%' },
+          { level:'INFO', logType:'运动数据', module:'motion_ctrl', content:'关节电机位置反馈正常' },
+          { level:'INFO', logType:'传感器', module:'camera_module', content:'摄像头画面清晰' },
+          { level:'INFO', logType:'电量', module:'power_module', content:'电池电量90%，预计续航7小时' },
+          { level:'INFO', logType:'硬件', module:'system_monitor', content:'所有硬件模块自检通过' },
+          { level:'INFO', logType:'业务', module:'task_scheduler', content:'当前无执行任务' },
+          { level:'INFO', logType:'通信', module:'network_module', content:'WiFi连接正常，信号强度: -55dBm' },
+          { level:'INFO', logType:'告警', module:'safety_module', content:'安全模块运行正常' },
+          { level:'INFO', logType:'人员操作', module:'system_monitor', content:'无人员操作记录' },
+        ]
+      },
+      // 异常日志包（3条）
+      {
+        id:'LOG-013', time:'2026-05-28 14:30:00', deviceSn:'SN-H1-001', deviceName:'全尺寸人形机器人-01', project:'上海中心项目',
+        logs:[
+          { level:'INFO', logType:'运行信息', module:'system_monitor', content:'系统运行正常，CPU使用率45%，内存使用率60%' },
+          { level:'INFO', logType:'运动数据', module:'motion_ctrl', content:'关节电机位置反馈正常，各轴误差在0.01度以内' },
+          { level:'INFO', logType:'传感器', module:'lidar_module', content:'激光雷达数据正常，有效点数: 1800，信噪比: 25dB' },
+          { level:'WARN', logType:'电量', module:'power_module', content:'电池电量15%，预计续航0.5小时，建议返回充电桩' },
+          { level:'INFO', logType:'硬件', module:'system_monitor', content:'所有硬件模块自检通过' },
+          { level:'ERROR', logType:'业务', module:'task_scheduler', content:'任务执行超时，任务ID: TSK-20260528-001，超时阈值: 120s' },
+          { level:'INFO', logType:'通信', module:'network_module', content:'WiFi连接正常，信号强度: -55dBm' },
+          { level:'INFO', logType:'告警', module:'safety_module', content:'安全模块运行正常，无碰撞风险' },
+          { level:'INFO', logType:'人员操作', module:'system_monitor', content:'无人员操作记录' },
+        ]
+      },
+      {
+        id:'LOG-014', time:'2026-05-28 14:30:00', deviceSn:'SN-HL2-001', deviceName:'物流机器人-01', project:'北京望京项目',
+        logs:[
+          { level:'INFO', logType:'运行信息', module:'system_monitor', content:'系统运行正常，CPU使用率50%，内存使用率55%' },
+          { level:'INFO', logType:'运动数据', module:'motion_ctrl', content:'轮速反馈正常，左右轮误差<1%' },
+          { level:'ERROR', logType:'传感器', module:'lidar_module', content:'激光雷达点云数据异常，有效点数低于阈值1000，当前值: 256' },
+          { level:'WARN', logType:'传感器', module:'lidar_module', content:'激光雷达数据质量下降，信噪比低于20dB' },
+          { level:'INFO', logType:'电量', module:'power_module', content:'电池电量65%，预计续航4小时' },
+          { level:'INFO', logType:'硬件', module:'system_monitor', content:'除激光雷达外，其他硬件模块自检通过' },
+          { level:'INFO', logType:'业务', module:'task_scheduler', content:'当前执行任务: DEL-20260528-003' },
+          { level:'INFO', logType:'通信', module:'network_module', content:'WiFi连接正常，信号强度: -48dBm' },
+          { level:'INFO', logType:'告警', module:'safety_module', content:'安全模块运行正常' },
+          { level:'INFO', logType:'人员操作', module:'system_monitor', content:'无人员操作记录' },
+        ]
+      },
+      {
+        id:'LOG-015', time:'2026-05-28 14:30:00', deviceSn:'SN-U1-001', deviceName:'轮式人形机器人-01', project:'杭州西湖项目',
+        logs:[
+          { level:'INFO', logType:'运行信息', module:'system_monitor', content:'系统运行正常，CPU使用率48%，内存使用率52%' },
+          { level:'INFO', logType:'运动数据', module:'motion_ctrl', content:'轮速反馈正常' },
+          { level:'ERROR', logType:'传感器', module:'imu_sensor', content:'IMU数据漂移严重，陀螺仪零偏超过0.5deg/s，影响定位精度' },
+          { level:'INFO', logType:'电量', module:'power_module', content:'电池电量55%，预计续航3小时' },
+          { level:'INFO', logType:'硬件', module:'system_monitor', content:'除IMU外，其他硬件模块自检通过' },
+          { level:'INFO', logType:'业务', module:'task_scheduler', content:'当前执行任务: GUIDE-20260528-005' },
+          { level:'INFO', logType:'通信', module:'network_module', content:'WiFi连接正常，信号强度: -50dBm' },
+          { level:'INFO', logType:'告警', module:'safety_module', content:'安全模块运行正常' },
+          { level:'INFO', logType:'人员操作', module:'system_monitor', content:'无人员操作记录' },
+        ]
+      },
+    ];
+    let filteredLogs = [...logData];
+    let logPage = 1, logPageSize = 10;
+
+    // 初始化日志管理页面筛选选项
+    function initLogFilterOptions() {
+      const ps = document.getElementById('logFilterProject');
+      if (ps) projects.forEach(p => { ps.innerHTML += `<option value="${p}">${p}</option>`; });
+    }
+
+    // 计算日志包的最高级别（映射为告警等级）
+    // ERROR -> fatal(致命), WARN -> general(一般), INFO -> normal(正常)
+    function getLogLevelOrder(level) {
+      const order = { 'ERROR': 3, 'WARN': 2, 'INFO': 1 };
+      return order[level] || 0;
+    }
+    function getLogPackageLevel(logs) {
+      let maxLevel = 'INFO';
+      for (const log of logs) {
+        if (getLogLevelOrder(log.level) > getLogLevelOrder(maxLevel)) {
+          maxLevel = log.level;
+        }
+      }
+      return maxLevel;
+    }
+    function getLogPackageLevelName(logs) {
+      const raw = getLogPackageLevel(logs);
+      const map = { 'ERROR': {val:'fatal', name:'致命', cls:'tag--fatal'}, 'WARN': {val:'general', name:'一般', cls:'tag--warning'}, 'INFO': {val:'normal', name:'正常', cls:'tag--hint'} };
+      return map[raw] || {val:'normal', name:'正常', cls:'tag--hint'};
+    }
+    function getLogPackageModules(logs) {
+      return [...new Set(logs.map(l => l.module))];
+    }
+
+    function renderLogTable() {
+      const tbody = document.getElementById('logTableBody');
+      const start = (logPage - 1) * logPageSize;
+      const pageData = filteredLogs.slice(start, start + logPageSize);
+      if (pageData.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:#999">暂无数据</td></tr>';
+      } else {
+        tbody.innerHTML = pageData.map(l => {
+          const pkg = getLogPackageLevelName(l.logs);
+          const modules = getLogPackageModules(l.logs);
+          return `<tr>
+            <td>${l.time}</td><td>${l.deviceSn}</td><td>${l.deviceName}</td>
+            <td>${l.logs.length} 条</td>
+            <td>${modules.length} 个模块</td>
+            <td><span class="tag ${pkg.cls}">${pkg.name}</span></td>
+            <td class="col-actions">
+              <span class="action-link" onclick="viewLogDetail('${l.id}')">查看</span><span class="action-sep"></span>
+              <span class="action-link" onclick="downloadLog('${l.id}')">下载</span>
+            </td>
+          </tr>`;
+        }).join('');
+      }
+      document.getElementById('logPaginationTotal').textContent = filteredLogs.length;
+      renderPaginationNav('logPaginationNav', filteredLogs.length, logPage, logPageSize, 'changeLogPage');
+    }
+
+    function changeLogPage(p) {
+      const total = Math.max(1, Math.ceil(filteredLogs.length / logPageSize));
+      if (p < 1 || p > total) return;
+      logPage = p;
+      renderLogTable();
+    }
+
+    function searchLog() {
+      const sn = document.getElementById('logFilterSn').value.trim();
+      const project = document.getElementById('logFilterProject').value;
+      const level = document.getElementById('logFilterLevel').value;
+      const module = document.getElementById('logFilterModule').value;
+      const start = document.getElementById('logFilterStart').value;
+      const end = document.getElementById('logFilterEnd').value;
+      filteredLogs = logData.filter(l => {
+        if (sn && !l.deviceSn.includes(sn)) return false;
+        if (project && l.project !== project) return false;
+        if (level) {
+          const pkg = getLogPackageLevelName(l.logs);
+          if (pkg.val !== level) return false;
+        }
+        if (module && !l.logs.some(x => x.module === module)) return false;
+        if (start && l.time < start + ' 00:00:00') return false;
+        if (end && l.time > end + ' 23:59:59') return false;
+        return true;
+      });
+      logPage = 1;
+      renderLogTable();
+    }
+
+    function resetLogFilter() {
+      ['logFilterSn','logFilterProject','logFilterLevel','logFilterModule','logFilterStart','logFilterEnd'].forEach(id => document.getElementById(id).value = '');
+      filteredLogs = [...logData];
+      logPage = 1;
+      renderLogTable();
+    }
+
+    function fetchLog() {
+      alert('已向机器人端发送日志获取指令，日志将在获取完成后自动更新');
+    }
+
+    function viewLogDetail(id) {
+      const pkg = logData.find(x => x.id === id);
+      if (!pkg) return;
+      const levelTag = { ERROR:'tag--fatal', WARN:'tag--warning', INFO:'tag--hint' };
+      const rows = pkg.logs.map(l => `<tr>
+        <td><span class="tag ${levelTag[l.level]||'tag--hint'}">${l.level === 'ERROR' ? '致命' : l.level === 'WARN' ? '一般' : '正常'}</span></td>
+        <td>${l.logType}</td><td>${l.module}</td>
+        <td title="${l.content}" style="max-width:400px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${l.content}</td>
+      </tr>`).join('');
+      const pkgInfo = getLogPackageLevelName(pkg.logs);
+      document.getElementById('logDetailBody').innerHTML = `
+        <div style="margin-bottom:16px"><strong>机器人：</strong>${pkg.deviceName}（${pkg.deviceSn}）　<strong>项目：</strong>${pkg.project}　<strong>记录时间：</strong>${pkg.time}　<strong>最高级别：</strong><span class="tag ${pkgInfo.cls}">${pkgInfo.name}</span></div>
+        <table class="data-table"><thead><tr><th>级别</th><th>日志类型</th><th>模块</th><th>内容</th></tr></thead><tbody>${rows}</tbody></table>`;
+      document.getElementById('logDetailModal').classList.add('show');
+    }
+
+    function downloadLog(id) {
+      const pkg = logData.find(x => x.id === id);
+      if (!pkg) return;
+      const pkgInfo = getLogPackageLevelName(pkg.logs);
+      let content = `机器人: ${pkg.deviceName} (${pkg.deviceSn})\n项目: ${pkg.project}\n记录时间: ${pkg.time}\n最高级别: ${pkgInfo.name}\n================================\n`;
+      pkg.logs.forEach(l => {
+        const lvName = l.level === 'ERROR' ? '致命' : l.level === 'WARN' ? '一般' : '正常';
+        content += `[${lvName}] [${l.logType}] [${l.module}] ${l.content}\n`;
+      });
+      const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = pkg.id + '_' + pkg.deviceSn + '.log';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function exportLog() {
+      let content = '';
+      filteredLogs.forEach(pkg => {
+        const pkgInfo = getLogPackageLevelName(pkg.logs);
+        content += `================================\n机器人: ${pkg.deviceName} (${pkg.deviceSn})\n项目: ${pkg.project}\n记录时间: ${pkg.time}\n最高级别: ${pkgInfo.name}\n================================\n`;
+        pkg.logs.forEach(l => {
+          const lvName = l.level === 'ERROR' ? '致命' : l.level === 'WARN' ? '一般' : '正常';
+          content += `[${lvName}] [${l.logType}] [${l.module}] ${l.content}\n`;
+        });
+        content += '\n';
+      });
+      const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = '运行日志_' + new Date().toISOString().slice(0,10) + '.txt';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
   </script>
 </body>
 </html>
