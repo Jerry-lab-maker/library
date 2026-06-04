@@ -412,34 +412,34 @@
             </div>
           </div>
         </div>
-      </div>
-      <!-- ====== 日志管理页面 ====== -->
-      <div class="page" id="page-log-manage">
-        <div class="card" style="margin-bottom:16px">
-          <div class="card__body">
-            <div class="filter-row">
-              <div class="filter-item"><span class="filter-item__label">机器人SN</span><input type="text" class="filter-item__input" id="logFilterSn" placeholder="请输入SN码"></div>
-              <div class="filter-item"><span class="filter-item__label">项目名称</span><select class="filter-item__select" id="logFilterProject"><option value="">请选择项目</option></select></div>
-              <div class="filter-item"><span class="filter-item__label">日志级别</span><select class="filter-item__select" id="logFilterLevel"><option value="">全部</option><option value="fatal">致命</option><option value="serious">严重</option><option value="general">一般</option><option value="normal">正常</option></select></div>
-              <div class="filter-item"><span class="filter-item__label">模块名称</span><select class="filter-item__select" id="logFilterModule"><option value="">全部</option><option value="task_scheduler">任务调度器</option><option value="path_planner">路径规划器</option><option value="lidar_module">激光雷达</option><option value="elevator_ctrl">梯控模块</option><option value="safety_module">安全模块</option><option value="power_module">电源模块</option><option value="imu_sensor">IMU传感器</option><option value="network_module">网络模块</option><option value="system_monitor">系统监控</option><option value="camera_module">摄像头</option></select></div>
-              <div class="filter-item"><span class="filter-item__label">时间范围</span><input type="date" class="filter-item__input" id="logFilterStart"> <span style="margin:0 4px;color:#999">至</span> <input type="date" class="filter-item__input" id="logFilterEnd"></div>
-            </div>
-            <div class="filter-actions">
-              <button class="btn btn--default" onclick="resetLogFilter()">重置</button>
-              <button class="btn btn--primary" onclick="searchLog()">查询</button>
-              <button class="btn btn--default" onclick="fetchLog()">拉取日志</button>
-              <button class="btn btn--default" onclick="exportLog()">批量导出日志</button>
+        <!-- ====== 日志管理页面 ====== -->
+        <div class="page" id="page-log-manage">
+          <div class="card" style="margin-bottom:16px">
+            <div class="card__body">
+              <div class="filter-row">
+                <div class="filter-item"><span class="filter-item__label">机器人SN</span><input type="text" class="filter-item__input" id="logFilterSn" placeholder="请输入SN码"></div>
+                <div class="filter-item"><span class="filter-item__label">项目名称</span><select class="filter-item__select" id="logFilterProject"><option value="">请选择项目</option></select></div>
+                <div class="filter-item"><span class="filter-item__label">日志级别</span><select class="filter-item__select" id="logFilterLevel"><option value="">全部</option><option value="fatal">致命</option><option value="serious">严重</option><option value="general">一般</option><option value="normal">正常</option></select></div>
+                <div class="filter-item"><span class="filter-item__label">模块名称</span><select class="filter-item__select" id="logFilterModule"><option value="">全部</option><option value="task_scheduler">任务调度器</option><option value="path_planner">路径规划器</option><option value="lidar_module">激光雷达</option><option value="elevator_ctrl">梯控模块</option><option value="safety_module">安全模块</option><option value="power_module">电源模块</option><option value="imu_sensor">IMU传感器</option><option value="network_module">网络模块</option><option value="system_monitor">系统监控</option><option value="camera_module">摄像头</option></select></div>
+                <div class="filter-item"><span class="filter-item__label">时间范围</span><input type="date" class="filter-item__input" id="logFilterStart"> <span style="margin:0 4px;color:#999">至</span> <input type="date" class="filter-item__input" id="logFilterEnd"></div>
+              </div>
+              <div class="filter-actions">
+                <button class="btn btn--default" onclick="resetLogFilter()">重置</button>
+                <button class="btn btn--primary" onclick="searchLog()">查询</button>
+                <button class="btn btn--default" onclick="fetchLog()">拉取日志</button>
+                <button class="btn btn--default" onclick="exportLog()">批量导出日志</button>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="card">
-          <table class="data-table">
-            <thead><tr><th>记录时间</th><th>机器人SN</th><th>设备名称</th><th>日志条数</th><th>包含模块</th><th>最高级别</th><th class="col-actions">操作</th></tr></thead>
-            <tbody id="logTableBody"></tbody>
-          </table>
-          <div class="pagination">
-            <span class="pagination__info">共 <span id="logPaginationTotal">0</span> 条</span>
-            <div class="pagination__nav" id="logPaginationNav"></div>
+          <div class="card">
+            <table class="data-table">
+              <thead><tr><th>记录时间</th><th>机器人SN</th><th>设备名称</th><th>日志条数</th><th>包含模块</th><th>最高级别</th><th class="col-actions">操作</th></tr></thead>
+              <tbody id="logTableBody"></tbody>
+            </table>
+            <div class="pagination">
+              <span class="pagination__info">共 <span id="logPaginationTotal">0</span> 条</span>
+              <div class="pagination__nav" id="logPaginationNav"></div>
+            </div>
           </div>
         </div>
       </div>
