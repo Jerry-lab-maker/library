@@ -161,10 +161,11 @@
 
     /* ===== 标签 ===== */
     .tag { display: inline-block; padding: 2px 8px; font-size: 12px; border-radius: 4px; line-height: 1.5; }
-    .tag--fatal { background: #fff1f0; color: #cf1322; border: 1px solid #ffa39e; }
-    .tag--serious { background: #fff7e6; color: #d46b08; border: 1px solid #ffd591; }
-    .tag--general { background: #e6f7ff; color: #096dd9; border: 1px solid #91d5ff; }
-    .tag--hint { background: #f6ffed; color: #389e0d; border: 1px solid #b7eb8f; }
+    .tag--h1 { background: #fff1f0; color: #cf1322; border: 1px solid #ffa39e; }
+    .tag--h2 { background: #fff7e6; color: #d46b08; border: 1px solid #ffd591; }
+    .tag--h3 { background: #e6f7ff; color: #096dd9; border: 1px solid #91d5ff; }
+    .tag--h4 { background: #f6ffed; color: #389e0d; border: 1px solid #b7eb8f; }
+    .tag--h5 { background: #f0f5ff; color: #2f54eb; border: 1px solid #adc6ff; }
     .tag--pending { background: #e6f7ff; color: #096dd9; border: 1px solid #91d5ff; }
     .tag--processing { background: #fff7e6; color: #d46b08; border: 1px solid #ffd591; }
     .tag--repaired { background: #f6ffed; color: #389e0d; border: 1px solid #b7eb8f; }
@@ -286,7 +287,7 @@
         <div class="sidebar__menu-item active expanded" data-menu="ops"><span class="sidebar__menu-icon">🔧</span><span>运维中心</span><span class="sidebar__menu-arrow expanded">›</span></div>
         <div class="sidebar__submenu show">
           <div class="sidebar__menu-item sidebar__menu-item--sub active" data-page="alarm-list">异常告警</div>
-          <div class="sidebar__menu-item sidebar__menu-item--sub" data-page="alarm-config">故障字典</div>
+          <div class="sidebar__menu-item sidebar__menu-item--sub" data-page="alarm-config">告警字典</div>
           <div class="sidebar__menu-item sidebar__menu-item--sub" data-page="log-manage">日志管理</div>
         </div>
         <div class="sidebar__menu-item" data-menu="project"><span class="sidebar__menu-icon">📁</span><span>项目管理</span><span class="sidebar__menu-arrow">›</span></div>
@@ -323,7 +324,7 @@
             <div class="card__body">
               <div class="filter-row">
                 <div class="filter-item"><span class="filter-item__label">告警码</span><select class="filter-item__select" id="filterCode"><option value="">请选择告警码</option></select></div>
-                <div class="filter-item"><span class="filter-item__label">告警等级</span><select class="filter-item__select" id="filterLevel"><option value="">全部</option><option value="fatal">致命</option><option value="serious">严重</option><option value="general">一般</option><option value="hint">提示</option></select></div>
+                <div class="filter-item"><span class="filter-item__label">告警等级</span><select class="filter-item__select" id="filterLevel"><option value="">全部</option><option value="h1">H1-致命故障</option><option value="h2">H2-严重故障</option><option value="h3">H3-警示</option><option value="h4">H4-隐患</option><option value="h5">H5-状态</option></select></div>
                 <div class="filter-item"><span class="filter-item__label">机器人SN码</span><input type="text" class="filter-item__input" id="filterSn" placeholder="请输入SN码"></div>
                 <div class="filter-item"><span class="filter-item__label">项目名称</span><select class="filter-item__select" id="filterProject"><option value="">请选择项目</option></select></div>
                 <div class="filter-item"><span class="filter-item__label">模块名称</span><select class="filter-item__select" id="filterModule"><option value="">请选择模块</option></select></div>
@@ -347,7 +348,7 @@
               <button class="btn btn--primary btn--sm" onclick="exportAlarm()">📥 导出</button>
             </div>
             <table class="data-table">
-              <thead><tr><th>告警码</th><th>告警描述</th><th>告警等级</th><th>告警时间</th><th>告警设备</th><th>项目名称</th><th>版本信息</th><th>模块名称</th><th>产品类型</th><th>产品型号</th><th>状态</th><th class="col-actions">操作</th></tr></thead>
+              <thead><tr><th>序号</th><th>告警码</th><th>告警描述</th><th>告警等级</th><th>告警时间</th><th>告警设备</th><th>项目名称</th><th>版本信息</th><th>模块名称</th><th>产品类型</th><th>产品型号</th><th>状态</th><th class="col-actions">操作</th></tr></thead>
               <tbody id="alarmTableBody"></tbody>
             </table>
             <div class="pagination">
@@ -369,7 +370,7 @@
           </div>
           <div class="detail-tabs" id="detailTabs">
             <div class="detail-tabs__item active" data-panel="basic">基本信息</div>
-            <div class="detail-tabs__item" data-panel="dictionary">故障字典</div>
+            <div class="detail-tabs__item" data-panel="dictionary">告警字典</div>
             <div class="detail-tabs__item" data-panel="config">告警配置</div>
           </div>
           <div class="detail-panel active" id="panel-basic"></div>
@@ -377,13 +378,13 @@
           <div class="detail-panel" id="panel-config"></div>
         </div>
 
-        <!-- ====== 页面3: 故障字典管理 ====== -->
+        <!-- ====== 页面3: 告警字典管理 ====== -->
         <div class="page" id="page-alarm-dictionary">
           <div class="card">
             <div class="card__body">
               <div class="filter-row">
-                <div class="filter-item"><span class="filter-item__label">故障码</span><input type="text" class="filter-item__input" id="dictFilterCode" placeholder="请输入故障码"></div>
-                <div class="filter-item"><span class="filter-item__label">故障名称</span><input type="text" class="filter-item__input" id="dictFilterName" placeholder="请输入故障名称"></div>
+                <div class="filter-item"><span class="filter-item__label">告警码</span><input type="text" class="filter-item__input" id="dictFilterCode" placeholder="请输入告警码"></div>
+                <div class="filter-item"><span class="filter-item__label">告警名称</span><input type="text" class="filter-item__input" id="dictFilterName" placeholder="请输入告警名称"></div>
                 <div class="filter-item"><span class="filter-item__label">根因分类</span><select class="filter-item__select" id="dictFilterCause"><option value="">全部</option><option value="硬件">硬件</option><option value="软件">软件</option><option value="网络">网络</option><option value="环境">环境</option><option value="用户">用户</option></select></div>
                 <div class="filter-item"><span class="filter-item__label">故障类型</span><select class="filter-item__select" id="dictFilterType"><option value="">全部</option><option value="任务处理类">任务处理类</option><option value="定位导航类">定位导航类</option><option value="场景交互类">场景交互类</option><option value="安全事件类">安全事件类</option><option value="电池/电源类">电池/电源类</option><option value="自检状态类">自检状态类</option><option value="通信网络类">通信网络类</option><option value="系统资源类">系统资源类</option><option value="外设接口类">外设接口类</option></select></div>
               </div>
@@ -395,7 +396,7 @@
           </div>
           <div class="card">
             <div class="card__header">
-              <span class="card__title">故障字典</span>
+              <span class="card__title">告警字典</span>
               <div style="display:flex;gap:8px">
                 <button class="btn btn--primary btn--sm" onclick="showDictForm(null)">➕ 新增</button>
                 <button class="btn btn--default btn--sm" onclick="importDict()">📤 批量导入</button>
@@ -403,7 +404,7 @@
               </div>
             </div>
             <table class="data-table">
-              <thead><tr><th>故障码</th><th>故障名称</th><th>严重程度</th><th>故障类型</th><th>根因分类</th><th>可自动恢复</th><th>建议处理动作</th><th class="col-actions">操作</th></tr></thead>
+              <thead><tr><th>序号</th><th>告警码</th><th>告警名称</th><th>严重程度</th><th>故障类型</th><th>根因分类</th><th>可自动恢复</th><th>建议处理动作</th><th class="col-actions">操作</th></tr></thead>
               <tbody id="dictTableBody"></tbody>
             </table>
             <div class="pagination">
@@ -419,7 +420,7 @@
               <div class="filter-row">
                 <div class="filter-item"><span class="filter-item__label">机器人SN</span><input type="text" class="filter-item__input" id="logFilterSn" placeholder="请输入SN码"></div>
                 <div class="filter-item"><span class="filter-item__label">项目名称</span><select class="filter-item__select" id="logFilterProject"><option value="">请选择项目</option></select></div>
-                <div class="filter-item"><span class="filter-item__label">日志级别</span><select class="filter-item__select" id="logFilterLevel"><option value="">全部</option><option value="fatal">致命</option><option value="serious">严重</option><option value="general">一般</option><option value="normal">正常</option></select></div>
+                <div class="filter-item"><span class="filter-item__label">日志级别</span><select class="filter-item__select" id="logFilterLevel"><option value="">全部</option><option value="h1">H1-致命故障</option><option value="h2">H2-严重故障</option><option value="h3">H3-警示</option><option value="h4">H4-隐患</option><option value="h5">H5-状态</option></select></div>
                 <div class="filter-item"><span class="filter-item__label">模块名称</span><select class="filter-item__select" id="logFilterModule"><option value="">全部</option><option value="task_scheduler">任务调度器</option><option value="path_planner">路径规划器</option><option value="lidar_module">激光雷达</option><option value="elevator_ctrl">梯控模块</option><option value="safety_module">安全模块</option><option value="power_module">电源模块</option><option value="imu_sensor">IMU传感器</option><option value="network_module">网络模块</option><option value="system_monitor">系统监控</option><option value="camera_module">摄像头</option></select></div>
                 <div class="filter-item"><span class="filter-item__label">时间范围</span><input type="date" class="filter-item__input" id="logFilterStart"> <span style="margin:0 4px;color:#999">至</span> <input type="date" class="filter-item__input" id="logFilterEnd"></div>
               </div>
@@ -433,7 +434,7 @@
           </div>
           <div class="card">
             <table class="data-table">
-              <thead><tr><th>记录时间</th><th>机器人SN</th><th>设备名称</th><th>日志条数</th><th>包含模块</th><th>最高级别</th><th class="col-actions">操作</th></tr></thead>
+              <thead><tr><th>序号</th><th>记录时间</th><th>机器人SN</th><th>设备名称</th><th>项目名称</th><th>日志条数</th><th>包含模块</th><th>最高级别</th><th class="col-actions">操作</th></tr></thead>
               <tbody id="logTableBody"></tbody>
             </table>
             <div class="pagination">
@@ -449,12 +450,12 @@
   <!-- ====== 弹窗: 字典新增/编辑 ====== -->
   <div class="modal-overlay" id="dictFormModal">
     <div class="modal">
-      <div class="modal__header"><span class="modal__title" id="dictFormTitle">新增故障字典</span><span class="modal__close" onclick="closeModal('dictFormModal')">×</span></div>
+      <div class="modal__header"><span class="modal__title" id="dictFormTitle">新增告警字典</span><span class="modal__close" onclick="closeModal('dictFormModal')">×</span></div>
       <div class="modal__body">
         <input type="hidden" id="dictFormId">
-        <div class="form-row"><label class="form-label"><span class="form-required">*</span>故障码</label><input class="form-input" id="dictFormCode" placeholder="如 ERR-1001"></div>
-        <div class="form-row"><label class="form-label"><span class="form-required">*</span>故障名称</label><input class="form-input" id="dictFormName" placeholder="请输入故障名称"></div>
-        <div class="form-row"><label class="form-label"><span class="form-required">*</span>严重程度</label><select class="form-select" id="dictFormSeverity"><option value="">请选择</option><option value="fatal">致命</option><option value="serious">严重</option><option value="general">一般</option><option value="hint">提示</option></select></div>
+        <div class="form-row"><label class="form-label"><span class="form-required">*</span>告警码</label><input class="form-input" id="dictFormCode" placeholder="如 ERR-1001"></div>
+        <div class="form-row"><label class="form-label"><span class="form-required">*</span>告警名称</label><input class="form-input" id="dictFormName" placeholder="请输入告警名称"></div>
+        <div class="form-row"><label class="form-label"><span class="form-required">*</span>严重程度</label><select class="form-select" id="dictFormSeverity"><option value="">请选择</option><option value="h1">H1-致命故障</option><option value="h2">H2-严重故障</option><option value="h3">H3-警示</option><option value="h4">H4-隐患</option><option value="h5">H5-状态</option></select></div>
         <div class="form-row"><label class="form-label"><span class="form-required">*</span>故障类型</label><select class="form-select" id="dictFormFaultType"><option value="">请选择</option><option value="任务处理类">任务处理类</option><option value="定位导航类">定位导航类</option><option value="场景交互类">场景交互类</option><option value="安全事件类">安全事件类</option><option value="电池/电源类">电池/电源类</option><option value="自检状态类">自检状态类</option><option value="通信网络类">通信网络类</option><option value="系统资源类">系统资源类</option><option value="外设接口类">外设接口类</option></select></div>
         <div class="form-row"><label class="form-label"><span class="form-required">*</span>根因分类</label><select class="form-select" id="dictFormRootCause"><option value="">请选择</option><option value="硬件">硬件</option><option value="软件">软件</option><option value="网络">网络</option><option value="环境">环境</option><option value="用户">用户</option></select></div>
         <div class="form-row"><label class="form-label">可自动恢复</label><select class="form-select" id="dictFormAutoRecover"><option value="否">否</option><option value="是">是</option></select></div>
@@ -467,7 +468,7 @@
   <!-- ====== 弹窗: 字典查看 ====== -->
   <div class="modal-overlay" id="dictViewModal">
     <div class="modal">
-      <div class="modal__header"><span class="modal__title">故障字典详情</span><span class="modal__close" onclick="closeModal('dictViewModal')">×</span></div>
+      <div class="modal__header"><span class="modal__title">告警字典详情</span><span class="modal__close" onclick="closeModal('dictViewModal')">×</span></div>
       <div class="modal__body" id="dictViewBody"></div>
       <div class="modal__footer"><button class="btn btn--primary" onclick="closeModal('dictViewModal')">关闭</button></div>
     </div>
@@ -477,7 +478,7 @@
   <div class="modal-overlay" id="dictDeleteModal">
     <div class="modal" style="width:420px">
       <div class="modal__header"><span class="modal__title">删除确认</span><span class="modal__close" onclick="closeModal('dictDeleteModal')">×</span></div>
-      <div class="modal__body"><p class="confirm-text">确定要删除故障字典 <strong id="dictDeleteName"></strong> 吗？删除后不可恢复。</p></div>
+      <div class="modal__body"><p class="confirm-text">确定要删除告警字典 <strong id="dictDeleteName"></strong> 吗？删除后不可恢复。</p></div>
       <div class="modal__footer"><button class="btn btn--default" onclick="closeModal('dictDeleteModal')">取消</button><button class="btn btn--danger" onclick="confirmDeleteDict()">确定删除</button></div>
     </div>
   </div>
@@ -515,34 +516,34 @@
   <script>
     // ==================== 数据 ====================
     const alarmData = [
-      { id:'ALM-001', code:'ERR-1001', name:'任务执行超时', desc:'任务执行超时，无法在规定时间内完成导航任务', level:'serious', levelName:'严重', deviceSn:'SN-H1-001', deviceName:'全尺寸人形机器人-01', deviceType:'全尺寸人形', deviceModel:'Lumen H1', module:'task_scheduler', project:'上海中心项目', version:'v2.5.1', productType:'全尺寸人形', productModel:'Lumen H1', time:'2026-05-28 14:30:25', status:'processing', statusName:'处理中', handler:'张三', faultType:'任务处理类', faultPart:'task_scheduler', muted:false, muteDeadline:null },
-      { id:'ALM-002', code:'ERR-2003', name:'激光雷达数据异常', desc:'激光雷达点云数据异常，无法正常建图', level:'fatal', levelName:'致命', deviceSn:'SN-HL2-001', deviceName:'物流机器人-01', deviceType:'物流机器人', deviceModel:'Lumen HL2', module:'lidar_module', project:'北京望京项目', version:'v3.1.0', productType:'物流机器人', productModel:'Lumen HL2', time:'2026-05-28 10:15:33', status:'pending', statusName:'待确认', handler:'-', faultType:'定位导航类', faultPart:'lidar_module', muted:false, muteDeadline:null },
-      { id:'ALM-003', code:'ERR-3005', name:'梯控通信失败', desc:'与电梯控制器通信中断，无法呼叫电梯', level:'serious', levelName:'严重', deviceSn:'SN-P2-001', deviceName:'清洁机器人-01', deviceType:'清洁机器人', deviceModel:'Lumen P2', module:'elevator_ctrl', project:'深圳科技园项目', version:'v2.8.2', productType:'清洁机器人', productModel:'Lumen P2', time:'2026-05-27 16:45:12', status:'repaired', statusName:'已修复', handler:'王五', faultType:'场景交互类', faultPart:'elevator_ctrl', muted:false, muteDeadline:null },
-      { id:'ALM-004', code:'ERR-4010', name:'碰撞检测触发', desc:'机器人触发碰撞检测传感器，已紧急停止', level:'fatal', levelName:'致命', deviceSn:'SN-Q1-001', deviceName:'四足机器人-01', deviceType:'四足机器人', deviceModel:'Lumen Q1', module:'safety_module', project:'广州塔项目', version:'v1.9.5', productType:'四足机器人', productModel:'Lumen Q1', time:'2026-05-27 09:20:45', status:'closed', statusName:'已关闭', handler:'赵六', faultType:'安全事件类', faultPart:'safety_module', muted:false, muteDeadline:null },
-      { id:'ALM-005', code:'ERR-5001', name:'电池电量过低', desc:'电池电量低于15%，已自动返回充电桩', level:'general', levelName:'一般', deviceSn:'SN-S1-001', deviceName:'小尺寸人形机器人-01', deviceType:'小尺寸人形', deviceModel:'Lumen S1', module:'power_module', project:'上海中心项目', version:'v2.5.1', productType:'小尺寸人形', productModel:'Lumen S1', time:'2026-05-28 08:10:00', status:'pending', statusName:'待确认', handler:'-', faultType:'电池/电源类', faultPart:'power_module', muted:false, muteDeadline:null },
-      { id:'ALM-006', code:'ERR-6002', name:'IMU传感器异常', desc:'惯性测量单元数据漂移严重，影响定位精度', level:'serious', levelName:'严重', deviceSn:'SN-U1-001', deviceName:'轮式人形机器人-01', deviceType:'轮式人形', deviceModel:'Lumen U1', module:'imu_sensor', project:'杭州西湖项目', version:'v3.0.0', productType:'轮式人形', productModel:'Lumen U1', time:'2026-05-28 11:30:00', status:'processing', statusName:'处理中', handler:'孙七', faultType:'自检状态类', faultPart:'imu_sensor', muted:false, muteDeadline:null },
-      { id:'ALM-007', code:'ERR-7001', name:'WiFi连接断开', desc:'机器人与云端通信断开，无法接收远程指令', level:'serious', levelName:'严重', deviceSn:'SN-HL1-001', deviceName:'物流机器人-02', deviceType:'物流机器人', deviceModel:'Lumen HL1', module:'network_module', project:'成都天府项目', version:'v2.8.0', productType:'物流机器人', productModel:'Lumen HL1', time:'2026-05-28 13:00:00', status:'pending', statusName:'待确认', handler:'-', faultType:'通信网络类', faultPart:'network_module', muted:false, muteDeadline:null },
-      { id:'ALM-008', code:'ERR-8001', name:'CPU使用率过高', desc:'CPU使用率持续超过90%，系统响应缓慢', level:'general', levelName:'一般', deviceSn:'SN-Q2-001', deviceName:'四足机器人-02', deviceType:'四足机器人', deviceModel:'Lumen Q2', module:'system_monitor', project:'武汉光谷项目', version:'v1.9.5', productType:'四足机器人', productModel:'Lumen Q2', time:'2026-05-27 20:15:00', status:'closed', statusName:'已关闭', handler:'周八', faultType:'系统资源类', faultPart:'system_monitor', muted:false, muteDeadline:null },
-      { id:'ALM-009', code:'ERR-9001', name:'摄像头画面丢失', desc:'前置摄像头无视频信号输出', level:'serious', levelName:'严重', deviceSn:'SN-S2-001', deviceName:'小尺寸人形机器人-02', deviceType:'小尺寸人形', deviceModel:'Lumen S2', module:'camera_module', project:'南京新街口项目', version:'v2.5.2', productType:'小尺寸人形', productModel:'Lumen S2', time:'2026-05-28 09:45:00', status:'processing', statusName:'处理中', handler:'吴九', faultType:'外设接口类', faultPart:'camera_module', muted:false, muteDeadline:null },
-      { id:'ALM-010', code:'ERR-1002', name:'路径规划失败', desc:'无法规划从当前位置到目标位置的有效路径', level:'general', levelName:'一般', deviceSn:'SN-H1D-001', deviceName:'轮式人形机器人-02', deviceType:'轮式人形', deviceModel:'Lumen H1D', module:'path_planner', project:'北京望京项目', version:'v3.1.0', productType:'轮式人形', productModel:'Lumen H1D', time:'2026-05-28 15:20:00', status:'pending', statusName:'待确认', handler:'-', faultType:'定位导航类', faultPart:'path_planner', muted:false, muteDeadline:null },
+      { id:'ALM-001', code:'ERR-1001', name:'任务执行超时', desc:'任务执行超时，无法在规定时间内完成导航任务', level:'h2', levelName:'H2-严重故障', deviceSn:'SN-H1-001', deviceName:'全尺寸人形机器人-01', deviceType:'全尺寸人形', deviceModel:'Lumen H1', module:'task_scheduler', project:'上海中心项目', version:'v2.5.1', productType:'全尺寸人形', productModel:'Lumen H1', time:'2026-05-28 14:30:25', status:'processing', statusName:'处理中', handler:'张三', faultType:'任务处理类', faultPart:'task_scheduler', muted:false, muteDeadline:null },
+      { id:'ALM-002', code:'ERR-2003', name:'激光雷达数据异常', desc:'激光雷达点云数据异常，无法正常建图', level:'h1', levelName:'H1-致命故障', deviceSn:'SN-HL2-001', deviceName:'物流机器人-01', deviceType:'物流机器人', deviceModel:'Lumen HL2', module:'lidar_module', project:'北京望京项目', version:'v3.1.0', productType:'物流机器人', productModel:'Lumen HL2', time:'2026-05-28 10:15:33', status:'pending', statusName:'待确认', handler:'-', faultType:'定位导航类', faultPart:'lidar_module', muted:false, muteDeadline:null },
+      { id:'ALM-003', code:'ERR-3005', name:'梯控通信失败', desc:'与电梯控制器通信中断，无法呼叫电梯', level:'h2', levelName:'H2-严重故障', deviceSn:'SN-P2-001', deviceName:'清洁机器人-01', deviceType:'清洁机器人', deviceModel:'Lumen P2', module:'elevator_ctrl', project:'深圳科技园项目', version:'v2.8.2', productType:'清洁机器人', productModel:'Lumen P2', time:'2026-05-27 16:45:12', status:'repaired', statusName:'已修复', handler:'王五', faultType:'场景交互类', faultPart:'elevator_ctrl', muted:false, muteDeadline:null },
+      { id:'ALM-004', code:'ERR-4010', name:'碰撞检测触发', desc:'机器人触发碰撞检测传感器，已紧急停止', level:'h1', levelName:'H1-致命故障', deviceSn:'SN-Q1-001', deviceName:'四足机器人-01', deviceType:'四足机器人', deviceModel:'Lumen Q1', module:'safety_module', project:'广州塔项目', version:'v1.9.5', productType:'四足机器人', productModel:'Lumen Q1', time:'2026-05-27 09:20:45', status:'closed', statusName:'已关闭', handler:'赵六', faultType:'安全事件类', faultPart:'safety_module', muted:false, muteDeadline:null },
+      { id:'ALM-005', code:'ERR-5001', name:'电池电量过低', desc:'电池电量低于15%，已自动返回充电桩', level:'h3', levelName:'H3-警示', deviceSn:'SN-S1-001', deviceName:'小尺寸人形机器人-01', deviceType:'小尺寸人形', deviceModel:'Lumen S1', module:'power_module', project:'上海中心项目', version:'v2.5.1', productType:'小尺寸人形', productModel:'Lumen S1', time:'2026-05-28 08:10:00', status:'pending', statusName:'待确认', handler:'-', faultType:'电池/电源类', faultPart:'power_module', muted:false, muteDeadline:null },
+      { id:'ALM-006', code:'ERR-6002', name:'IMU传感器异常', desc:'惯性测量单元数据漂移严重，影响定位精度', level:'h2', levelName:'H2-严重故障', deviceSn:'SN-U1-001', deviceName:'轮式人形机器人-01', deviceType:'轮式人形', deviceModel:'Lumen U1', module:'imu_sensor', project:'杭州西湖项目', version:'v3.0.0', productType:'轮式人形', productModel:'Lumen U1', time:'2026-05-28 11:30:00', status:'processing', statusName:'处理中', handler:'孙七', faultType:'自检状态类', faultPart:'imu_sensor', muted:false, muteDeadline:null },
+      { id:'ALM-007', code:'ERR-7001', name:'WiFi连接断开', desc:'机器人与云端通信断开，无法接收远程指令', level:'h2', levelName:'H2-严重故障', deviceSn:'SN-HL1-001', deviceName:'物流机器人-02', deviceType:'物流机器人', deviceModel:'Lumen HL1', module:'network_module', project:'成都天府项目', version:'v2.8.0', productType:'物流机器人', productModel:'Lumen HL1', time:'2026-05-28 13:00:00', status:'pending', statusName:'待确认', handler:'-', faultType:'通信网络类', faultPart:'network_module', muted:false, muteDeadline:null },
+      { id:'ALM-008', code:'ERR-8001', name:'CPU使用率过高', desc:'CPU使用率持续超过90%，系统响应缓慢', level:'h3', levelName:'H3-警示', deviceSn:'SN-Q2-001', deviceName:'四足机器人-02', deviceType:'四足机器人', deviceModel:'Lumen Q2', module:'system_monitor', project:'武汉光谷项目', version:'v1.9.5', productType:'四足机器人', productModel:'Lumen Q2', time:'2026-05-27 20:15:00', status:'closed', statusName:'已关闭', handler:'周八', faultType:'系统资源类', faultPart:'system_monitor', muted:false, muteDeadline:null },
+      { id:'ALM-009', code:'ERR-9001', name:'摄像头画面丢失', desc:'前置摄像头无视频信号输出', level:'h2', levelName:'H2-严重故障', deviceSn:'SN-S2-001', deviceName:'小尺寸人形机器人-02', deviceType:'小尺寸人形', deviceModel:'Lumen S2', module:'camera_module', project:'南京新街口项目', version:'v2.5.2', productType:'小尺寸人形', productModel:'Lumen S2', time:'2026-05-28 09:45:00', status:'processing', statusName:'处理中', handler:'吴九', faultType:'外设接口类', faultPart:'camera_module', muted:false, muteDeadline:null },
+      { id:'ALM-010', code:'ERR-1002', name:'路径规划失败', desc:'无法规划从当前位置到目标位置的有效路径', level:'h3', levelName:'H3-警示', deviceSn:'SN-H1D-001', deviceName:'轮式人形机器人-02', deviceType:'轮式人形', deviceModel:'Lumen H1D', module:'path_planner', project:'北京望京项目', version:'v3.1.0', productType:'轮式人形', productModel:'Lumen H1D', time:'2026-05-28 15:20:00', status:'pending', statusName:'待确认', handler:'-', faultType:'定位导航类', faultPart:'path_planner', muted:false, muteDeadline:null },
     ];
 
     let dictData = [
-      { id:'FD-001', code:'ERR-1001', name:'任务执行超时', severity:'serious', severityName:'严重', autoRecover:'否', rootCause:'软件', faultType:'任务处理类', actions:'检查任务配置参数是否正确\n查看任务调度日志\n重启任务调度服务\n如仍无法解决，联系技术支持' },
-      { id:'FD-002', code:'ERR-1002', name:'路径规划失败', severity:'general', severityName:'一般', autoRecover:'是', rootCause:'软件', faultType:'定位导航类', actions:'检查地图数据是否完整\n清除路径缓存后重试\n检查目标位置是否可达' },
-      { id:'FD-003', code:'ERR-2003', name:'激光雷达数据异常', severity:'fatal', severityName:'致命', autoRecover:'否', rootCause:'硬件', faultType:'定位导航类', actions:'检查雷达电源连接\n重启激光雷达设备\n检查雷达数据线是否松动\n更换雷达设备' },
-      { id:'FD-004', code:'ERR-3005', name:'梯控通信失败', severity:'serious', severityName:'严重', autoRecover:'否', rootCause:'网络', faultType:'场景交互类', actions:'检查梯控模块网络连接\n重启梯控通信模块\n检查电梯控制器状态\n联系物业确认电梯状态' },
-      { id:'FD-005', code:'ERR-4010', name:'碰撞检测触发', severity:'fatal', severityName:'致命', autoRecover:'是', rootCause:'用户', faultType:'安全事件类', actions:'检查机器人周围环境\n确认是否有人员或障碍物\n检查碰撞传感器是否正常\n手动移除障碍物后复位' },
-      { id:'FD-006', code:'ERR-5001', name:'电池电量过低', severity:'general', severityName:'一般', autoRecover:'是', rootCause:'环境', faultType:'电池/电源类', actions:'确认充电桩位置是否正确\n检查充电桩是否正常工作\n检查电池健康状态' },
-      { id:'FD-007', code:'ERR-6002', name:'IMU传感器异常', severity:'serious', severityName:'严重', autoRecover:'否', rootCause:'硬件', faultType:'自检状态类', actions:'重启IMU传感器\n校准IMU\n检查传感器连接线\n更换IMU模块' },
-      { id:'FD-008', code:'ERR-7001', name:'WiFi连接断开', severity:'serious', severityName:'严重', autoRecover:'是', rootCause:'网络', faultType:'通信网络类', actions:'检查WiFi信号强度\n重启WiFi模块\n检查路由器状态\n检查网络配置' },
-      { id:'FD-009', code:'ERR-8001', name:'CPU使用率过高', severity:'general', severityName:'一般', autoRecover:'是', rootCause:'软件', faultType:'系统资源类', actions:'检查占用CPU的进程\n优化算法降低CPU使用\n重启相关服务\n升级硬件配置' },
-      { id:'FD-010', code:'ERR-9001', name:'摄像头画面丢失', severity:'serious', severityName:'严重', autoRecover:'否', rootCause:'硬件', faultType:'外设接口类', actions:'检查摄像头连接线\n重启摄像头模块\n检查USB接口\n更换摄像头' },
+      { id:'FD-001', code:'ERR-1001', name:'任务执行超时', severity:'h2', severityName:'H2-严重故障', autoRecover:'否', rootCause:'软件', faultType:'任务处理类', actions:'检查任务配置参数是否正确\n查看任务调度日志\n重启任务调度服务\n如仍无法解决，联系技术支持' },
+      { id:'FD-002', code:'ERR-1002', name:'路径规划失败', severity:'h3', severityName:'H3-警示', autoRecover:'是', rootCause:'软件', faultType:'定位导航类', actions:'检查地图数据是否完整\n清除路径缓存后重试\n检查目标位置是否可达' },
+      { id:'FD-003', code:'ERR-2003', name:'激光雷达数据异常', severity:'h1', severityName:'H1-致命故障', autoRecover:'否', rootCause:'硬件', faultType:'定位导航类', actions:'检查雷达电源连接\n重启激光雷达设备\n检查雷达数据线是否松动\n更换雷达设备' },
+      { id:'FD-004', code:'ERR-3005', name:'梯控通信失败', severity:'h2', severityName:'H2-严重故障', autoRecover:'否', rootCause:'网络', faultType:'场景交互类', actions:'检查梯控模块网络连接\n重启梯控通信模块\n检查电梯控制器状态\n联系物业确认电梯状态' },
+      { id:'FD-005', code:'ERR-4010', name:'碰撞检测触发', severity:'h1', severityName:'H1-致命故障', autoRecover:'是', rootCause:'用户', faultType:'安全事件类', actions:'检查机器人周围环境\n确认是否有人员或障碍物\n检查碰撞传感器是否正常\n手动移除障碍物后复位' },
+      { id:'FD-006', code:'ERR-5001', name:'电池电量过低', severity:'h3', severityName:'H3-警示', autoRecover:'是', rootCause:'环境', faultType:'电池/电源类', actions:'确认充电桩位置是否正确\n检查充电桩是否正常工作\n检查电池健康状态' },
+      { id:'FD-007', code:'ERR-6002', name:'IMU传感器异常', severity:'h2', severityName:'H2-严重故障', autoRecover:'否', rootCause:'硬件', faultType:'自检状态类', actions:'重启IMU传感器\n校准IMU\n检查传感器连接线\n更换IMU模块' },
+      { id:'FD-008', code:'ERR-7001', name:'WiFi连接断开', severity:'h2', severityName:'H2-严重故障', autoRecover:'是', rootCause:'网络', faultType:'通信网络类', actions:'检查WiFi信号强度\n重启WiFi模块\n检查路由器状态\n检查网络配置' },
+      { id:'FD-009', code:'ERR-8001', name:'CPU使用率过高', severity:'h3', severityName:'H3-警示', autoRecover:'是', rootCause:'软件', faultType:'系统资源类', actions:'检查占用CPU的进程\n优化算法降低CPU使用\n重启相关服务\n升级硬件配置' },
+      { id:'FD-010', code:'ERR-9001', name:'摄像头画面丢失', severity:'h2', severityName:'H2-严重故障', autoRecover:'否', rootCause:'硬件', faultType:'外设接口类', actions:'检查摄像头连接线\n重启摄像头模块\n检查USB接口\n更换摄像头' },
     ];
 
     const projects = ['上海中心项目','北京望京项目','深圳科技园项目','广州塔项目','杭州西湖项目','成都天府项目','武汉光谷项目','南京新街口项目'];
     const modules = ['task_scheduler','lidar_module','elevator_ctrl','safety_module','power_module','imu_sensor','network_module','system_monitor','camera_module','path_planner'];
-    const severityMap = { fatal:'致命', serious:'严重', general:'一般', hint:'提示' };
+    const severityMap = { h1:'H1-致命故障', h2:'H2-严重故障', h3:'H3-警示', h4:'H4-隐患', h5:'H5-状态' };
 
     let projectStaffData = {
       '上海中心项目': [{name:'张三',phone:'138****1001'},{name:'李四',phone:'138****1002'}],
@@ -566,7 +567,7 @@
     const tabConfig = {
       'alarm-list': { label: '异常告警', closable: false },
       'alarm-detail': { label: '故障详情', closable: true },
-      'alarm-dictionary': { label: '故障字典', closable: true },
+      'alarm-dictionary': { label: '告警字典', closable: true },
       'log-manage': { label: '日志管理', closable: true },
     };
 
@@ -591,7 +592,7 @@
       document.getElementById('page-' + key).classList.add('active');
       renderTabBar(key);
       // 更新面包屑和侧边栏
-      const breadcrumbMap = { 'alarm-list': '异常告警', 'alarm-detail': '故障详情', 'alarm-dictionary': '故障字典', 'log-manage': '日志管理' };
+      const breadcrumbMap = { 'alarm-list': '异常告警', 'alarm-detail': '故障详情', 'alarm-dictionary': '告警字典', 'log-manage': '日志管理' };
       document.getElementById('breadcrumb-current').textContent = breadcrumbMap[key] || '';
       // 更新侧边栏高亮
       document.querySelectorAll('.sidebar__menu-item--sub').forEach(i => i.classList.remove('active'));
@@ -636,12 +637,12 @@
       const start = (currentPage - 1) * pageSize;
       const pageData = filteredAlarms.slice(start, start + pageSize);
       if (pageData.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="12" style="text-align:center;padding:40px;color:#999">暂无数据</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="13" style="text-align:center;padding:40px;color:#999">暂无数据</td></tr>';
       } else {
-        tbody.innerHTML = pageData.map(a => `<tr${a.muted?' style="opacity:0.6"':''}>
-          <td>${a.code}</td><td title="${a.desc}">${a.desc}</td>
+        tbody.innerHTML = pageData.map((a, idx) => `<tr${a.muted?' style="opacity:0.6"':''}>
+          <td>${start + idx + 1}</td><td>${a.code}</td><td title="${a.desc}">${a.desc}</td>
           <td><span class="tag tag--${a.level}">${a.levelName}</span></td>
-          <td>${a.time}</td><td>${a.deviceName}</td><td>${a.project}</td>
+          <td>${a.time}</td><td>${a.deviceSn}</td><td>${a.project}</td>
           <td>${a.version}</td><td>${a.module}</td><td>${a.productType}</td><td>${a.productModel}</td>
           <td>${a.muted?'<span class="tag tag--fatal">已屏蔽</span>':`<span class="tag tag--${a.status}">${a.statusName}</span>`}</td>
           <td class="col-actions"><span class="action-link" onclick="showAlarmDetail('${a.id}')">详情</span></td>
@@ -742,13 +743,13 @@
           ${(a.actionsHistory || []).map(h => `<div class="timeline__item"><div class="timeline__dot"></div><div class="timeline__time">${h.time}</div><div class="timeline__text">${h.text}</div></div>`).join('')}
         </div></div></div>`;
 
-      // 故障字典
+      // 告警字典
       const d = dictData.find(x => x.code === a.code);
       document.getElementById('panel-dictionary').innerHTML = d ? `
-        <div class="card"><div class="card__header"><span class="card__title">故障字典详情</span></div><div class="card__body">
+        <div class="card"><div class="card__header"><span class="card__title">告警字典详情</span></div><div class="card__body">
           <div class="info-grid">
-            <div class="info-item"><span class="info-item__label">故障码：</span><span class="info-item__value">${d.code}</span></div>
-            <div class="info-item"><span class="info-item__label">故障名称：</span><span class="info-item__value">${d.name}</span></div>
+            <div class="info-item"><span class="info-item__label">告警码：</span><span class="info-item__value">${d.code}</span></div>
+            <div class="info-item"><span class="info-item__label">告警名称：</span><span class="info-item__value">${d.name}</span></div>
             <div class="info-item"><span class="info-item__label">严重程度：</span><span class="info-item__value"><span class="tag tag--${d.severity}">${d.severityName}</span></span></div>
             <div class="info-item"><span class="info-item__label">可自动恢复：</span><span class="info-item__value">${d.autoRecover}</span></div>
             <div class="info-item"><span class="info-item__label">根因分类：</span><span class="info-item__value">${d.rootCause}</span></div>
@@ -756,7 +757,7 @@
           </div>
           <div style="margin-top:20px"><div style="font-size:14px;color:#595959;margin-bottom:8px;font-weight:500">建议处理动作：</div>
           <ol style="padding-left:20px;color:#333;line-height:2">${d.actions.split('\n').map(x=>`<li>${x}</li>`).join('')}</ol></div>
-        </div></div>` : '<div class="card"><div class="card__body" style="text-align:center;color:#999;padding:40px">未找到对应故障字典</div></div>';
+        </div></div>` : '<div class="card"><div class="card__body" style="text-align:center;color:#999;padding:40px">未找到对应告警字典</div></div>';
 
       // 告警配置 - 项目绑定运维人员
       const staff = projectStaffData[a.project] || [];
@@ -828,9 +829,9 @@
         else if (action === 'repair') { a.status = 'repaired'; a.statusName = '已修复'; a.actionsHistory.push({ time: formatNow(), text: '标记修复 - ' + (a.handler || 'Admin') }); }
         else if (action === 'close') { a.status = 'closed'; a.statusName = '已关闭'; a.actionsHistory.push({ time: formatNow(), text: '关闭告警 - ' + (a.handler || 'Admin') }); switchToTab('alarm-list'); renderAlarmTable(); return; }
         else if (action === 'escalate') {
-          // 升级告警等级：hint→general→serious→fatal
-          const levelOrder = ['hint','general','serious','fatal'];
-          const levelNames = { hint:'提示', general:'一般', serious:'严重', fatal:'致命' };
+          // 升级告警等级：h5→h4→h3→h2→h1
+          const levelOrder = ['h5','h4','h3','h2','h1'];
+          const levelNames = { h5:'H5-状态', h4:'H4-隐患', h3:'H3-警示', h2:'H2-严重故障', h1:'H1-致命故障' };
           const idx = levelOrder.indexOf(a.level);
           if (idx < levelOrder.length - 1) {
             a.level = levelOrder[idx + 1];
@@ -926,18 +927,18 @@
       showAlarmDetail(alarmId);
     }
 
-    // ==================== 故障字典管理 ====================
+    // ==================== 告警字典管理 ====================
     function renderDictTable() {
       const tbody = document.getElementById('dictTableBody');
       const start = (dictPage - 1) * dictPageSize;
       const pageData = filteredDicts.slice(start, start + dictPageSize);
       if (pageData.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:#999">暂无数据</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:40px;color:#999">暂无数据</td></tr>';
       } else {
-        tbody.innerHTML = pageData.map(d => {
+        tbody.innerHTML = pageData.map((d, idx) => {
           const firstAction = d.actions.split('\n')[0];
           return `<tr>
-            <td>${d.code}</td><td>${d.name}</td>
+            <td>${start + idx + 1}</td><td>${d.code}</td><td>${d.name}</td>
             <td><span class="tag tag--${d.severity}">${d.severityName}</span></td>
             <td>${d.faultType}</td><td>${d.rootCause}</td><td>${d.autoRecover}</td>
             <td title="${d.actions}">${firstAction}${d.actions.split('\n').length>1?'...':''}</td>
@@ -972,7 +973,7 @@
     // 新增/编辑弹窗
     function showDictForm(id) {
       const isEdit = !!id;
-      document.getElementById('dictFormTitle').textContent = isEdit ? '编辑故障字典' : '新增故障字典';
+      document.getElementById('dictFormTitle').textContent = isEdit ? '编辑告警字典' : '新增告警字典';
       if (isEdit) {
         const d = dictData.find(x => x.id === id);
         if (!d) return;
@@ -1017,7 +1018,7 @@
         if (d) { d.name=name; d.severity=severity; d.severityName=severityMap[severity]; d.faultType=faultType; d.rootCause=rootCause; d.autoRecover=autoRecover; d.actions=actions; }
       } else {
         // 新增 - 检查重复
-        if (dictData.find(x => x.code === code)) { alert('故障码已存在'); return; }
+        if (dictData.find(x => x.code === code)) { alert('告警码已存在'); return; }
         dictData.push({ id:'FD-'+Date.now(), code, name, severity, severityName:severityMap[severity], autoRecover, rootCause, faultType, actions });
       }
 
@@ -1032,8 +1033,8 @@
       if (!d) return;
       document.getElementById('dictViewBody').innerHTML = `
         <div class="info-grid">
-          <div class="info-item"><span class="info-item__label">故障码：</span><span class="info-item__value">${d.code}</span></div>
-          <div class="info-item"><span class="info-item__label">故障名称：</span><span class="info-item__value">${d.name}</span></div>
+          <div class="info-item"><span class="info-item__label">告警码：</span><span class="info-item__value">${d.code}</span></div>
+          <div class="info-item"><span class="info-item__label">告警名称：</span><span class="info-item__value">${d.name}</span></div>
           <div class="info-item"><span class="info-item__label">严重程度：</span><span class="info-item__value"><span class="tag tag--${d.severity}">${d.severityName}</span></span></div>
           <div class="info-item"><span class="info-item__label">可自动恢复：</span><span class="info-item__value">${d.autoRecover}</span></div>
           <div class="info-item"><span class="info-item__label">根因分类：</span><span class="info-item__value">${d.rootCause}</span></div>
@@ -1064,7 +1065,7 @@
     }
 
     function importDict() { showAlarmActionModal('批量导入', '请选择 .xlsx 或 .xls 文件进行批量导入。<br><br><input type="file" accept=".xlsx,.xls" style="font-size:14px">', function(){ closeModal('alarmActionModal'); alert('导入成功！'); }); }
-    function exportDict() { showAlarmActionModal('导出', '确定要导出当前故障字典数据吗？', function(){ closeModal('alarmActionModal'); alert('导出成功！'); }); }
+    function exportDict() { showAlarmActionModal('导出', '确定要导出当前告警字典数据吗？', function(){ closeModal('alarmActionModal'); alert('导出成功！'); }); }
 
     // ==================== 弹窗通用 ====================
     function closeModal(id) { document.getElementById(id).classList.remove('show'); }
@@ -1324,7 +1325,7 @@
     }
 
     // 计算日志包的最高级别（映射为告警等级）
-    // ERROR -> fatal(致命), WARN -> general(一般), INFO -> normal(正常)
+    // ERROR -> h1(H1-致命故障), WARN -> h3(H3-警示), INFO -> h5(H5-状态)
     function getLogLevelOrder(level) {
       const order = { 'ERROR': 3, 'WARN': 2, 'INFO': 1 };
       return order[level] || 0;
@@ -1340,8 +1341,8 @@
     }
     function getLogPackageLevelName(logs) {
       const raw = getLogPackageLevel(logs);
-      const map = { 'ERROR': {val:'fatal', name:'致命', cls:'tag--fatal'}, 'WARN': {val:'general', name:'一般', cls:'tag--warning'}, 'INFO': {val:'normal', name:'正常', cls:'tag--hint'} };
-      return map[raw] || {val:'normal', name:'正常', cls:'tag--hint'};
+      const map = { 'ERROR': {val:'h1', name:'H1-致命故障', cls:'tag--h1'}, 'WARN': {val:'h3', name:'H3-警示', cls:'tag--h3'}, 'INFO': {val:'h5', name:'H5-状态', cls:'tag--h5'} };
+      return map[raw] || {val:'h5', name:'H5-状态', cls:'tag--h5'};
     }
     function getLogPackageModules(logs) {
       return [...new Set(logs.map(l => l.module))];
@@ -1352,13 +1353,13 @@
       const start = (logPage - 1) * logPageSize;
       const pageData = filteredLogs.slice(start, start + logPageSize);
       if (pageData.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:#999">暂无数据</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:40px;color:#999">暂无数据</td></tr>';
       } else {
-        tbody.innerHTML = pageData.map(l => {
+        tbody.innerHTML = pageData.map((l, index) => {
           const pkg = getLogPackageLevelName(l.logs);
           const modules = getLogPackageModules(l.logs);
           return `<tr>
-            <td>${l.time}</td><td>${l.deviceSn}</td><td>${l.deviceName}</td>
+            <td>${start + index + 1}</td><td>${l.time}</td><td>${l.deviceSn}</td><td>${l.deviceName}</td><td>${l.project || '-'}</td>
             <td>${l.logs.length} 条</td>
             <td>${modules.length} 个模块</td>
             <td><span class="tag ${pkg.cls}">${pkg.name}</span></td>
@@ -1417,9 +1418,9 @@
     function viewLogDetail(id) {
       const pkg = logData.find(x => x.id === id);
       if (!pkg) return;
-      const levelTag = { ERROR:'tag--fatal', WARN:'tag--warning', INFO:'tag--hint' };
+      const levelTag = { ERROR:'tag--h1', WARN:'tag--h3', INFO:'tag--h5' };
       const rows = pkg.logs.map(l => `<tr>
-        <td><span class="tag ${levelTag[l.level]||'tag--hint'}">${l.level === 'ERROR' ? '致命' : l.level === 'WARN' ? '一般' : '正常'}</span></td>
+        <td><span class="tag ${levelTag[l.level]||'tag--h5'}">${l.level === 'ERROR' ? 'H1-致命故障' : l.level === 'WARN' ? 'H3-警示' : 'H5-状态'}</span></td>
         <td>${l.logType}</td><td>${l.module}</td>
         <td title="${l.content}" style="max-width:400px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${l.content}</td>
       </tr>`).join('');
@@ -1436,7 +1437,7 @@
       const pkgInfo = getLogPackageLevelName(pkg.logs);
       let content = `机器人: ${pkg.deviceName} (${pkg.deviceSn})\n项目: ${pkg.project}\n记录时间: ${pkg.time}\n最高级别: ${pkgInfo.name}\n================================\n`;
       pkg.logs.forEach(l => {
-        const lvName = l.level === 'ERROR' ? '致命' : l.level === 'WARN' ? '一般' : '正常';
+        const lvName = l.level === 'ERROR' ? 'H1-致命故障' : l.level === 'WARN' ? 'H3-警示' : 'H5-状态';
         content += `[${lvName}] [${l.logType}] [${l.module}] ${l.content}\n`;
       });
       const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
