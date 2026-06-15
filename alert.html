@@ -765,13 +765,11 @@
       const muteBtnText = a.muted ? '取消屏蔽' : '屏蔽告警';
       const muteBtnCls = a.muted ? 'btn--success' : 'btn--default';
       document.getElementById('panel-config').innerHTML = `
-        <div class="card"><div class="card__header"><span class="card__title">项目运维人员</span><button class="btn btn--primary btn--sm" onclick="showStaffForm('${a.id}',null)">+ 新增人员</button></div><div class="card__body">
+        <div class="card"><div class="card__header"><span class="card__title">项目运维人员</span></div><div class="card__body">
           <div class="info-item" style="margin-bottom:12px"><span class="info-item__label">所属项目：</span><span class="info-item__value" style="font-weight:500">${a.project}</span></div>
           <table class="data-table"><thead><tr><th>姓名</th><th>手机号</th><th>通知方式</th><th class="col-actions">操作</th></tr></thead><tbody>
             ${staff.map((s,idx) => `<tr><td>${s.name}</td><td>${s.phone}</td><td><span class="tag tag--general">短信</span></td><td class="col-actions">
-              <span class="action-link" onclick="assignStaff('${a.id}',${idx})">指派</span><span class="action-sep"></span>
-              <span class="action-link" onclick="showStaffForm('${a.id}',${idx})">编辑</span><span class="action-sep"></span>
-              <span class="action-link action-link--danger" onclick="deleteStaff('${a.id}',${idx})">删除</span>
+              <span class="action-link" onclick="assignStaff('${a.id}',${idx})">指派</span>
             </td></tr>`).join('')}
             ${staff.length===0?'<tr><td colspan="4" style="text-align:center;color:#999;padding:20px">该项目暂未配置运维人员</td></tr>':''}
           </tbody></table>
