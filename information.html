@@ -446,7 +446,7 @@ ul { list-style: none; }
 
                 <!-- 出生日期 -->
                 <div class="form-group">
-                  <label class="form-label"><span class="required">*</span>出生日期</label>
+                  <label class="form-label">出生日期</label>
                   <input type="date" class="form-input" id="formBirthDate" onchange="calculateAge()">
                 </div>
 
@@ -458,7 +458,7 @@ ul { list-style: none; }
 
                 <!-- 地图选择 -->
                 <div class="form-group">
-                  <label class="form-label">地图选择</label>
+                  <label class="form-label"><span class="required">*</span>地图选择</label>
                   <select class="form-select" id="formMap" onchange="onMapChange()">
                     <option value="">请选择地图</option>
                   </select>
@@ -466,7 +466,7 @@ ul { list-style: none; }
 
                 <!-- 点位选择（房间号） -->
                 <div class="form-group">
-                  <label class="form-label">点位选择（房间号）</label>
+                  <label class="form-label"><span class="required">*</span>点位选择（房间号）</label>
                   <select class="form-select" id="formPoint" disabled>
                     <option value="">请先选择地图</option>
                   </select>
@@ -565,7 +565,6 @@ ul { list-style: none; }
                   <label class="form-label">自理能力评估</label>
                   <select class="form-select" id="formSelfCare">
                     <option value="完全自理">完全自理</option>
-                    <option value="半自理">半自理</option>
                     <option value="需协助">需协助</option>
                     <option value="完全依赖">完全依赖</option>
                   </select>
@@ -651,9 +650,7 @@ ul { list-style: none; }
           <div class="detail-tabs">
             <div class="tabs-bar">
               <div class="tab-item active" onclick="switchDetailTab(this, 'basic')">基本信息</div>
-              <div class="tab-item" onclick="switchDetailTab(this, 'interests')">兴趣爱好</div>
-              <div class="tab-item" onclick="switchDetailTab(this, 'health')">健康数据</div>
-              <div class="tab-item" onclick="switchDetailTab(this, 'history')">历史对话</div>
+              <div class="tab-item" onclick="switchDetailTab(this, 'healthRecord')">健康数据记录</div>
             </div>
           </div>
 
@@ -798,24 +795,21 @@ let residents = [
     interests: ['下棋', '散步'], health: '正常',
     chronic: '无', allergy: '无', diet: '清淡饮食', selfCare: '完全自理',
     phone: '13800001001', emergencyContact: '张先生', emergencyPhone: '13900001001',
-    history: [
-      { time: '2026-04-26 09:30', text: '机器人主动问候，张大爷回应正常', type: 'success' },
-      { time: '2026-04-26 12:00', text: '用药提醒：降压药，张大爷已服药', type: 'success', badge: '已服药' },
-      { time: '2026-04-25 18:30', text: '闲聊互动，讨论下棋话题', type: 'normal' },
-      { time: '2026-04-25 09:00', text: '晨间健康问候，血压正常', type: 'normal' }
+    healthRecords: [
+      { time: '2026-04-26 08:00', heartRate: '72', bloodPressure: '130/85', bloodSugar: '5.8', oxygen: '98', recorder: '护工小李', remark: '晨起测量，状态良好' },
+      { time: '2026-04-25 08:00', heartRate: '75', bloodPressure: '135/88', bloodSugar: '6.0', oxygen: '97', recorder: '护工小李', remark: '正常' },
+      { time: '2026-04-24 08:00', heartRate: '70', bloodPressure: '128/82', bloodSugar: '5.5', oxygen: '98', recorder: '护工小王', remark: '正常' }
     ]
   },
   {
     id: 2, idCode: 'RES20260002', name: '李奶奶', gender: '女', birthDate: '1944-03-20', age: 82, room: '102', map: '一楼平面图', point: 'P102', group: '楼层1',
     avatar: '&#128117;', faceId: 'FACE002', faceImage: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect fill="%23fff0f6" width="100" height="100"/><text x="50" y="60" font-size="40" text-anchor="middle">&#128117;</text></svg>',
     interests: ['阅读', '听音乐'], health: '需关注',
-    chronic: '高血压', allergy: '青霉素过敏', diet: '低盐饮食', selfCare: '半自理',
+    chronic: '高血压', allergy: '青霉素过敏', diet: '低盐饮食', selfCare: '需协助',
     phone: '13800001002', emergencyContact: '李女士', emergencyPhone: '13900001002',
-    history: [
-      { time: '2026-04-26 09:15', text: '机器人主动问候，李奶奶精神状态良好', type: 'success' },
-      { time: '2026-04-26 08:00', text: '血压测量提醒，血压偏高（145/90mmHg）', type: 'warning', badge: '偏高' },
-      { time: '2026-04-25 20:00', text: '睡前提醒，播放轻音乐助眠', type: 'success' },
-      { time: '2026-04-25 12:00', text: '用药提醒：降压药，李奶奶已服药', type: 'success', badge: '已服药' }
+    healthRecords: [
+      { time: '2026-04-26 09:00', heartRate: '78', bloodPressure: '125/80', bloodSugar: '5.2', oxygen: '99', recorder: '护工小张', remark: '正常' },
+      { time: '2026-04-25 09:00', heartRate: '76', bloodPressure: '120/78', bloodSugar: '5.0', oxygen: '98', recorder: '护工小张', remark: '正常' }
     ]
   },
   {
@@ -824,9 +818,9 @@ let residents = [
     interests: ['太极拳'], health: '正常',
     chronic: '无', allergy: '无', diet: '无特殊要求', selfCare: '完全自理',
     phone: '13800001003', emergencyContact: '王女士', emergencyPhone: '13900001003',
-    history: [
-      { time: '2026-04-26 06:30', text: '晨练提醒，王叔叔已起床准备太极拳', type: 'success' },
-      { time: '2026-04-25 16:00', text: '下午茶时间提醒', type: 'normal' }
+    healthRecords: [
+      { time: '2026-04-26 07:30', heartRate: '82', bloodPressure: '140/90', bloodSugar: '6.2', oxygen: '96', recorder: '护工小陈', remark: '血压偏高，已通知医生' },
+      { time: '2026-04-25 07:30', heartRate: '80', bloodPressure: '138/88', bloodSugar: '6.0', oxygen: '97', recorder: '护工小陈', remark: '正常' }
     ]
   },
   {
@@ -834,23 +828,20 @@ let residents = [
     avatar: '&#128117;', interests: ['编织', '听戏'], health: '重点关注',
     chronic: '糖尿病、高血压', allergy: '海鲜过敏', diet: '低糖低盐饮食', selfCare: '需协助',
     phone: '13800001004', emergencyContact: '赵先生', emergencyPhone: '13900001004',
-    history: [
-      { time: '2026-04-26 09:00', text: '晨间健康检查，血糖偏高（8.5mmol/L）', type: 'warning', badge: '偏高' },
-      { time: '2026-04-26 07:30', text: '空腹血糖测量提醒', type: 'normal' },
-      { time: '2026-04-25 21:00', text: '晚间血糖监测，血糖偏高（9.2mmol/L）', type: 'warning', badge: '偏高' },
-      { time: '2026-04-25 12:00', text: '用药提醒：降糖药+降压药，赵阿姨已服药', type: 'success', badge: '已服药' },
-      { time: '2026-04-25 09:00', text: '晨间健康问候，提醒注意饮食控制', type: 'normal' }
+    healthRecords: [
+      { time: '2026-04-26 07:30', heartRate: '85', bloodPressure: '145/92', bloodSugar: '8.5', oxygen: '95', recorder: '护工小陈', remark: '空腹血糖偏高，已通知医生' },
+      { time: '2026-04-25 21:00', heartRate: '80', bloodPressure: '140/88', bloodSugar: '9.2', oxygen: '96', recorder: '护工小陈', remark: '晚间血糖偏高' },
+      { time: '2026-04-25 07:30', heartRate: '82', bloodPressure: '142/90', bloodSugar: '7.8', oxygen: '96', recorder: '护工小李', remark: '晨起测量' }
     ]
   },
   {
     id: 5, idCode: 'RES20260005', name: '孙爷爷', gender: '男', birthDate: '1941-02-28', age: 85, room: '202', map: '二楼平面图', point: 'P202', group: '楼层2',
     avatar: '&#128116;', interests: ['书法', '下棋'], health: '需关注',
-    chronic: '心脏病', allergy: '无', diet: '低脂饮食', selfCare: '半自理',
+    chronic: '心脏病', allergy: '无', diet: '低脂饮食', selfCare: '需协助',
     phone: '13800001005', emergencyContact: '孙先生', emergencyPhone: '13900001005',
-    history: [
-      { time: '2026-04-26 10:00', text: '上午活动提醒，孙爷爷正在练习书法', type: 'success' },
-      { time: '2026-04-26 08:00', text: '晨间健康问候，心率正常', type: 'normal' },
-      { time: '2026-04-25 15:00', text: '下午休息提醒', type: 'normal' }
+    healthRecords: [
+      { time: '2026-04-26 08:00', heartRate: '68', bloodPressure: '125/78', bloodSugar: '5.4', oxygen: '97', recorder: '护工小王', remark: '心率正常' },
+      { time: '2026-04-25 08:00', heartRate: '65', bloodPressure: '120/75', bloodSugar: '5.2', oxygen: '98', recorder: '护工小王', remark: '正常' }
     ]
   },
   {
@@ -858,23 +849,17 @@ let residents = [
     avatar: '&#128117;', interests: ['散步', '聊天'], health: '正常',
     chronic: '无', allergy: '无', diet: '无特殊要求', selfCare: '完全自理',
     phone: '13800001006', emergencyContact: '周先生', emergencyPhone: '13900001006',
-    history: [
-      { time: '2026-04-26 09:30', text: '机器人主动问候，周奶奶心情愉快', type: 'success' },
-      { time: '2026-04-25 16:00', text: '下午散步提醒，周奶奶在花园散步', type: 'success' },
-      { time: '2026-04-25 10:00', text: '与邻居赵阿姨聊天互动', type: 'normal' }
-    ]
+    healthRecords: []
   },
   {
     id: 7, idCode: 'RES20260007', name: '吴大爷', gender: '男', birthDate: '1938-09-12', age: 88, room: '301', map: '三楼平面图', point: 'P301', group: '楼层3',
     avatar: '&#128116;', interests: ['听戏', '喝茶'], health: '重点关注',
     chronic: '多种慢性病（高血压、糖尿病、关节炎）', allergy: '磺胺类药物过敏', diet: '低糖低盐低脂饮食', selfCare: '需协助',
     phone: '13800001007', emergencyContact: '吴女士', emergencyPhone: '13900001007',
-    history: [
-      { time: '2026-04-26 09:00', text: '晨间健康检查，血压偏高（150/95mmHg），血糖偏高（8.8mmol/L）', type: 'warning', badge: '偏高' },
-      { time: '2026-04-26 07:00', text: '起床提醒，协助吴大爷起床', type: 'normal' },
-      { time: '2026-04-25 12:00', text: '用药提醒：降压药+降糖药+关节止痛药，已服药', type: 'success', badge: '已服药' },
-      { time: '2026-04-25 09:00', text: '晨间健康问候，提醒今日天气变化注意保暖', type: 'normal' },
-      { time: '2026-04-24 20:00', text: '晚间关节护理提醒', type: 'normal' }
+    healthRecords: [
+      { time: '2026-04-26 09:00', heartRate: '88', bloodPressure: '150/95', bloodSugar: '8.8', oxygen: '94', recorder: '护工小陈', remark: '血压血糖均偏高，已通知医生' },
+      { time: '2026-04-25 09:00', heartRate: '85', bloodPressure: '148/92', bloodSugar: '8.5', oxygen: '95', recorder: '护工小陈', remark: '血压偏高' },
+      { time: '2026-04-24 09:00', heartRate: '90', bloodPressure: '152/98', bloodSugar: '9.0', oxygen: '93', recorder: '护工小李', remark: '多项指标偏高' }
     ]
   },
   {
@@ -882,11 +867,7 @@ let residents = [
     avatar: '&#128117;', interests: ['跳舞', '阅读'], health: '正常',
     chronic: '无', allergy: '无', diet: '无特殊要求', selfCare: '完全自理',
     phone: '13800001008', emergencyContact: '陈先生', emergencyPhone: '13900001008',
-    history: [
-      { time: '2026-04-26 09:00', text: '机器人主动问候，陈阿姨状态良好', type: 'success' },
-      { time: '2026-04-25 19:00', text: '晚间广场舞活动提醒', type: 'success' },
-      { time: '2026-04-25 14:00', text: '下午阅读时间，陈阿姨在阅览室', type: 'normal' }
-    ]
+    healthRecords: []
   }
 ];
 
@@ -1145,7 +1126,7 @@ function downloadExcelTemplate() {
   const template = [
     ['ID编码', '姓名', '性别', '出生日期', '房间号', '地图', '点位ID', '所属分组', '联系电话', '紧急联系人', '紧急联系电话', '慢性病史', '过敏史', '饮食习惯', '自理能力', '健康状态', '兴趣爱好'],
     ['RES20260009', '张三', '男', '1950-01-01', '101', '一楼平面图', 'P101', '楼层1', '13800000000', '张小三', '13900000000', '无', '无', '清淡饮食', '完全自理', '正常', '阅读,散步'],
-    ['', '李四', '女', '1945-06-15', '102', '一楼平面图', 'P102', '楼层1', '13800000001', '李小四', '13900000001', '高血压', '无', '低盐饮食', '半自理', '需关注', '听音乐']
+    ['', '李四', '女', '1945-06-15', '102', '一楼平面图', 'P102', '楼层1', '13800000001', '李小四', '13900000001', '高血压', '无', '低盐饮食', '需协助', '需关注', '听音乐']
   ];
   
   const csvContent = template.map(row => row.join(',')).join('\n');
@@ -1242,7 +1223,7 @@ function submitBatchUpload() {
       selfCare: '完全自理',
       emergencyContact: '',
       emergencyPhone: '',
-      history: [{ time: new Date().toISOString().slice(0,16).replace('T',' '), text: '住户信息通过批量导入录入系统', type: 'success' }]
+      healthRecords: []
     });
   });
   
@@ -1486,11 +1467,12 @@ function saveResident() {
   
   if (!name) { showToast('请输入姓名', 'error'); return; }
   if (!gender) { showToast('请选择性别', 'error'); return; }
-  if (!birthDate) { showToast('请选择出生日期', 'error'); return; }
   if (!faceId) { showToast('请关联住户人脸', 'error'); return; }
 
   const map = document.getElementById('formMap').value;
   const point = document.getElementById('formPoint').value;
+  if (!map) { showToast('请选择地图', 'error'); return; }
+  if (!point) { showToast('请选择点位', 'error'); return; }
   let room = '';
   
   if (map && point && mapData[map]) {
@@ -1529,7 +1511,7 @@ function saveResident() {
       data.idCode = residents[idx].idCode;
       data.id = residents[idx].id;
       data.avatar = residents[idx].avatar;
-      data.history = residents[idx].history;
+      data.healthRecords = residents[idx].healthRecords || [];
       residents[idx] = { ...residents[idx], ...data };
       showToast('住户信息已更新', 'success');
     }
@@ -1541,7 +1523,7 @@ function saveResident() {
       idCode: newIdCode,
       ...data,
       avatar: data.gender === '男' ? '&#128116;' : '&#128117;',
-      history: [{ time: new Date().toISOString().slice(0,16).replace('T',' '), text: '住户信息已录入系统', type: 'success' }]
+      healthRecords: []
     });
     showToast('住户信息已添加', 'success');
   }
@@ -1648,97 +1630,117 @@ function switchDetailTab(el, tabName) {
 
   switch(tabName) {
     case 'basic': renderDetailBasic(r); break;
-    case 'interests': renderDetailInterests(r); break;
-    case 'health': renderDetailHealth(r); break;
-    case 'history': renderDetailHistory(r); break;
+    case 'healthRecord': renderDetailHealthRecord(r); break;
   }
 }
 
 function renderDetailBasic(r) {
-  const items = [
-    { label: 'ID编码', value: r.idCode || '-' },
-    { label: '姓名', value: r.name },
-    { label: '性别', value: r.gender },
-    { label: '出生日期', value: r.birthDate || '-' },
-    { label: '年龄', value: r.age + '岁' },
-    { label: '房间号', value: r.group + ' - ' + r.room + '室' },
-    { label: '地图位置', value: (r.map || '-') + (r.point ? ' (' + r.point + ')' : '') },
-    { label: '联系电话', value: r.phone || '未填写' },
-    { label: '紧急联系人', value: r.emergencyContact || '未填写' },
-    { label: '紧急联系电话', value: r.emergencyPhone || '未填写' },
-    { label: '所属分组', value: r.group },
-    { label: '家庭状况', value: r.family || '未填写' },
-    { label: '健康状态', value: r.health },
-    { label: '自理能力', value: r.selfCare || '未评估' }
+  const sections = [
+    {
+      title: '基本信息',
+      items: [
+        { label: 'ID编码', value: r.idCode || '-' },
+        { label: '姓名', value: r.name },
+        { label: '性别', value: r.gender },
+        { label: '出生日期', value: r.birthDate || '-' },
+        { label: '年龄', value: r.age + '岁' },
+        { label: '联系电话', value: r.phone || '未填写' },
+        { label: '紧急联系人', value: r.emergencyContact || '未填写' },
+        { label: '紧急联系电话', value: r.emergencyPhone || '未填写' },
+        { label: '所属分组', value: r.group },
+        { label: '家庭状况', value: r.family || '未填写' }
+      ]
+    },
+    {
+      title: '位置信息',
+      items: [
+        { label: '房间号', value: r.group + ' - ' + r.room + '室' },
+        { label: '地图位置', value: (r.map || '-') + (r.point ? ' (' + r.point + ')' : '') }
+      ]
+    },
+    {
+      title: '健康信息',
+      items: [
+        { label: '健康状态', value: r.health },
+        { label: '自理能力', value: r.selfCare || '未评估' },
+        { label: '慢性病史', value: r.chronic || '无' },
+        { label: '过敏史', value: r.allergy || '无' },
+        { label: '饮食习惯与禁忌', value: r.diet || '无' }
+      ]
+    }
   ];
 
-  document.getElementById('detailTabContent').innerHTML = `
-    <div class="info-grid">
-      ${items.map(i => `
-        <div class="info-item">
-          <div class="info-item-label">${i.label}</div>
-          <div class="info-item-value">${i.value}</div>
-        </div>
-      `).join('')}
-    </div>
-  `;
-}
-
-function renderDetailInterests(r) {
-  const tags = r.interests.length > 0
+  const interestTags = r.interests.length > 0
     ? r.interests.map(i => `<span class="tag-cloud-item">${i}</span>`).join('')
-    : '<span style="color:rgba(0,0,0,0.25);">暂无兴趣爱好记录</span>';
+    : '<span style="color:rgba(0,0,0,0.25);">暂无记录</span>';
 
   document.getElementById('detailTabContent').innerHTML = `
-    <div class="tag-cloud">${tags}</div>
-  `;
-}
-
-function renderDetailHealth(r) {
-  document.getElementById('detailTabContent').innerHTML = `
-    <div class="health-section">
-      <div class="health-section-title">慢性病史</div>
-      <div class="health-section-content">${r.chronic || '无'}</div>
-    </div>
-    <div class="health-section">
-      <div class="health-section-title">过敏史</div>
-      <div class="health-section-content">${r.allergy || '无'}</div>
-    </div>
-    <div class="health-section">
-      <div class="health-section-title">饮食习惯与禁忌</div>
-      <div class="health-section-content">${r.diet || '无'}</div>
-    </div>
-    <div class="health-section">
-      <div class="health-section-title">自理能力评估</div>
-      <div class="health-section-content">${r.selfCare || '未评估'}</div>
-    </div>
-    <div class="health-section">
-      <div class="health-section-title">健康状态</div>
-      <div class="health-section-content">${r.health}</div>
-    </div>
-  `;
-}
-
-function renderDetailHistory(r) {
-  const items = r.history || [];
-  let html = '<div class="timeline">';
-  items.forEach(h => {
-    const dotIcon = h.type === 'success' ? '&#9989;' : h.type === 'warning' ? '&#9888;' : '&#128172;';
-    const badgeHtml = h.badge ? `<span class="timeline-badge ${h.type}">${h.badge}</span>` : '';
-    html += `
-      <div class="timeline-item">
-        <div class="timeline-dot">${dotIcon}</div>
-        <div class="timeline-content">
-          <div class="timeline-time">${h.time}</div>
-          <div class="timeline-text">${h.text}${badgeHtml}</div>
+    ${sections.map((sec, idx) => `
+      <div class="info-section" style="${idx > 0 ? 'border-top:1px solid #f0f0f0; margin-top:8px;' : ''}">
+        <div class="info-section-title" style="font-size:15px; font-weight:700; color:rgba(0,0,0,0.85); padding:16px 0 12px; border-left:3px solid #1890ff; padding-left:10px; line-height:1.2;">${sec.title}</div>
+        <div class="info-grid">
+          ${sec.items.map(i => `
+            <div class="info-item">
+              <div class="info-item-label">${i.label}</div>
+              <div class="info-item-value">${i.value}</div>
+            </div>
+          `).join('')}
         </div>
       </div>
+    `).join('')}
+    <div class="info-section" style="border-top:1px solid #f0f0f0; margin-top:8px;">
+      <div class="info-section-title" style="font-size:15px; font-weight:700; color:rgba(0,0,0,0.85); padding:16px 0 12px; border-left:3px solid #1890ff; padding-left:10px; line-height:1.2;">兴趣爱好</div>
+      <div class="tag-cloud">${interestTags}</div>
+    </div>
+  `;
+}
+
+function renderDetailHealthRecord(r) {
+  const records = r.healthRecords || [];
+  let html = `
+    <div style="padding: 16px 0;">
+      <h3 style="font-size:16px; font-weight:500; color:rgba(0,0,0,0.85);">生理数据记录</h3>
+    </div>
+    <div class="health-record-tip" style="background:#e6f7ff; border:1px solid #91d5ff; border-radius:4px; padding:10px 12px; margin-bottom:16px; font-size:13px; color:rgba(0,0,0,0.65);">
+      <span style="color:#1890ff; font-weight:500;">&#9432;</span> 机器人将在护工身旁聆听护工口述的生理数据，自动辅助录入。
+    </div>
+  `;
+
+  if (records.length === 0) {
+    html += '<div class="empty-state"><div class="empty-icon">&#128206;</div><div class="empty-text">暂无健康数据记录</div></div>';
+  } else {
+    html += `
+      <div style="overflow-x:auto;">
+        <table style="width:100%; border-collapse:collapse; font-size:13px;">
+          <thead style="background:#fafafa;">
+            <tr>
+              <th style="padding:12px; text-align:left; border-bottom:1px solid #f0f0f0; white-space:nowrap;">记录时间</th>
+              <th style="padding:12px; text-align:left; border-bottom:1px solid #f0f0f0;">心率(bpm)</th>
+              <th style="padding:12px; text-align:left; border-bottom:1px solid #f0f0f0;">血压(mmHg)</th>
+              <th style="padding:12px; text-align:left; border-bottom:1px solid #f0f0f0;">血糖(mmol/L)</th>
+              <th style="padding:12px; text-align:left; border-bottom:1px solid #f0f0f0;">血氧(%)</th>
+              <th style="padding:12px; text-align:left; border-bottom:1px solid #f0f0f0;">记录人</th>
+              <th style="padding:12px; text-align:left; border-bottom:1px solid #f0f0f0;">备注</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${records.map(rec => `
+              <tr>
+                <td style="padding:12px; border-bottom:1px solid #f0f0f0; white-space:nowrap;">${rec.time}</td>
+                <td style="padding:12px; border-bottom:1px solid #f0f0f0;">${rec.heartRate || '--'}</td>
+                <td style="padding:12px; border-bottom:1px solid #f0f0f0;">${rec.bloodPressure || '--'}</td>
+                <td style="padding:12px; border-bottom:1px solid #f0f0f0;">${rec.bloodSugar || '--'}</td>
+                <td style="padding:12px; border-bottom:1px solid #f0f0f0;">${rec.oxygen || '--'}</td>
+                <td style="padding:12px; border-bottom:1px solid #f0f0f0;">${rec.recorder || '--'}</td>
+                <td style="padding:12px; border-bottom:1px solid #f0f0f0; color:rgba(0,0,0,0.65);">${rec.remark || '--'}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
     `;
-  });
-  html += '</div>';
-  if (items.length === 0) {
-    html = '<div class="empty-state"><div class="empty-icon">&#128172;</div><div class="empty-text">暂无对话记录</div></div>';
   }
+
   document.getElementById('detailTabContent').innerHTML = html;
 }
 

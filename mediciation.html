@@ -368,8 +368,7 @@ select.form-control { cursor: pointer; }
       <!-- Tabs -->
       <div class="tabs">
         <div class="tab-item active" onclick="switchTab('plan', this)">用药计划</div>
-        <div class="tab-item" onclick="switchTab('task', this)">提醒任务</div>
-        <div class="tab-item" onclick="switchTab('log', this)">服药日志</div>
+        <div class="tab-item" onclick="switchTab('task', this)">任务状态</div>
       </div>
 
       <!-- Tab 1: 用药计划 -->
@@ -399,6 +398,7 @@ select.form-control { cursor: pointer; }
                   <th>药品名称</th>
                   <th>用法用量</th>
                   <th>提醒时间</th>
+                  <th>提醒周期</th>
                   <th>开始日期</th>
                   <th>结束日期</th>
                   <th>疗程状态</th>
@@ -443,7 +443,6 @@ select.form-control { cursor: pointer; }
                   <th>计划时间</th>
                   <th>提醒地点</th>
                   <th>任务状态</th>
-                  <th>执行结果</th>
                   <th>操作</th>
                 </tr>
               </thead>
@@ -453,65 +452,6 @@ select.form-control { cursor: pointer; }
           <div class="pagination">
             <span class="page-info">共 8 条</span>
             <button class="page-btn active">1</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tab 3: 服药日志 -->
-      <div class="tab-panel" id="tab-log">
-        <div class="card">
-          <div class="toolbar">
-            <div class="toolbar-left">
-              <input type="text" class="form-input" id="logSearch" placeholder="搜索住户姓名" oninput="filterLogTable()">
-              <input type="date" class="form-input form-input-date" id="logDateStart" onchange="filterLogTable()" title="开始日期">
-              <span style="color:#999">至</span>
-              <input type="date" class="form-input form-input-date" id="logDateEnd" onchange="filterLogTable()" title="结束日期">
-              <select class="form-select" id="logResultFilter" onchange="filterLogTable()">
-                <option value="">全部结果</option>
-                <option value="已确认">已确认</option>
-                <option value="未确认">未确认</option>
-                <option value="超时未回应">超时未回应</option>
-              </select>
-            </div>
-          </div>
-          <div class="table-wrapper">
-            <table>
-              <thead>
-                <tr>
-                  <th>日期</th>
-                  <th>住户姓名</th>
-                  <th>房间号</th>
-                  <th>药品</th>
-                  <th>用法用量</th>
-                  <th>计划时间</th>
-                  <th>实际服药时间</th>
-                  <th>确认结果</th>
-                  <th>备注</th>
-                </tr>
-              </thead>
-              <tbody id="logTableBody"></tbody>
-            </table>
-          </div>
-          <div class="stats-bar">
-            <div class="stat-item">
-              <span>今日已确认</span>
-              <span class="stat-value green">6 人次</span>
-            </div>
-            <div class="stat-divider"></div>
-            <div class="stat-item">
-              <span>未确认</span>
-              <span class="stat-value orange">1 人次</span>
-            </div>
-            <div class="stat-divider"></div>
-            <div class="stat-item">
-              <span>超时未回应</span>
-              <span class="stat-value red">1 人次</span>
-            </div>
-            <div class="stat-divider"></div>
-            <div class="stat-item">
-              <span>确认率</span>
-              <span class="stat-value blue">75%</span>
-            </div>
           </div>
         </div>
       </div>
@@ -560,7 +500,6 @@ select.form-control { cursor: pointer; }
           <select class="form-control" id="formUsage">
             <option value="">请选择用法</option>
             <option value="口服">口服</option>
-            <option value="注射">注射</option>
             <option value="外用">外用</option>
             <option value="含服">含服</option>
           </select>
@@ -568,6 +507,16 @@ select.form-control { cursor: pointer; }
         <div class="form-group">
           <label class="form-label">单次用量</label>
           <input type="text" class="form-control" id="formDosage" placeholder="如：1片、10ml">
+        </div>
+        <div class="form-group">
+          <label class="form-label">提醒周期</label>
+          <select class="form-control" id="formInterval">
+            <option value="1">每天</option>
+            <option value="2">每2天</option>
+            <option value="3">每3天</option>
+            <option value="7">每周</option>
+            <option value="14">每两周</option>
+          </select>
         </div>
         <div class="form-group full">
           <label class="form-label">提醒时间</label>
@@ -673,12 +622,12 @@ select.form-control { cursor: pointer; }
 <script>
 // ==================== Data ====================
 var planData = [
-  { id: 1, name: '张大爷', room: '101', medicine: '降压药(硝苯地平)', usage: '每日1次/每次1片', remindTimes: '08:00', startDate: '2026-04-01', endDate: '2026-06-30', status: '进行中' },
-  { id: 2, name: '张大爷', room: '101', medicine: '降糖药(二甲双胍)', usage: '每日2次/每次1片', remindTimes: '08:00, 18:00', startDate: '2026-04-01', endDate: '2026-06-30', status: '进行中' },
-  { id: 3, name: '李奶奶', room: '102', medicine: '钙片', usage: '每日1次/每次1片', remindTimes: '09:00', startDate: '2026-03-15', endDate: '2026-06-15', status: '进行中' },
-  { id: 4, name: '赵阿姨', room: '201', medicine: '胰岛素', usage: '每日2次/餐前注射', remindTimes: '07:30, 17:30', startDate: '2026-04-10', endDate: '2026-07-10', status: '进行中' },
-  { id: 5, name: '孙爷爷', room: '202', medicine: '心脏病药(阿司匹林)', usage: '每日1次/每次1片', remindTimes: '08:00', startDate: '2026-01-01', endDate: '2026-03-31', status: '已结束' },
-  { id: 6, name: '王叔叔', room: '103', medicine: '维生素D', usage: '每日1次/每次1粒', remindTimes: '09:00', startDate: '2026-04-20', endDate: '2026-05-20', status: '已暂停' }
+  { id: 1, name: '张大爷', room: '101', medicine: '降压药(硝苯地平)', usage: '每日1次/每次1片', remindTimes: '08:00', interval: 1, startDate: '2026-04-01', endDate: '2026-06-30', status: '进行中' },
+  { id: 2, name: '张大爷', room: '101', medicine: '降糖药(二甲双胍)', usage: '每日2次/每次1片', remindTimes: '08:00, 18:00', interval: 1, startDate: '2026-04-01', endDate: '2026-06-30', status: '进行中' },
+  { id: 3, name: '李奶奶', room: '102', medicine: '钙片', usage: '每日1次/每次1片', remindTimes: '09:00', interval: 1, startDate: '2026-03-15', endDate: '2026-06-15', status: '进行中' },
+  { id: 4, name: '赵阿姨', room: '201', medicine: '心血管药(硝酸甘油)', usage: '每日2次/每次1片', remindTimes: '07:30, 17:30', interval: 2, startDate: '2026-04-10', endDate: '2026-07-10', status: '进行中' },
+  { id: 5, name: '孙爷爷', room: '202', medicine: '心脏病药(阿司匹林)', usage: '每日1次/每次1片', remindTimes: '08:00', interval: 1, startDate: '2026-01-01', endDate: '2026-03-31', status: '已结束' },
+  { id: 6, name: '王叔叔', room: '103', medicine: '维生素D', usage: '每日1次/每次1粒', remindTimes: '09:00', interval: 3, startDate: '2026-04-20', endDate: '2026-05-20', status: '已暂停' }
 ];
 
 var taskData = [
@@ -703,7 +652,7 @@ var taskData = [
     { time: '09:09', text: '提醒住户服药', dot: '' },
     { time: '09:10', text: '住户确认服药', dot: 'success' }
   ]},
-  { id: 'TASK-004', name: '赵阿姨', room: '201', medicine: '胰岛素', planTime: '2026-04-26 12:00', location: '餐厅', status: '执行中', result: '--', timeline: [
+  { id: 'TASK-004', name: '赵阿姨', room: '201', medicine: '心血管药', planTime: '2026-04-26 12:00', location: '餐厅', status: '执行中', result: '--', timeline: [
     { time: '12:00', text: '系统生成提醒任务', dot: '' },
     { time: '12:02', text: '任务下发到机器人', dot: '' },
     { time: '12:05', text: '机器人前往餐厅', dot: '' }
@@ -727,19 +676,6 @@ var taskData = [
   ]},
   { id: 'TASK-007', name: '张大爷', room: '101', medicine: '降压药', planTime: '2026-04-27 08:00', location: '101房间', status: '待执行', result: '--', timeline: [] },
   { id: 'TASK-008', name: '李奶奶', room: '102', medicine: '钙片', planTime: '2026-04-27 09:00', location: '102房间', status: '待执行', result: '--', timeline: [] }
-];
-
-var logData = [
-  { date: '2026-04-26', name: '张大爷', room: '101', medicine: '降压药', usage: '每日1次/1片', planTime: '08:00', actualTime: '08:13', result: '已确认', remark: '正常服用' },
-  { date: '2026-04-26', name: '张大爷', room: '101', medicine: '降糖药', usage: '每日2次/1片', planTime: '12:00', actualTime: '12:05', result: '已确认', remark: '午餐后服用' },
-  { date: '2026-04-26', name: '李奶奶', room: '102', medicine: '钙片', usage: '每日1次/1片', planTime: '09:00', actualTime: '09:10', result: '已确认', remark: '--' },
-  { date: '2026-04-26', name: '王叔叔', room: '103', medicine: '维生素D', usage: '每日1次/1粒', planTime: '09:00', actualTime: '--', result: '未确认', remark: '住户表示不想吃' },
-  { date: '2026-04-26', name: '孙爷爷', room: '202', medicine: '阿司匹林', usage: '每日1次/1片', planTime: '08:00', actualTime: '--', result: '超时未回应', remark: '两次提醒未回应，已通知护工' },
-  { date: '2026-04-25', name: '张大爷', room: '101', medicine: '降压药', usage: '每日1次/1片', planTime: '08:00', actualTime: '08:10', result: '已确认', remark: '--' },
-  { date: '2026-04-25', name: '张大爷', room: '101', medicine: '降糖药', usage: '每日2次/1片', planTime: '12:00', actualTime: '12:08', result: '已确认', remark: '--' },
-  { date: '2026-04-25', name: '李奶奶', room: '102', medicine: '钙片', usage: '每日1次/1片', planTime: '09:00', actualTime: '09:15', result: '已确认', remark: '--' },
-  { date: '2026-04-25', name: '赵阿姨', room: '201', medicine: '胰岛素', usage: '每日2次/餐前', planTime: '07:30', actualTime: '07:35', result: '已确认', remark: '餐前注射' },
-  { date: '2026-04-25', name: '孙爷爷', room: '202', medicine: '阿司匹林', usage: '每日1次/1片', planTime: '08:00', actualTime: '08:20', result: '已确认', remark: '--' }
 ];
 
 var nextPlanId = 7;
@@ -784,10 +720,15 @@ function getStatusTag(status) {
   return '<span class="tag ' + (map[status] || 'tag-gray') + '">' + status + '</span>';
 }
 
+function getIntervalText(interval) {
+  var map = { 1: '每天', 2: '每2天', 3: '每3天', 7: '每周', 14: '每两周' };
+  return map[interval] || '每天';
+}
+
 function renderPlanTable(data) {
   var tbody = document.getElementById('planTableBody');
   if (data.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">&#128196;</div><div>暂无数据</div></div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="10"><div class="empty-state"><div class="empty-icon">&#128196;</div><div>暂无数据</div></div></td></tr>';
     return;
   }
   var html = '';
@@ -803,6 +744,7 @@ function renderPlanTable(data) {
       '<td>' + item.medicine + '</td>' +
       '<td>' + item.usage + '</td>' +
       '<td>' + item.remindTimes + '</td>' +
+      '<td>' + getIntervalText(item.interval) + '</td>' +
       '<td>' + item.startDate + '</td>' +
       '<td>' + item.endDate + '</td>' +
       '<td>' + getStatusTag(item.status) + '</td>' +
@@ -851,7 +793,7 @@ function getResultText(result) {
 function renderTaskTable(data) {
   var tbody = document.getElementById('taskTableBody');
   if (data.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">&#128196;</div><div>暂无数据</div></div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">&#128196;</div><div>暂无数据</div></div></td></tr>';
     return;
   }
   var html = '';
@@ -868,7 +810,6 @@ function renderTaskTable(data) {
       '<td>' + item.planTime + '</td>' +
       '<td>' + item.location + '</td>' +
       '<td>' + getTaskStatusTag(item.status) + '</td>' +
-      '<td>' + getResultText(item.result) + '</td>' +
       '<td><div class="table-actions">' +
         '<button class="btn-link" onclick="viewTaskDetail(\'' + item.id + '\')">查看详情</button>' +
         markBtn +
@@ -891,54 +832,6 @@ function filterTaskTable() {
   renderTaskTable(filtered);
 }
 
-// ==================== Log Table ====================
-function getLogResultTag(result) {
-  var map = {
-    '已确认': 'tag-green',
-    '未确认': 'tag-orange',
-    '超时未回应': 'tag-red'
-  };
-  return '<span class="tag ' + (map[result] || 'tag-gray') + '">' + result + '</span>';
-}
-
-function renderLogTable(data) {
-  var tbody = document.getElementById('logTableBody');
-  if (data.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">&#128196;</div><div>暂无数据</div></div></td></tr>';
-    return;
-  }
-  var html = '';
-  data.forEach(function(item) {
-    html += '<tr>' +
-      '<td>' + item.date + '</td>' +
-      '<td>' + item.name + '</td>' +
-      '<td>' + item.room + '</td>' +
-      '<td>' + item.medicine + '</td>' +
-      '<td>' + item.usage + '</td>' +
-      '<td>' + item.planTime + '</td>' +
-      '<td>' + (item.actualTime || '--') + '</td>' +
-      '<td>' + getLogResultTag(item.result) + '</td>' +
-      '<td>' + (item.remark || '--') + '</td>' +
-    '</tr>';
-  });
-  tbody.innerHTML = html;
-}
-
-function filterLogTable() {
-  var search = document.getElementById('logSearch').value.trim().toLowerCase();
-  var dateStart = document.getElementById('logDateStart').value;
-  var dateEnd = document.getElementById('logDateEnd').value;
-  var result = document.getElementById('logResultFilter').value;
-  var filtered = logData.filter(function(item) {
-    var matchSearch = !search || item.name.toLowerCase().indexOf(search) !== -1;
-    var matchDateStart = !dateStart || item.date >= dateStart;
-    var matchDateEnd = !dateEnd || item.date <= dateEnd;
-    var matchResult = !result || item.result === result;
-    return matchSearch && matchDateStart && matchDateEnd && matchResult;
-  });
-  renderLogTable(filtered);
-}
-
 // ==================== Plan Modal ====================
 function openPlanModal(id) {
   editingPlanId = id || null;
@@ -950,6 +843,7 @@ function openPlanModal(id) {
       document.getElementById('formResident').value = item.name;
       document.getElementById('formMedicine').value = item.medicine;
       document.getElementById('formDosage').value = item.usage.split('/')[1] || '';
+      document.getElementById('formInterval').value = item.interval || 1;
       document.getElementById('formStartDate').value = item.startDate;
       document.getElementById('formEndDate').value = item.endDate;
       // 回填提醒时间
@@ -962,6 +856,7 @@ function openPlanModal(id) {
     document.getElementById('formCategory').value = '';
     document.getElementById('formUsage').value = '';
     document.getElementById('formDosage').value = '';
+    document.getElementById('formInterval').value = '1';
     document.getElementById('formStartDate').value = '';
     document.getElementById('formEndDate').value = '';
     document.getElementById('formRemark').value = '';
@@ -1039,6 +934,7 @@ function savePlan() {
   if (!medicine) { showToast('请输入药品名称', 'warning'); return; }
 
   var dosage = document.getElementById('formDosage').value || '每次1片';
+  var interval = parseInt(document.getElementById('formInterval').value) || 1;
   var startDate = document.getElementById('formStartDate').value || '2026-04-26';
   var endDate = document.getElementById('formEndDate').value || '2026-06-30';
 
@@ -1062,6 +958,7 @@ function savePlan() {
       item.medicine = medicine;
       item.usage = '每日' + (times.length > 1 ? times.length + '次' : '1次') + '/' + dosage;
       item.remindTimes = remindTimes;
+      item.interval = interval;
       item.startDate = startDate;
       item.endDate = endDate;
     }
@@ -1074,6 +971,7 @@ function savePlan() {
       medicine: medicine,
       usage: '每日' + (times.length > 1 ? times.length + '次' : '1次') + '/' + dosage,
       remindTimes: remindTimes,
+      interval: interval,
       startDate: startDate,
       endDate: endDate,
       status: '进行中'
@@ -1097,6 +995,7 @@ function viewPlanDetail(id) {
       '<div class="detail-item"><div class="detail-label">药品名称</div><div class="detail-value">' + item.medicine + '</div></div>' +
       '<div class="detail-item"><div class="detail-label">用法用量</div><div class="detail-value">' + item.usage + '</div></div>' +
       '<div class="detail-item"><div class="detail-label">提醒时间</div><div class="detail-value">' + item.remindTimes + '</div></div>' +
+      '<div class="detail-item"><div class="detail-label">提醒周期</div><div class="detail-value">' + getIntervalText(item.interval) + '</div></div>' +
       '<div class="detail-item"><div class="detail-label">疗程状态</div><div class="detail-value">' + getStatusTag(item.status) + '</div></div>' +
       '<div class="detail-item"><div class="detail-label">开始日期</div><div class="detail-value">' + item.startDate + '</div></div>' +
       '<div class="detail-item"><div class="detail-label">结束日期</div><div class="detail-value">' + item.endDate + '</div></div>' +
@@ -1169,7 +1068,6 @@ function viewTaskDetail(taskId) {
       '<div class="detail-item"><div class="detail-label">计划时间</div><div class="detail-value">' + item.planTime + '</div></div>' +
       '<div class="detail-item"><div class="detail-label">提醒地点</div><div class="detail-value">' + item.location + '</div></div>' +
       '<div class="detail-item"><div class="detail-label">任务状态</div><div class="detail-value">' + getTaskStatusTag(item.status) + '</div></div>' +
-      '<div class="detail-item"><div class="detail-label">确认结果</div><div class="detail-value">' + getResultText(item.result) + '</div></div>' +
     '</div>' +
     timelineHtml;
 
@@ -1254,7 +1152,6 @@ function saveGlobalConfig() {
 // ==================== Init ====================
 renderPlanTable(planData);
 renderTaskTable(taskData);
-renderLogTable(logData);
 </script>
 </body>
 </html>
