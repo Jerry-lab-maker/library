@@ -1698,8 +1698,9 @@ function renderDetailBasic(r) {
 function renderDetailHealthRecord(r) {
   const records = r.healthRecords || [];
   let html = `
-    <div style="padding: 16px 0;">
+    <div style="display:flex; align-items:center; justify-content:space-between; padding: 16px 0;">
       <h3 style="font-size:16px; font-weight:500; color:rgba(0,0,0,0.85);">生理数据记录</h3>
+      ${records.length > 0 ? `<button class="btn btn-primary btn-sm" onclick="exportHealthRecords(${r.id})">&#128229; 导出数据</button>` : ''}
     </div>
     <div class="health-record-tip" style="background:#e6f7ff; border:1px solid #91d5ff; border-radius:4px; padding:10px 12px; margin-bottom:16px; font-size:13px; color:rgba(0,0,0,0.65);">
       <span style="color:#1890ff; font-weight:500;">&#9432;</span> 机器人将在护工身旁聆听护工口述的生理数据，自动辅助录入。
@@ -1742,6 +1743,39 @@ function renderDetailHealthRecord(r) {
   }
 
   document.getElementById('detailTabContent').innerHTML = html;
+}
+
+function exportHealthRecords(residentId) {
+  const r = residents.find(x => x.id === residentId);
+  if (!r || !r.healthRecords || r.healthRecords.length === 0) {
+    showToast('暂无可导出的健康数据记录', 'error');
+    return;
+  }
+
+  const headers = ['记录时间', '心率(bpm)', '血压(mmHg)', '血糖(mmol/L)', '血氧(%)', '记录人', '备注'];
+  const rows = r.healthRecords.map(rec => [
+    rec.time || '',
+    rec.heartRate || '',
+    rec.bloodPressure || '',
+    rec.bloodSugar || '',
+    rec.oxygen || '',
+    rec.recorder || '',
+    rec.remark || ''
+  ]);
+
+  const csvContent = [headers, ...rows]
+    .map(row => row.map(cell => {
+      const s = String(cell).replace(/"/g, '""');
+      return /[",\n]/.test(s) ? '"' + s + '"' : s;
+    }).join(','))
+    .join('\n');
+
+  const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = r.name + '_健康数据记录_' + new Date().toISOString().slice(0, 10) + '.csv';
+  link.click();
+  showToast('健康数据记录已导出', 'success');
 }
 
 // ============ TOAST ============
